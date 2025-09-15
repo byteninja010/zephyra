@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { getAuth, signInAnonymously, signOut } from 'firebase/auth';
 
 // Firebase configuration
 // Load from environment variables
@@ -32,6 +32,17 @@ export const signInAnonymous = async () => {
     return userCredential.user;
   } catch (error) {
     console.error('Error signing in anonymously:', error);
+    throw error;
+  }
+};
+
+// Sign out function
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+    console.log('User signed out successfully');
+  } catch (error) {
+    console.error('Error signing out:', error);
     throw error;
   }
 };

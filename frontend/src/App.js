@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HeroSection from './components/HeroSection';
-import SignInPage from './components/SignInPage';
+import AuthPage from './components/AuthPage';
 import SecretCodeModal from './components/SecretCodeModal';
 import Dashboard from './components/Dashboard';
 import './App.css';
@@ -14,8 +14,10 @@ function App() {
           {/* Home Route */}
           <Route path="/" element={<HeroSection />} />
           
-          {/* Sign-in Route */}
-          <Route path="/signin" element={<SignInPage />} />
+          {/* Auth Route - Unified Login/Signup */}
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/auth/login" element={<AuthPage initialMode="login" />} />
+          <Route path="/auth/signup" element={<AuthPage initialMode="signup" />} />
           
           {/* Secret Code Display Route */}
           <Route path="/secret-code" element={<SecretCodeModal />} />
