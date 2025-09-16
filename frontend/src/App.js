@@ -6,7 +6,6 @@ import SecretCodeModal from './components/SecretCodeModal';
 import Dashboard from './components/Dashboard';
 import OnboardingFlow from './components/OnboardingFlow';
 import ChatInterface from './components/ChatInterface';
-import './App.css';
 
 function App() {
   return (
