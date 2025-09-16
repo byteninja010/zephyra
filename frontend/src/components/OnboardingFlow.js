@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import authService from '../services/authService';
@@ -14,7 +14,8 @@ const OnboardingFlow = () => {
     mood: '',
     moodNote: '',
     goals: [],
-    preferredSupport: []
+    preferredSupport: [],
+    emergencyContactEmail: ''
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -98,7 +99,8 @@ const OnboardingFlow = () => {
         mood: formData.mood || null,
         moodNote: formData.moodNote || null,
         goals: formData.goals || [],
-        preferredSupport: formData.preferredSupport || []
+        preferredSupport: formData.preferredSupport || [],
+        emergencyContactEmail: formData.emergencyContactEmail || null
       };
       
       const data = await authService.updateOnboarding(firebaseUid, cleanedFormData);
@@ -137,7 +139,8 @@ const OnboardingFlow = () => {
           mood: formData.mood || null,
           moodNote: formData.moodNote || null,
           goals: formData.goals || [],
-          preferredSupport: formData.preferredSupport || []
+          preferredSupport: formData.preferredSupport || [],
+          emergencyContactEmail: formData.emergencyContactEmail || null
         };
         
         // Save whatever data we have so far
@@ -428,6 +431,91 @@ const OnboardingFlow = () => {
   );
 
   const renderStep4 = () => (
+    <div className="space-y-6">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>Emergency Contact (Optional)</h2>
+        <p style={{ color: '#475569' }}>This is completely optional and will only be used in emergency situations with your explicit consent.</p>
+      </div>
+
+      <div className="space-y-6">
+        {/* Warning Box */}
+        <div className="p-6 rounded-xl border" style={{ background: 'rgba(239, 68, 68, 0.05)', borderColor: '#EF4444' }}>
+          <div className="flex items-center justify-center space-x-3">
+            <div>
+              <h3 className="font-semibold mb-2 flex items-center justify-center" style={{ color: '#DC2626' }}>
+                <span className="text-xl mr-2 mb-1">⚠️</span>
+                Important Information
+              </h3>
+              <div className="space-y-2 text-sm" style={{ color: '#475569' }}>
+                <p>• This email will <strong>only</strong> be used if our AI detects you might be in immediate danger</p>
+                <p>• We will <strong>never</strong> share this information with anyone else</p>
+                <p>• We will <strong>always</strong> ask for your consent before contacting them</p>
+                <p>• You can change or remove this at any time</p>
+                <p>• This is completely optional - you can skip this step</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Emergency Contact Email */}
+        <div>
+          <label className="block text-lg font-medium mb-3" style={{ color: '#1E252B' }}>
+            Emergency Contact Email (Optional) 📧
+          </label>
+          <p className="text-sm mb-4" style={{ color: '#475569' }}>
+            If you'd like, you can provide an email of a trusted person (family member, friend, or counselor) 
+            who we could contact in case of emergency. This is completely optional and confidential.
+          </p>
+          <input
+            type="email"
+            value={formData.emergencyContactEmail}
+            onChange={(e) => handleInputChange('emergencyContactEmail', e.target.value)}
+            placeholder="Enter emergency contact email (optional)"
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            style={{ borderColor: 'rgba(107, 114, 128, 0.3)' }}
+          />
+        </div>
+
+        {/* Additional Info */}
+        <div className="p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.05)' }}>
+          <p className="text-sm" style={{ color: '#475569' }}>
+            <strong>How this works:</strong> If our AI ever detects that you might be in immediate danger 
+            or having thoughts of self-harm, we may ask if you'd like us to reach out to this person. 
+            You always have the final say, and we will never contact them without your explicit permission.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex justify-between pt-6">
+        <button
+          onClick={prevStep}
+          className="px-6 py-3 transition-colors hover:opacity-80"
+          style={{ color: '#475569' }}
+        >
+          Back
+        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={skipOnboarding}
+            className="px-6 py-3 transition-colors text-sm hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
+            style={{ color: '#475569' }}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Skipping...' : 'Skip This Step'}
+          </button>
+          <button
+            onClick={nextStep}
+            className="px-8 py-3 text-white rounded-lg hover:opacity-90"
+            style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
+          >
+            Continue
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderStep5 = () => (
     <div className="text-center space-y-6">
       <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}>
         <span className="text-3xl">🎉</span>
@@ -478,14 +566,14 @@ const OnboardingFlow = () => {
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium" style={{ color: '#475569' }}>Step {currentStep} of 4</span>
-              <span className="text-sm font-medium" style={{ color: '#475569' }}>{Math.round((currentStep / 4) * 100)}%</span>
+              <span className="text-sm font-medium" style={{ color: '#475569' }}>Step {currentStep} of 5</span>
+              <span className="text-sm font-medium" style={{ color: '#475569' }}>{Math.round((currentStep / 5) * 100)}%</span>
             </div>
             <div className="w-full rounded-full h-2" style={{ background: 'rgba(107, 114, 128, 0.2)' }}>
               <div 
                 className="h-2 rounded-full transition-all duration-300"
                 style={{ 
-                  width: `${(currentStep / 4) * 100}%`,
+                  width: `${(currentStep / 5) * 100}%`,
                   background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
                 }}
               ></div>
@@ -497,6 +585,7 @@ const OnboardingFlow = () => {
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
           {currentStep === 4 && renderStep4()}
+          {currentStep === 5 && renderStep5()}
         </div>
       </div>
     </div>
