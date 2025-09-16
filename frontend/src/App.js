@@ -4,6 +4,7 @@ import HeroSection from './components/HeroSection';
 import AuthPage from './components/AuthPage';
 import SecretCodeModal from './components/SecretCodeModal';
 import Dashboard from './components/Dashboard';
+import OnboardingFlow from './components/OnboardingFlow';
 import './App.css';
 
 function App() {
@@ -21,6 +22,9 @@ function App() {
           
           {/* Secret Code Display Route */}
           <Route path="/secret-code" element={<SecretCodeModal />} />
+          
+          {/* Onboarding Route */}
+          <Route path="/onboarding" element={<OnboardingFlow />} />
           
           {/* Dashboard Route */}
           <Route path="/dashboard" element={<Dashboard />} />

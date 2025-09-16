@@ -54,6 +54,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
       localStorage.removeItem('userId');
       localStorage.removeItem('firebaseUid');
       localStorage.removeItem('userSecretCode');
+      localStorage.removeItem('onboardingCompleted');
       
       // Sign out any existing Firebase user to ensure fresh anonymous sign-in
       const { signOutUser } = await import('../firebase');

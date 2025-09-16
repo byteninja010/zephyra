@@ -25,7 +25,11 @@ const SecretCodeModal = () => {
   };
 
   const handleContinue = () => {
-    navigate('/dashboard');
+    if (isNewUser) {
+      navigate('/onboarding');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const handleGoBack = () => {
@@ -265,3 +269,4 @@ const SecretCodeModal = () => {
 };
 
 export default SecretCodeModal;
+

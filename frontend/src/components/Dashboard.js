@@ -5,6 +5,8 @@ import authService from '../services/authService';
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -27,8 +29,29 @@ const Dashboard = () => {
             firebaseUid: response.user.firebaseUid,
             secretCode: response.user.secretCode,
             createdAt: response.user.createdAt,
-            lastLogin: response.user.lastLogin
+            lastLogin: response.user.lastLogin,
+            onboardingCompleted: response.user.onboardingCompleted,
+            nickname: response.user.nickname,
+            ageRange: response.user.ageRange,
+            goals: response.user.goals,
+            preferredSupport: response.user.preferredSupport,
+            moodHistory: response.user.moodHistory
           });
+          
+          // Check if onboarding is completed
+          const onboardingCompleted = response.user.onboardingCompleted;
+          console.log('Onboarding status from database:', onboardingCompleted);
+          console.log('User data:', response.user);
+          
+          if (!onboardingCompleted && !redirecting) {
+            console.log('Redirecting to onboarding - user has not completed onboarding');
+            setRedirecting(true);
+            navigate('/onboarding');
+            return;
+          }
+          
+          // Set onboarding completed flag in localStorage for consistency
+          localStorage.setItem('onboardingCompleted', 'true');
           
           // Update last login
           await authService.updateLastLogin(firebaseUid);
@@ -42,6 +65,8 @@ const Dashboard = () => {
         // If validation fails, redirect to sign in
         localStorage.clear();
         navigate('/signin');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -52,10 +77,11 @@ const Dashboard = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('firebaseUid');
     localStorage.removeItem('userSecretCode');
+    localStorage.removeItem('onboardingCompleted');
     navigate('/');
   };
 
-  if (!user) {
+  if (loading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -91,8 +117,17 @@ const Dashboard = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-slate-800 mb-2">Welcome to Your Dashboard</h2>
-          <p className="text-slate-600">Your personal mental wellness journey starts here</p>
+          <h2 className="text-3xl font-bold text-slate-800 mb-2">
+            Welcome{user.nickname ? `, ${user.nickname}` : ''} to Your Dashboard
+          </h2>
+          <p className="text-slate-600">
+            Your personal mental wellness journey starts here
+            {user.goals && user.goals.length > 0 && (
+              <span className="block mt-2 text-sm">
+                I see you're interested in: {user.goals.join(', ')}
+              </span>
+            )}
+          </p>
         </div>
 
         {/* Dashboard Cards */}
@@ -108,8 +143,21 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold text-slate-800">Mood Tracking</h3>
             </div>
             <p className="text-slate-600 text-sm mb-4">Track your daily emotions and mood patterns</p>
+            {user.moodHistory && user.moodHistory.length > 0 ? (
+              <div className="mb-4">
+                <p className="text-sm text-slate-600 mb-2">Your latest mood:</p>
+                <div className="flex items-center">
+                  <span className="text-2xl mr-2">
+                    {user.moodHistory[user.moodHistory.length - 1].mood}
+                  </span>
+                  <span className="text-sm text-slate-700">
+                    {user.moodHistory[user.moodHistory.length - 1].note || 'No note added'}
+                  </span>
+                </div>
+              </div>
+            ) : null}
             <button className="w-full px-4 py-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-xl hover:shadow-lg transition-all duration-200">
-              Start Tracking
+              {user.moodHistory && user.moodHistory.length > 0 ? 'Update Mood' : 'Start Tracking'}
             </button>
           </div>
 

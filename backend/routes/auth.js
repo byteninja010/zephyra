@@ -108,7 +108,13 @@ router.post('/validate-secret-code', async (req, res) => {
         firebaseUid: user.firebaseUid,
         secretCode: user.secretCode,
         createdAt: user.createdAt,
-        lastLogin: user.lastLogin
+        lastLogin: user.lastLogin,
+        onboardingCompleted: user.onboardingCompleted,
+        nickname: user.nickname,
+        ageRange: user.ageRange,
+        goals: user.goals,
+        preferredSupport: user.preferredSupport,
+        moodHistory: user.moodHistory
       },
       message: 'Secret code validated successfully'
     });
@@ -137,7 +143,13 @@ router.get('/user/:firebaseUid', async (req, res) => {
         firebaseUid: user.firebaseUid,
         secretCode: user.secretCode,
         createdAt: user.createdAt,
-        lastLogin: user.lastLogin
+        lastLogin: user.lastLogin,
+        onboardingCompleted: user.onboardingCompleted,
+        nickname: user.nickname,
+        ageRange: user.ageRange,
+        goals: user.goals,
+        preferredSupport: user.preferredSupport,
+        moodHistory: user.moodHistory
       }
     });
 
@@ -172,4 +184,57 @@ router.put('/user/:firebaseUid/last-login', async (req, res) => {
   }
 });
 
+// Update user onboarding data
+router.put('/user/:firebaseUid/onboarding', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+    const { nickname, ageRange, mood, moodNote, goals, preferredSupport } = req.body;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Update onboarding fields
+    if (nickname !== undefined) user.nickname = nickname || null;
+    if (ageRange !== undefined) user.ageRange = ageRange || null;
+    if (goals !== undefined) user.goals = goals || [];
+    if (preferredSupport !== undefined) user.preferredSupport = preferredSupport || [];
+    
+    // Add initial mood to mood history if provided
+    if (mood) {
+      user.moodHistory.push({
+        mood,
+        note: moodNote || '',
+        date: new Date()
+      });
+    }
+
+    // Mark onboarding as completed
+    user.onboardingCompleted = true;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Onboarding data saved successfully',
+      user: {
+        id: user._id,
+        firebaseUid: user.firebaseUid,
+        nickname: user.nickname,
+        ageRange: user.ageRange,
+        goals: user.goals,
+        preferredSupport: user.preferredSupport,
+        onboardingCompleted: user.onboardingCompleted
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating onboarding data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
+

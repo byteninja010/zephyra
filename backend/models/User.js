@@ -13,6 +13,40 @@ const userSchema = new mongoose.Schema({
     unique: true,
     index: true
   },
+  // Onboarding fields
+  nickname: {
+    type: String,
+    default: null
+  },
+  ageRange: {
+    type: String,
+    enum: ['13-17', '18-25', '26-35', '36-50', '51+', null],
+    default: null
+  },
+  moodHistory: [{
+    mood: {
+      type: String,
+      required: true
+    },
+    note: {
+      type: String,
+      default: ''
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  goals: [{
+    type: String
+  }],
+  preferredSupport: [{
+    type: String
+  }],
+  onboardingCompleted: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -36,3 +70,4 @@ userSchema.methods.updateLastLogin = function() {
 };
 
 module.exports = mongoose.model('User', userSchema);
+

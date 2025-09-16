@@ -49,7 +49,19 @@ const authService = {
       console.error('Error updating last login:', error);
       throw error;
     }
+  },
+
+  // Update onboarding data
+  updateOnboarding: async (firebaseUid, onboardingData) => {
+    try {
+      const response = await axios.put(`${API_URL}/api/auth/user/${firebaseUid}/onboarding`, onboardingData);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating onboarding data:', error);
+      throw error;
+    }
   }
 };
 
 export default authService;
+
