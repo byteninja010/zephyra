@@ -5,6 +5,7 @@ import AuthPage from './components/AuthPage';
 import SecretCodeModal from './components/SecretCodeModal';
 import Dashboard from './components/Dashboard';
 import OnboardingFlow from './components/OnboardingFlow';
+import ChatInterface from './components/ChatInterface';
 import './App.css';
 
 function App() {
@@ -28,6 +29,9 @@ function App() {
           
           {/* Dashboard Route */}
           <Route path="/dashboard" element={<Dashboard />} />
+          
+          {/* Chat Route */}
+          <Route path="/chat" element={<ChatInterface />} />
           
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />

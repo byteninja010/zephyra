@@ -108,6 +108,13 @@ const OnboardingFlow = () => {
       // Update user data in localStorage
       if (data.user) {
         localStorage.setItem('onboardingCompleted', 'true');
+        
+        // If user provided mood during onboarding, set today as mood check date
+        if (formData.mood) {
+          const today = new Date().toDateString();
+          localStorage.setItem('lastMoodCheckDate', today);
+        }
+        
         // Update the user context if available
         if (updateUser) {
           updateUser(data.user);
@@ -148,11 +155,25 @@ const OnboardingFlow = () => {
       }
       
       localStorage.setItem('onboardingCompleted', 'true');
+      
+      // If user provided mood during onboarding, set today as mood check date
+      if (formData.mood) {
+        const today = new Date().toDateString();
+        localStorage.setItem('lastMoodCheckDate', today);
+      }
+      
       navigate('/dashboard');
     } catch (error) {
       console.error('Error saving partial onboarding data:', error);
       // Still navigate to dashboard even if save fails
       localStorage.setItem('onboardingCompleted', 'true');
+      
+      // If user provided mood during onboarding, set today as mood check date
+      if (formData.mood) {
+        const today = new Date().toDateString();
+        localStorage.setItem('lastMoodCheckDate', today);
+      }
+      
       navigate('/dashboard');
     } finally {
       setIsLoading(false);
@@ -295,14 +316,25 @@ const OnboardingFlow = () => {
             ))}
           </div>
           {formData.mood && (
-            <textarea
-              value={formData.moodNote}
-              onChange={(e) => handleInputChange('moodNote', e.target.value)}
-              placeholder="Want to add a note about how you're feeling? (optional)"
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              style={{ borderColor: 'rgba(107, 114, 128, 0.3)' }}
-              rows="3"
-            />
+            <div>
+              <textarea
+                value={formData.moodNote}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length <= 50) {
+                    handleInputChange('moodNote', value);
+                  }
+                }}
+                placeholder="Want to add a note about how you're feeling? (optional, max 50 characters)"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ borderColor: 'rgba(107, 114, 128, 0.3)' }}
+                rows="3"
+                maxLength={50}
+              />
+              <div className="text-xs text-right mt-1" style={{ color: '#9CA3AF' }}>
+                {formData.moodNote.length}/50 characters
+              </div>
+            </div>
           )}
         </div>
       </div>

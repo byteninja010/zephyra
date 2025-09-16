@@ -37,6 +37,35 @@ const userSchema = new mongoose.Schema({
       default: Date.now
     }
   }],
+  reflections: [{
+    text: {
+      type: String,
+      required: true
+    },
+    mood: {
+      type: String,
+      required: true
+    },
+    category: {
+      type: String,
+      required: true
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  activityHistory: [{
+    type: {
+      type: String,
+      required: true,
+      enum: ['moodCheckIn', 'therapyVisit', 'breathingExercise', 'reflection']
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   goals: [{
     type: String
   }],

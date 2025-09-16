@@ -115,7 +115,9 @@ router.post('/validate-secret-code', async (req, res) => {
         goals: user.goals,
         preferredSupport: user.preferredSupport,
         emergencyContactEmail: user.emergencyContactEmail,
-        moodHistory: user.moodHistory
+        moodHistory: user.moodHistory,
+        reflections: user.reflections,
+        activityHistory: user.activityHistory
       },
       message: 'Secret code validated successfully'
     });
@@ -151,7 +153,9 @@ router.get('/user/:firebaseUid', async (req, res) => {
         goals: user.goals,
         preferredSupport: user.preferredSupport,
         emergencyContactEmail: user.emergencyContactEmail,
-        moodHistory: user.moodHistory
+        moodHistory: user.moodHistory,
+        reflections: user.reflections,
+        activityHistory: user.activityHistory
       }
     });
 
@@ -236,6 +240,163 @@ router.put('/user/:firebaseUid/onboarding', async (req, res) => {
 
   } catch (error) {
     console.error('Error updating onboarding data:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Submit mood
+router.post('/user/:firebaseUid/mood', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+    const { mood, note, date } = req.body;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Add new mood to history
+    user.moodHistory.push({
+      mood,
+      note: note || '',
+      date: date ? new Date(date) : new Date()
+    });
+
+    // Keep only last 7 days of mood data
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    user.moodHistory = user.moodHistory.filter(moodEntry => 
+      new Date(moodEntry.date) >= sevenDaysAgo
+    );
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Mood saved successfully',
+      moodHistory: user.moodHistory
+    });
+
+  } catch (error) {
+    console.error('Error submitting mood:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Submit reflection
+router.post('/user/:firebaseUid/reflection', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+    const { text, mood, category } = req.body;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Add new reflection
+    user.reflections.push({
+      text,
+      mood,
+      category,
+      date: new Date()
+    });
+
+    // Add to activity history
+    user.activityHistory.push({
+      type: 'reflection',
+      date: new Date()
+    });
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Reflection saved successfully',
+      reflections: user.reflections
+    });
+
+  } catch (error) {
+    console.error('Error submitting reflection:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Log activity
+router.post('/user/:firebaseUid/activity', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+    const { type } = req.body;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Add to activity history
+    user.activityHistory.push({
+      type,
+      date: new Date()
+    });
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Activity logged successfully',
+      activityHistory: user.activityHistory
+    });
+
+  } catch (error) {
+    console.error('Error logging activity:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user reflections
+router.get('/user/:firebaseUid/reflections', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      reflections: user.reflections
+    });
+
+  } catch (error) {
+    console.error('Error getting reflections:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user activity history
+router.get('/user/:firebaseUid/activities', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      activityHistory: user.activityHistory
+    });
+
+  } catch (error) {
+    console.error('Error getting activity history:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

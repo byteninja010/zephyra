@@ -3,3 +3,5 @@
 /backend/.env
 /frontend/.env
 node_modules
+/backend/google-credentials.json
+/backend/uploads

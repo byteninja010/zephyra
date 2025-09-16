@@ -12,12 +12,6 @@ const firebaseConfig = {
   appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
-console.log('Environment variables:', {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID
-});
-console.log('Firebase config:', firebaseConfig);
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
@@ -28,7 +22,6 @@ export const auth = getAuth(app);
 export const signInAnonymous = async () => {
   try {
     const userCredential = await signInAnonymously(auth);
-    console.log('Anonymous user signed in:', userCredential.user.uid);
     return userCredential.user;
   } catch (error) {
     console.error('Error signing in anonymously:', error);
@@ -40,7 +33,6 @@ export const signInAnonymous = async () => {
 export const signOutUser = async () => {
   try {
     await signOut(auth);
-    console.log('User signed out successfully');
   } catch (error) {
     console.error('Error signing out:', error);
     throw error;

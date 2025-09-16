@@ -12,9 +12,7 @@ const FirebaseTest = () => {
       setUser(user);
       setLoading(false);
       if (user) {
-        console.log('✅ Firebase Auth working! User:', user.uid);
       } else {
-        console.log('❌ No user found');
       }
     });
 

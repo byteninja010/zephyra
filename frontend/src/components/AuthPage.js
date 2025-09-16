@@ -62,7 +62,6 @@ const AuthPage = ({ initialMode = 'login' }) => {
         await signOutUser();
       } catch (signOutError) {
         // Ignore sign out errors (user might not be signed in)
-        console.log('No existing user to sign out');
       }
       
       // Sign in anonymously with Firebase (this will create a new anonymous user)
