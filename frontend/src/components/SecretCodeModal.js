@@ -246,7 +246,7 @@ const SecretCodeModal = () => {
           <div className="mt-8 flex items-center justify-center space-x-2 transform transition-all duration-300 hover:scale-105 group">
             <div className="relative overflow-hidden rounded-lg">
               <img 
-                src="/Google_Gemini_logo.svg.png" 
+                src="/Google_Gemini_logo.png" 
                 alt="Gemini AI" 
                 className="w-6 h-6 object-contain group-hover:animate-wiggle transition-transform duration-300"
               />

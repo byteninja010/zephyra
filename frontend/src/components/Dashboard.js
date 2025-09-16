@@ -541,7 +541,7 @@ const Dashboard = () => {
               }}
             >
               <img
-                src="/Google_Gemini_logo.svg.png"
+                src="/Google_Gemini_logo.png"
                 alt="Gemini AI"
                 className="w-8 h-8 object-contain"
               />

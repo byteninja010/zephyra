@@ -96,7 +96,7 @@ const HeroSection = () => {
                       Powered by
                     </span>
                     <img 
-                      src="/Google_Gemini_logo.svg.png" 
+                      src="/Google_Gemini_logo.png" 
                       alt="Gemini AI" 
                       className="w-10 object-contain"
                     />
@@ -223,7 +223,7 @@ const HeroSection = () => {
             <div className="group p-8 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)' }}>
                 <img 
-                  src="/Google_Gemini_logo.svg.png" 
+                  src="/Google_Gemini_logo.png" 
                   alt="Gemini AI" 
                   className="w-8 h-8 object-contain"
                 />
