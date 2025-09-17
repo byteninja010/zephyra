@@ -618,7 +618,6 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Wellness Resources */}
           <div
             className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
@@ -626,20 +625,20 @@ const Dashboard = () => {
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
               style={{
-                background: "linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)",
+                background: "linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%)",
               }}
             >
               <svg
                 className="w-8 h-8"
                 fill="none"
-                stroke="#2E7D32"
+                stroke="#C62828"
                 viewBox="0 0 24 24"
                 strokeWidth="2"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
                 />
               </svg>
             </div>
@@ -647,24 +646,27 @@ const Dashboard = () => {
               className="text-xl font-semibold mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
-              Wellness Resources
+              Crisis Support
             </h3>
             <p
               className="text-sm font-light text-center mb-4"
               style={{ color: "#475569" }}
             >
-              Tools and guides for mental health
+              Immediate help when you need it
             </p>
             <button
               className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
-                background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
                 color: "white",
               }}
             >
-              Browse Resources
+              Get Help Now
             </button>
           </div>
+
+          
+          
         </div>
 
         {/* Wellness Insights */}
