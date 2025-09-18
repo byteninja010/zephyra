@@ -31,6 +31,7 @@ connectDB();
 // Import routes
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
+const sessionRoutes = require('./routes/sessions');
 
 // Routes
 app.get('/', (req, res) => {
@@ -51,6 +52,9 @@ app.use('/api/auth', authRoutes);
 
 // Use chat routes
 app.use('/api/chat', chatRoutes);
+
+// Use session routes
+app.use('/api/sessions', sessionRoutes);
 
 // Start server
 app.listen(PORT, () => {

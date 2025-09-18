@@ -8,6 +8,33 @@ const { GoogleGenAI } = require('@google/genai');
 const speech = require('@google-cloud/speech');
 const router = express.Router();
 
+// Retry function for Gemini API calls with exponential backoff
+async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`🔄 Gemini API attempt ${attempt}/${maxRetries}`);
+      const result = await apiCall();
+      console.log(`✅ Gemini API call successful on attempt ${attempt}`);
+      return result;
+    } catch (error) {
+      console.log(`⚠️ Gemini API attempt ${attempt} failed:`, error.message);
+      
+      if (attempt === maxRetries) {
+        throw error; // Re-throw on final attempt
+      }
+      
+      // Check if it's a retryable error (503, 429, 500)
+      if (error.status === 503 || error.status === 429 || error.status === 500) {
+        const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
+        console.log(`⏳ Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      } else {
+        throw error; // Don't retry for non-retryable errors
+      }
+    }
+  }
+}
+
 // Configure multer for audio file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -45,8 +72,19 @@ const speechClient = new speech.SpeechClient({
   keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || 'google-credentials.json'
 });
 
+// Cache for system prompts to avoid regenerating every time
+const systemPromptCache = new Map();
+
 // System prompt for mental wellness AI
-const getSystemPrompt = (userContext) => {
+const getSystemPrompt = async (userContext, isSessionChat = false) => {
+  // Create cache key based on user context
+  const cacheKey = `${userContext?.userProfile?.nickname || 'unknown'}_${isSessionChat}_${userContext?.cumulativeSessionSummary?.length || 0}`;
+  
+  // Check if we have a cached version
+  if (systemPromptCache.has(cacheKey)) {
+    console.log('📋 Using cached system prompt');
+    return systemPromptCache.get(cacheKey);
+  }
   const basePrompt = `You are Zephyra, a mental wellness companion for young people. Provide supportive, empathetic guidance.
 
 CORE: Be empathetic, supportive, and encouraging. Focus on mental wellness, positivity, and emotional support. Never give medical advice.
@@ -59,8 +97,31 @@ RESPOND: Be thorough and supportive. Ask follow-up questions when appropriate. P
 
 CRITICAL: Always follow user's language preferences and instructions. If user asks to speak in a specific language, continue using that language throughout the conversation. Maintain consistency in language choice unless explicitly asked to change.`;
 
+  if (isSessionChat) {
+    return basePrompt + `
+
+SESSION MODE: You are in a dedicated wellness session acting as a supportive therapist and mental wellness companion. This is a focused, therapeutic conversation where the user has specifically chosen to engage in mental wellness work.
+
+THERAPEUTIC APPROACH:
+- Ask open-ended questions to understand their current state and concerns
+- Use active listening and reflect back what you hear
+- Help them explore their thoughts and feelings in depth
+- Provide gentle guidance and coping strategies
+- Be patient, non-judgmental, and supportive
+- Ask follow-up questions to deepen understanding
+- Help them identify patterns or insights about themselves
+- Offer practical tools and techniques for wellness
+
+SESSION FOCUS: If they mentioned something specific at the start, gently explore that. If not, ask about their current state, recent experiences, or what's been on their mind. Be curious and supportive in your approach.`;
+  }
+
+  return basePrompt;
+
   if (userContext && userContext.userProfile) {
     const { nickname, ageRange, goals, preferredSupport, moodHistory, reflections } = userContext.userProfile;
+    const { currentMood, topics, concerns, goals: conversationGoals } = userContext.conversationContext || {};
+    const sessionContext = userContext.sessionContext;
+    const cumulativeSessionSummary = userContext.cumulativeSessionSummary || '';
     
     let contextInfo = "\n\nUSER CONTEXT:\n";
     
@@ -75,11 +136,106 @@ CRITICAL: Always follow user's language preferences and instructions. If user as
     }
     
     if (reflections && reflections.length > 0) {
-      const recentReflections = reflections.slice(-3).map(r => `${r.category}: ${r.text.substring(0, 100)}...`).join('; ');
-      contextInfo += `- Recent reflections: ${recentReflections}\n`;
+      const recentReflections = reflections.filter(r => r.category !== 'cumulative_session_summary').slice(-3).map(r => `${r.category}: ${r.text.substring(0, 100)}...`).join('; ');
+      if (recentReflections) contextInfo += `- Recent reflections: ${recentReflections}\n`;
+    }
+
+    // Add cumulative session summary for continuity (AI-condensed for system prompt)
+    if (isSessionChat && cumulativeSessionSummary) {
+      contextInfo += "\n\nCUMULATIVE SESSION HISTORY:\n";
+      
+      // Use Gemini to condense the cumulative summary to exactly 100 words for system prompt
+      try {
+        const { GoogleGenAI } = require('@google/genai');
+        const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
+        
+        const condensePrompt = `Condense this summary to EXACTLY 150 words (count them):
+
+${cumulativeSessionSummary}
+
+STRICT REQUIREMENTS:
+- EXACTLY 150 words - count every single word
+- Keep only the most critical therapeutic context
+- Include: current mood patterns, main themes, recent breakthroughs
+- Exclude: detailed conversations, specific dates, lengthy descriptions
+- Format: Brief, bullet-point style if needed
+- Word count: Must be exactly 150 words
+
+Count your words and ensure it's exactly 150.`;
+
+        const condenseResult = await retryGeminiCall(() => 
+          genAI.models.generateContent({
+            model: "gemini-2.5-flash-lite",
+            contents: condensePrompt,
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 150
+            }
+          })
+        );
+        
+        const condensedSummary = condenseResult.candidates[0].content.parts[0].text;
+        
+        // Validate word count
+        const wordCount = condensedSummary.split(/\s+/).filter(word => word.length > 0).length;
+        console.log(`📝 AI-condensed summary: ${wordCount} words (target: 150)`);
+        
+        if (wordCount > 200) {
+          console.log('⚠️ Summary too long, using fallback');
+          const fallbackSummary = cumulativeSessionSummary.substring(0, 300) + '...';
+          contextInfo += `${fallbackSummary}\n\n`;
+        } else {
+          contextInfo += `${condensedSummary}\n\n`;
+        }
+      } catch (condenseError) {
+        console.error('Error condensing cumulative summary:', condenseError);
+        // Fallback to first 200 characters if AI condensation fails
+        const fallbackSummary = cumulativeSessionSummary.substring(0, 200) + '...';
+        contextInfo += `${fallbackSummary}\n\n`;
+        console.log(`📝 Using fallback summary: ${fallbackSummary.length} chars`);
+      }
+    }
+
+    // Add session-specific context ONLY for session chats
+    if (isSessionChat && sessionContext) {
+      contextInfo += "\n\nCURRENT SESSION CONTEXT:\n";
+      
+      if (sessionContext.moodCheckIn?.mood) {
+        contextInfo += `- Current mood: ${sessionContext.moodCheckIn.mood}`;
+        if (sessionContext.moodCheckIn.note) {
+          contextInfo += ` (${sessionContext.moodCheckIn.note})`;
+        }
+        contextInfo += "\n";
+      }
+      
+      if (sessionContext.exploration && sessionContext.exploration.length > 0) {
+        const recentTopics = sessionContext.exploration.slice(-3).map(e => e.userMessage).join('; ');
+        contextInfo += `- Recent discussion topics: ${recentTopics}\n`;
+      }
+      
+      if (sessionContext.copingTool) {
+        contextInfo += `- Coping tool used: ${sessionContext.copingTool.type} - ${sessionContext.copingTool.exercise.substring(0, 100)}...\n`;
+      }
+      
+      if (sessionContext.reflection) {
+        contextInfo += `- Session insights: ${sessionContext.reflection.keyInsights?.join(', ')}\n`;
+        contextInfo += `- Next steps: ${sessionContext.reflection.nextSteps?.join(', ')}\n`;
+      }
     }
     
-    return basePrompt + contextInfo;
+    const fullPrompt = basePrompt + contextInfo;
+    console.log(`📊 System prompt size: ${fullPrompt.length} characters (~${Math.round(fullPrompt.length/5)} words)`);
+    
+    // Cache the system prompt for future use
+    systemPromptCache.set(cacheKey, fullPrompt);
+    
+    // Clear cache if it gets too large (keep only last 10 entries)
+    if (systemPromptCache.size > 10) {
+      const firstKey = systemPromptCache.keys().next().value;
+      systemPromptCache.delete(firstKey);
+    }
+    
+    return fullPrompt;
   }
   
   return basePrompt;
@@ -362,7 +518,8 @@ router.get('/history/:firebaseUid', async (req, res) => {
 
     const chats = await Chat.find({ 
       firebaseUid, 
-      isActive: true 
+      isActive: true,
+      sessionId: { $exists: false } // Exclude session chats from regular chat history
     }).sort({ updatedAt: -1 }).select('title createdAt updatedAt _id');
 
     res.json({
@@ -494,16 +651,90 @@ router.delete('/:chatId', async (req, res) => {
 router.post('/:chatId/message', async (req, res) => {
   try {
     const { chatId } = req.params;
-    const { message, messageType = 'text', audioMode = false } = req.body;
+    const { message, messageType = 'text', audioMode = false, sessionId } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const chat = await Chat.findOne({ _id: chatId, isActive: true });
+    // Determine if this is a session chat
+    const isSessionChat = sessionId || chatId.startsWith('session-');
+    
+    let chat;
+    
+    if (isSessionChat && sessionId) {
+      // For session chats, find or create a chat with sessionId
+      chat = await Chat.findOne({ sessionId: sessionId, isActive: true });
+      
+      if (!chat) {
+        // Create a new chat for this session
+        const { firebaseUid } = req.body;
+        if (!firebaseUid) {
+          return res.status(400).json({ error: 'Firebase UID is required for session chats' });
+        }
+        
+        // Get user context for the chat
+        const user = await User.findOne({ firebaseUid, isActive: true });
+        let userContext = null;
+
+        if (user) {
+          // Get session data to enrich the context
+          const Session = require('../models/Session');
+          const sessionData = await Session.findOne({ sessionId });
+          
+          // Get the cumulative session summary from user's reflections
+          const cumulativeSessionSummary = user.reflections
+            ?.filter(r => r.category === 'cumulative_session_summary')
+            ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.text || '';
+          
+          console.log('🔍 CHAT CONTEXT TEST - Retrieving cumulative summary for session chat');
+          console.log(`Cumulative summary found: ${cumulativeSessionSummary ? 'YES' : 'NO'}`);
+          console.log(`Cumulative summary length: ${cumulativeSessionSummary.length} characters`);
+          if (cumulativeSessionSummary) {
+            console.log(`Cumulative summary preview: ${cumulativeSessionSummary.substring(0, 100)}...`);
+          }
+          
+          userContext = {
+            userProfile: {
+              nickname: user.nickname,
+              ageRange: user.ageRange,
+              goals: user.goals,
+              preferredSupport: user.preferredSupport,
+              moodHistory: user.moodHistory,
+              reflections: user.reflections
+            },
+            conversationContext: {
+              currentMood: sessionData?.sessionData?.moodCheckIn?.mood || null,
+              topics: sessionData?.sessionData?.exploration?.map(e => e.userMessage) || [],
+              concerns: [],
+              goals: []
+            },
+            sessionContext: sessionData ? {
+              sessionId: sessionData.sessionId,
+              moodCheckIn: sessionData.sessionData?.moodCheckIn,
+              exploration: sessionData.sessionData?.exploration,
+              copingTool: sessionData.sessionData?.copingTool,
+              reflection: sessionData.sessionData?.reflection,
+              lastSessionSummary: sessionData.lastSessionSummary
+            } : null,
+            cumulativeSessionSummary: cumulativeSessionSummary
+          };
+        }
+
+        chat = new Chat({
+          firebaseUid,
+          sessionId: sessionId,
+          context: userContext,
+          title: 'Session Chat'
+        });
+      }
+    } else {
+      // Regular chat
+      chat = await Chat.findOne({ _id: chatId, isActive: true });
 
     if (!chat) {
       return res.status(404).json({ error: 'Chat not found' });
+      }
     }
 
     // Add user message
@@ -519,18 +750,24 @@ router.post('/:chatId/message', async (req, res) => {
     // Generate AI response
     let aiResponse;
     try {
-      const systemPrompt = getSystemPrompt(chat.context);
+              const systemPrompt = await getSystemPrompt(chat.context, isSessionChat);
       
-      // Build conversation history for context (last 100 messages for much better context)
-      const conversationHistory = chat.messages.slice(-100).map(msg => 
+              // Build conversation history for context (last 100 messages for much better context)
+              const conversationHistory = chat.messages.slice(-100).map(msg => 
         `${msg.sender}: ${msg.text}`
       ).join('\n');
 
-      // Detect language preference from recent messages
-      const recentMessages = chat.messages.slice(-10);
-      const languagePreference = detectLanguagePreference(recentMessages);
-      
-      const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
+              // Detect language preference from recent messages
+              const recentMessages = chat.messages.slice(-10);
+              const languagePreference = detectLanguagePreference(recentMessages);
+              
+              // Add session context if this is a session chat
+              let sessionContext = '';
+              if (isSessionChat) {
+                sessionContext = '\n\nSESSION CONTEXT: This is a dedicated wellness session. The user has specifically chosen to engage in mental wellness work. Be extra supportive and comprehensive in your responses.';
+              }
+              
+              const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
       // Log the full prompt being sent to AI for debugging
       console.log('🤖 Full prompt being sent to AI:');
@@ -540,16 +777,23 @@ router.post('/:chatId/message', async (req, res) => {
       console.log('📊 Total prompt length:', prompt.length, 'characters');
       console.log('🔍 Last 200 chars of prompt:', prompt.slice(-200));
 
-      const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash-lite",
+      // Log model and token configuration
+      const modelName = isSessionChat ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
+      const maxTokens = isSessionChat ? 8192 : 2000;
+      console.log(`🤖 Using model: ${modelName} with ${maxTokens} max output tokens`);
+
+      const result = await retryGeminiCall(() => 
+        genAI.models.generateContent({
+        model: modelName,
         contents: prompt,
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 2000,
+          maxOutputTokens: maxTokens,
           topP: 0.9,
           topK: 40
         }
-      });
+        })
+      );
       aiResponse = result.candidates[0].content.parts[0].text;
     } catch (geminiError) {
       console.error('Gemini API Error:', geminiError);
@@ -571,9 +815,9 @@ router.post('/:chatId/message', async (req, res) => {
       if (audioResponse) {
         // Save the native audio response
         const audioFileName = `response-${Date.now()}.wav`;
-        const audioFilePath = path.join('uploads/audio', audioFileName);
-        fs.writeFileSync(audioFilePath, audioResponse);
-        audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
+      const audioFilePath = path.join('uploads/audio', audioFileName);
+      fs.writeFileSync(audioFilePath, audioResponse);
+      audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
         console.log('✅ High-quality Gemini audio saved:', audioFilePath);
       } else {
         console.log('⚠️ No audio generated by Gemini, text-only response');
@@ -601,6 +845,27 @@ router.post('/:chatId/message', async (req, res) => {
 
     await chat.save();
 
+    // Update session data with the conversation if this is a session chat
+    if (isSessionChat && sessionId) {
+      try {
+        const Session = require('../models/Session');
+        await Session.findOneAndUpdate(
+          { sessionId },
+          {
+            $push: {
+              'sessionData.exploration': {
+                userMessage: message,
+                aiResponse: aiResponse,
+                timestamp: new Date()
+              }
+            }
+          }
+        );
+      } catch (sessionUpdateError) {
+        console.error('Error updating session data:', sessionUpdateError);
+      }
+    }
+
     res.json({
       success: true,
       message: aiResponse,
@@ -617,29 +882,102 @@ router.post('/:chatId/message', async (req, res) => {
 
 
 
-
-
 // Send audio message (legacy - keeping for backward compatibility)
 router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
   try {
     const { chatId } = req.params;
+    const { sessionId } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ error: 'Audio file is required' });
     }
 
-    const chat = await Chat.findOne({ _id: chatId, isActive: true });
+    // Determine if this is a session chat
+    const isSessionChat = sessionId || chatId.startsWith('session-');
+    
+    let chat;
+    
+    if (isSessionChat && sessionId) {
+      // For session chats, find or create a chat with sessionId
+      chat = await Chat.findOne({ sessionId: sessionId, isActive: true });
+      
+      if (!chat) {
+        // Create a new chat for this session
+        const { firebaseUid } = req.body;
+        if (!firebaseUid) {
+          return res.status(400).json({ error: 'Firebase UID is required for session chats' });
+        }
+        
+        // Get user context for the chat
+        const user = await User.findOne({ firebaseUid, isActive: true });
+        let userContext = null;
 
-    if (!chat) {
-      return res.status(404).json({ error: 'Chat not found' });
+        if (user) {
+          // Get session data to enrich the context
+          const Session = require('../models/Session');
+          const sessionData = await Session.findOne({ sessionId });
+          
+          // Get the cumulative session summary from user's reflections
+          const cumulativeSessionSummary = user.reflections
+            ?.filter(r => r.category === 'cumulative_session_summary')
+            ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.text || '';
+          
+          console.log('🔍 CHAT CONTEXT TEST - Retrieving cumulative summary for session chat');
+          console.log(`Cumulative summary found: ${cumulativeSessionSummary ? 'YES' : 'NO'}`);
+          console.log(`Cumulative summary length: ${cumulativeSessionSummary.length} characters`);
+          if (cumulativeSessionSummary) {
+            console.log(`Cumulative summary preview: ${cumulativeSessionSummary.substring(0, 100)}...`);
+          }
+          
+          userContext = {
+            userProfile: {
+              nickname: user.nickname,
+              ageRange: user.ageRange,
+              goals: user.goals,
+              preferredSupport: user.preferredSupport,
+              moodHistory: user.moodHistory,
+              reflections: user.reflections
+            },
+            conversationContext: {
+              currentMood: sessionData?.sessionData?.moodCheckIn?.mood || null,
+              topics: sessionData?.sessionData?.exploration?.map(e => e.userMessage) || [],
+              concerns: [],
+              goals: []
+            },
+            sessionContext: sessionData ? {
+              sessionId: sessionData.sessionId,
+              moodCheckIn: sessionData.sessionData?.moodCheckIn,
+              exploration: sessionData.sessionData?.exploration,
+              copingTool: sessionData.sessionData?.copingTool,
+              reflection: sessionData.sessionData?.reflection,
+              lastSessionSummary: sessionData.lastSessionSummary
+            } : null,
+            cumulativeSessionSummary: cumulativeSessionSummary
+          };
+        }
+
+        chat = new Chat({
+          firebaseUid,
+          sessionId: sessionId,
+          context: userContext,
+          title: 'Session Chat'
+        });
+      }
+    } else {
+      // Regular chat
+      chat = await Chat.findOne({ _id: chatId, isActive: true });
+
+      if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+      }
     }
 
     // Transcribe the audio using Google Speech-to-Text
     const audioBuffer = fs.readFileSync(req.file.path);
     const transcription = await transcribeAudio(audioBuffer, req.file.mimetype);
-    
+
     const audioUrl = `http://localhost:5000/uploads/audio/${req.file.filename}`;
-    
+
     // Add user audio message with transcription
     const userMessage = {
       text: transcription || '[Audio Message]',
@@ -654,8 +992,8 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
     // Generate AI response using Gemini
     let aiResponse;
     try {
-      const systemPrompt = getSystemPrompt(chat.context);
-      
+              const systemPrompt = await getSystemPrompt(chat.context, isSessionChat);
+
       const conversationHistory = chat.messages.slice(-100).map(msg => 
         `${msg.sender}: ${msg.text}`
       ).join('\n');
@@ -664,7 +1002,13 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
       const recentMessages = chat.messages.slice(-10);
       const languagePreference = detectLanguagePreference(recentMessages);
       
-      const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
+              // Add session context if this is a session chat
+              let sessionContext = '';
+              if (isSessionChat) {
+                sessionContext = '\n\nSESSION CONTEXT: This is a dedicated wellness session. The user has specifically chosen to engage in mental wellness work. Be extra supportive and comprehensive in your responses.';
+              }
+              
+              const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
       // Log the full prompt being sent to AI for debugging
       console.log('🤖 Full prompt being sent to AI (audio route):');
@@ -674,16 +1018,23 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
       console.log('📊 Total prompt length:', prompt.length, 'characters');
       console.log('🔍 Last 200 chars of prompt:', prompt.slice(-200));
 
-      const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash-lite",
+      // Log model and token configuration
+      const modelName = isSessionChat ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
+      const maxTokens = isSessionChat ? 8192 : 2000;
+      console.log(`🤖 Using model: ${modelName} with ${maxTokens} max output tokens`);
+
+      const result = await retryGeminiCall(() => 
+        genAI.models.generateContent({
+          model: modelName,
         contents: prompt,
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 2000,
+            maxOutputTokens: maxTokens,
           topP: 0.9,
           topK: 40
         }
-      });
+        })
+      );
       aiResponse = result.candidates[0].content.parts[0].text;
     } catch (geminiError) {
       console.error('Gemini API Error:', geminiError);
@@ -698,16 +1049,16 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
     // Always generate high-quality audio using Gemini 2.5 Flash Preview TTS
     let audioResponse = null;
     let audioResponseUrl = null;
-    
+
     try {
       audioResponse = await generateAudioWithGemini(aiResponse, null);
-      
+
       if (audioResponse) {
         // Save the native audio response
         const audioFileName = `response-${Date.now()}.wav`;
-        const audioFilePath = path.join('uploads/audio', audioFileName);
-        fs.writeFileSync(audioFilePath, audioResponse);
-        audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
+      const audioFilePath = path.join('uploads/audio', audioFileName);
+      fs.writeFileSync(audioFilePath, audioResponse);
+      audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
         console.log('✅ High-quality Gemini audio saved:', audioFilePath);
       } else {
         console.log('⚠️ No audio generated by Gemini, text-only response');

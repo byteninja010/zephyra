@@ -31,6 +31,11 @@ const chatSchema = new mongoose.Schema({
     required: true,
     index: true
   },
+  sessionId: {
+    type: String,
+    default: null,
+    index: true
+  },
   title: {
     type: String,
     default: 'New Chat'

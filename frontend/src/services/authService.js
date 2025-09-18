@@ -160,13 +160,22 @@ const authService = {
     }
   },
 
-  sendChatMessage: async (chatId, message, messageType = 'text', audioMode = false) => {
+  sendChatMessage: async (chatId, message, messageType = 'text', audioMode = false, sessionId = null) => {
     try {
-      const response = await axios.post(`${API_URL}/api/chat/${chatId}/message`, {
+      const firebaseUid = localStorage.getItem('firebaseUid');
+      const requestBody = {
         message,
         messageType,
         audioMode
-      });
+      };
+      
+      // Add sessionId and firebaseUid for session chats
+      if (sessionId) {
+        requestBody.sessionId = sessionId;
+        requestBody.firebaseUid = firebaseUid;
+      }
+      
+      const response = await axios.post(`${API_URL}/api/chat/${chatId}/message`, requestBody);
       return response.data;
     } catch (error) {
       console.error('Error sending chat message:', error);
@@ -174,12 +183,19 @@ const authService = {
     }
   },
 
-  sendAudioMessage: async (chatId, audioBlob) => {
+  sendAudioMessage: async (chatId, audioBlob, sessionId = null) => {
     try {
+      const firebaseUid = localStorage.getItem('firebaseUid');
       const formData = new FormData();
       // Use the correct file extension based on the blob type
       const fileExtension = audioBlob.type.includes('webm') ? 'webm' : 'wav';
       formData.append('audio', audioBlob, `audio.${fileExtension}`);
+      
+      // Add sessionId and firebaseUid for session chats
+      if (sessionId) {
+        formData.append('sessionId', sessionId);
+        formData.append('firebaseUid', firebaseUid);
+      }
       
       const response = await axios.post(`${API_URL}/api/chat/${chatId}/audio`, formData, {
         headers: {

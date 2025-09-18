@@ -1,17 +1,20 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import HeroSection from './components/HeroSection';
 import AuthPage from './components/AuthPage';
 import SecretCodeModal from './components/SecretCodeModal';
 import Dashboard from './components/Dashboard';
 import OnboardingFlow from './components/OnboardingFlow';
 import ChatInterface from './components/ChatInterface';
+import SessionsPage from './components/SessionsPage';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Routes>
           {/* Home Route */}
           <Route path="/" element={<HeroSection />} />
           
@@ -32,11 +35,15 @@ function App() {
           {/* Chat Route */}
           <Route path="/chat" element={<ChatInterface />} />
           
+          {/* Sessions Route */}
+          <Route path="/sessions" element={<SessionsPage />} />
+          
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
-    </Router>
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

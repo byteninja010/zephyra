@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signInAnonymous } from '../firebase';
 import authService from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 
 const AuthPage = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
+  const { login, signup } = useAuth();
   const [mode, setMode] = useState(initialMode); // 'login' or 'signup'
   const [isLoading, setIsLoading] = useState(false);
   const [secretCode, setSecretCode] = useState('');
@@ -20,24 +22,17 @@ const AuthPage = ({ initialMode = 'login' }) => {
     setError('');
 
     try {
-      const response = await authService.validateSecretCode(secretCode);
-
-      if (response.success) {
-        localStorage.setItem('userId', response.user.id);
-        localStorage.setItem('firebaseUid', response.user.firebaseUid);
-        localStorage.setItem('userSecretCode', response.user.secretCode);
-
+      const result = await login(secretCode);
+      
+      if (result.success) {
+        console.log('🔍 AuthPage - Login successful via AuthContext');
         navigate('/dashboard');
       } else {
-        setError('Invalid secret code. Please check and try again.');
+        setError(result.error || 'Invalid secret code. Please check and try again.');
       }
     } catch (error) {
       console.error('Secret code login error:', error);
-      if (error.response?.data?.error) {
-        setError(error.response.data.error);
-      } else {
-        setError('Failed to sign in. Please check your secret code.');
-      }
+      setError('Failed to sign in. Please check your secret code.');
     } finally {
       setIsLoading(false);
     }
@@ -48,42 +43,22 @@ const AuthPage = ({ initialMode = 'login' }) => {
     setError('');
 
     try {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('firebaseUid');
-      localStorage.removeItem('userSecretCode');
-      localStorage.removeItem('onboardingCompleted');
-
-      const { signOutUser } = await import('../firebase');
-      try {
-        await signOutUser();
-      } catch (signOutError) {
-        // Ignore sign out errors (user might not be signed in)
-      }
-
-      const firebaseUser = await signInAnonymous();
-      const response = await authService.createUser(firebaseUser.uid);
-
-      if (response.success) {
-        localStorage.setItem('userId', response.user.id);
-        localStorage.setItem('firebaseUid', response.user.firebaseUid);
-        localStorage.setItem('userSecretCode', response.user.secretCode);
-
+      const result = await signup();
+      
+      if (result.success) {
+        console.log('🔍 AuthPage - Signup successful via AuthContext');
         navigate('/secret-code', {
           state: {
-            secretCode: response.user.secretCode,
-            isNewUser: response.message === 'User created successfully',
+            secretCode: result.user.secretCode,
+            isNewUser: true,
           },
         });
       } else {
-        setError('Failed to create account. Please try again.');
+        setError(result.error || 'Failed to create account. Please try again.');
       }
     } catch (error) {
       console.error('Anonymous sign-up error:', error);
-      if (error.response?.data?.error) {
-        setError(error.response.data.error);
-      } else {
-        setError('Failed to create anonymous account. Please try again.');
-      }
+      setError('Failed to create anonymous account. Please try again.');
     } finally {
       setIsLoading(false);
     }
