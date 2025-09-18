@@ -193,54 +193,6 @@ const authService = {
     }
   },
 
-  // Live Audio Dialogue methods
-  startLiveAudioSession: async (chatId) => {
-    try {
-      const response = await axios.post(`${API_URL}/api/chat/${chatId}/live-audio/start`);
-      return response.data;
-    } catch (error) {
-      console.error('Error starting live audio session:', error);
-      throw error;
-    }
-  },
-
-  sendLiveAudioMessage: async (chatId, audioBlob) => {
-    try {
-      const formData = new FormData();
-      const fileExtension = audioBlob.type.includes('webm') ? 'webm' : 'wav';
-      formData.append('audio', audioBlob, `audio.${fileExtension}`);
-      
-      const response = await axios.post(`${API_URL}/api/chat/${chatId}/live-audio/send`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error sending live audio message:', error);
-      throw error;
-    }
-  },
-
-  stopLiveAudioSession: async (chatId) => {
-    try {
-      const response = await axios.post(`${API_URL}/api/chat/${chatId}/live-audio/stop`);
-      return response.data;
-    } catch (error) {
-      console.error('Error stopping live audio session:', error);
-      throw error;
-    }
-  },
-
-  checkLiveAudioStatus: async (chatId) => {
-    try {
-      const response = await axios.get(`${API_URL}/api/chat/${chatId}/live-audio/status`);
-      return response.data;
-    } catch (error) {
-      console.error('Error checking live audio status:', error);
-      throw error;
-    }
-  },
 
   deleteChat: async (chatId) => {
     try {

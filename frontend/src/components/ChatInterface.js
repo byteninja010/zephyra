@@ -25,14 +25,13 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingType, setLoadingType] = useState('text'); // 'text' or 'audio'
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentChatId, setCurrentChatId] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [showChatHistory, setShowChatHistory] = useState(false);
   const [isChatHistoryCollapsed, setIsChatHistoryCollapsed] = useState(false);
-  const [isLiveAudioActive, setIsLiveAudioActive] = useState(false);
-  const [isLiveAudioMode, setIsLiveAudioMode] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [isContinuousRecording, setIsContinuousRecording] = useState(false);
   const [showRecordingPopup, setShowRecordingPopup] = useState(false);
@@ -61,12 +60,6 @@ const ChatInterface = () => {
     loadChatHistory();
   }, []);
 
-  // Check live audio status when currentChatId changes
-  useEffect(() => {
-    if (currentChatId) {
-      checkLiveAudioStatus();
-    }
-  }, [currentChatId]);
 
   // Cleanup continuous recording when component unmounts or chat changes
   useEffect(() => {
@@ -111,10 +104,6 @@ const ChatInterface = () => {
         setShowChatHistory(false);
         setShowMobileMenu(false);
 
-        // Stop any active live audio session
-        if (isLiveAudioActive) {
-          await stopLiveAudioSession();
-        }
 
         // Refresh chat history to show the new chat
         await loadChatHistory();
@@ -124,55 +113,6 @@ const ChatInterface = () => {
     }
   };
 
-  const startLiveAudioSession = async () => {
-    if (!currentChatId) return;
-
-    try {
-      const response = await authService.startLiveAudioSession(currentChatId);
-      if (response.success) {
-        setIsLiveAudioActive(true);
-        setIsLiveAudioMode(true);
-      }
-    } catch (error) {
-      console.error("Error starting live audio session:", error);
-      setIsLiveAudioActive(false);
-      setIsLiveAudioMode(false);
-    }
-  };
-
-  const stopLiveAudioSession = async () => {
-    if (!currentChatId) return;
-
-    try {
-      const response = await authService.stopLiveAudioSession(currentChatId);
-      if (response.success) {
-        setIsLiveAudioActive(false);
-        setIsLiveAudioMode(false);
-      }
-    } catch (error) {
-      console.error("Error stopping live audio session:", error);
-      setIsLiveAudioActive(false);
-      setIsLiveAudioMode(false);
-    }
-  };
-
-  const checkLiveAudioStatus = async () => {
-    if (!currentChatId) return false;
-
-    try {
-      const response = await authService.checkLiveAudioStatus(currentChatId);
-      if (response.success) {
-        setIsLiveAudioActive(response.isActive);
-        setIsLiveAudioMode(response.isActive);
-        return response.isActive;
-      }
-    } catch (error) {
-      console.error("Error checking live audio status:", error);
-      setIsLiveAudioActive(false);
-      setIsLiveAudioMode(false);
-    }
-    return false;
-  };
 
   const loadChat = async (chatId) => {
     try {
@@ -188,8 +128,6 @@ const ChatInterface = () => {
         setShowChatHistory(false);
         setShowMobileMenu(false);
 
-        // Check if this chat has an active live audio session
-        await checkLiveAudioStatus();
       }
     } catch (error) {
       console.error("Error loading chat:", error);
@@ -212,8 +150,6 @@ const ChatInterface = () => {
         if (currentChatId === chatToDelete) {
           setCurrentChatId(null);
           setMessages([]);
-          setIsLiveAudioActive(false);
-          setIsLiveAudioMode(false);
         }
 
         // Reload chat history
@@ -329,7 +265,7 @@ const ChatInterface = () => {
     if (!inputMessage.trim() || !currentChatId || isLoading) return;
 
     const messageText = inputMessage.trim();
-    const messageType = isLiveAudioMode ? "text" : "text";
+    const messageType = "text";
 
     // Add user message immediately
     const userMessage = {
@@ -343,6 +279,7 @@ const ChatInterface = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsLoading(true);
+    setLoadingType('text');
 
     try {
       const response = await authService.sendChatMessage(
@@ -364,9 +301,14 @@ const ChatInterface = () => {
 
         setMessages((prev) => [...prev, aiMessage]);
 
-        // Play audio response if available
+        // Play audio response if available, or use Web Speech API
         if (response.audioUrl) {
           playAudio(response.audioUrl);
+        } else {
+          // Use Web Speech API for high-quality TTS
+          setTimeout(() => {
+            speakTextWithWebSpeech();
+          }, 1000); // Delay to ensure message is rendered and state is updated
         }
       }
     } catch (error) {
@@ -498,73 +440,41 @@ const ChatInterface = () => {
 
   const sendAudioMessage = async (audioBlob) => {
     try {
-      if (isLiveAudioActive && isLiveAudioMode) {
-        // Use Google Live Audio Dialogue
-        const response = await authService.sendLiveAudioMessage(
-          currentChatId,
-          audioBlob
-        );
+      setIsLoading(true);
+      setLoadingType('audio');
+      // Use traditional audio processing
+      const response = await authService.sendAudioMessage(
+        currentChatId,
+        audioBlob
+      );
 
-        if (response.success) {
-          // Add user message
-          const userMessage = {
-            id: Date.now(),
-            text: "[Live Audio Message]",
-            sender: "user",
-            timestamp: new Date(),
-            type: "audio",
-            audioUrl: response.audioUrl,
-          };
+      if (response.success) {
+        // The user message is already added in the backend with transcription
+        // We just need to add the AI response
+        const aiMessage = {
+          id: Date.now() + 1,
+          text: response.message,
+          sender: "ai",
+          timestamp: new Date(),
+          type: response.messageType || "text",
+          audioUrl: response.audioUrl,
+        };
 
-          setMessages((prev) => [...prev, userMessage]);
+        setMessages((prev) => [...prev, aiMessage]);
+
+        // Play audio response or use Web Speech API
+        if (response.audioUrl) {
+          playAudio(response.audioUrl);
         } else {
-          // If Live Audio fails, try to restart session
-          await startLiveAudioSession();
-
-          // Add error message
-          const errorMessage = {
-            id: Date.now() + 1,
-            text: "I'm having trouble with the live audio. Let me restart the session. Please try again.",
-            sender: "ai",
-            timestamp: new Date(),
-            type: "text",
-          };
-          setMessages((prev) => [...prev, errorMessage]);
-        }
-      } else {
-        // Use traditional audio processing
-        const response = await authService.sendAudioMessage(
-          currentChatId,
-          audioBlob
-        );
-
-        if (response.success) {
-          // The user message is already added in the backend with transcription
-          // We just need to add the AI response
-          const aiMessage = {
-            id: Date.now() + 1,
-            text: response.message,
-            sender: "ai",
-            timestamp: new Date(),
-            type: response.messageType || "text",
-            audioUrl: response.audioUrl,
-          };
-
-          setMessages((prev) => [...prev, aiMessage]);
-
-          // Play audio response
-          if (response.audioUrl) {
-            playAudio(response.audioUrl);
-          }
+          // Use Web Speech API for high-quality TTS
+          setTimeout(() => {
+            speakTextWithWebSpeech();
+          }, 1000); // Delay to ensure message is rendered and state is updated
         }
       }
     } catch (error) {
       console.error("Error sending audio message:", error);
 
-      // If it's a Live Audio error, try to restart the session
-      if (isLiveAudioActive && isLiveAudioMode) {
-        await startLiveAudioSession();
-      }
 
       // Add error message to chat
       const errorMessage = {
@@ -575,36 +485,119 @@ const ChatInterface = () => {
         type: "text",
       };
       setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const playAudio = (audioUrl) => {
-    if (audioRef.current && audioUrl) {
-      audioRef.current.src = audioUrl;
-      audioRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-          setIsAudioPlaying(true);
-          setCurrentPlayingAudio(audioUrl);
-        })
-        .catch((error) => {
-          console.error("Error playing audio:", error);
-          setIsPlaying(false);
-          setIsAudioPlaying(false);
-          setCurrentPlayingAudio(null);
-        });
+    if (audioUrl) {
+      // If we have an audio URL, play it
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current
+          .play()
+          .then(() => {
+            setIsPlaying(true);
+            setIsAudioPlaying(true);
+            setCurrentPlayingAudio(audioUrl);
+          })
+          .catch((error) => {
+            console.error("Error playing audio:", error);
+            setIsPlaying(false);
+            setIsAudioPlaying(false);
+            setCurrentPlayingAudio(null);
+          });
+      }
+    } else {
+      // Use Web Speech API for high-quality TTS
+      speakTextWithWebSpeech();
+    }
+  };
+
+  const speakTextWithWebSpeech = () => {
+    if ('speechSynthesis' in window) {
+      // Stop any current speech
+      window.speechSynthesis.cancel();
+      
+      // Get the last AI message
+      const lastAIMessage = messages.filter(msg => msg.sender === 'ai').pop();
+      if (lastAIMessage) {
+        speakSpecificText(lastAIMessage.text);
+      }
+    } else {
+      console.log("Speech synthesis not supported");
+    }
+  };
+
+  const speakSpecificText = (text) => {
+    if ('speechSynthesis' in window) {
+      // Stop any current speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // Configure voice settings for high quality
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      utterance.volume = 0.8;
+      
+      // Try to use a high-quality voice
+      const voices = window.speechSynthesis.getVoices();
+      const preferredVoice = voices.find(voice => 
+        voice.name.includes('Google') || 
+        voice.name.includes('Microsoft') || 
+        voice.name.includes('Natural') ||
+        voice.lang.startsWith('en')
+      );
+      
+      if (preferredVoice) {
+        utterance.voice = preferredVoice;
+        console.log('🎵 Using voice:', preferredVoice.name);
+      }
+      
+      utterance.onstart = () => {
+        console.log('🎵 Speech started');
+        setIsPlaying(true);
+        setIsAudioPlaying(true);
+      };
+      
+      utterance.onend = () => {
+        console.log('🎵 Speech ended');
+        setIsPlaying(false);
+        setIsAudioPlaying(false);
+        setCurrentPlayingAudio(null);
+      };
+      
+      utterance.onerror = (error) => {
+        console.error("Speech synthesis error:", error);
+        setIsPlaying(false);
+        setIsAudioPlaying(false);
+        setCurrentPlayingAudio(null);
+      };
+      
+      console.log('🎵 Starting speech synthesis for:', text.substring(0, 50) + '...');
+      window.speechSynthesis.speak(utterance);
+    } else {
+      console.log("Speech synthesis not supported");
     }
   };
 
   const toggleAudioPlayback = (audioUrl) => {
-    if (!audioRef.current) return;
-
     // If the same audio is currently playing, pause it
     if (currentPlayingAudio === audioUrl && isAudioPlaying) {
-      audioRef.current.pause();
+      if (audioUrl) {
+        // Pause audio file
+        if (audioRef.current) {
+          audioRef.current.pause();
+        }
+      } else {
+        // Stop speech synthesis
+        window.speechSynthesis.cancel();
+      }
       setIsAudioPlaying(false);
       setIsPlaying(false);
+      setCurrentPlayingAudio(null);
     } 
     // If different audio or no audio playing, play the new audio
     else {
@@ -978,21 +971,20 @@ const ChatInterface = () => {
                       {chatHistory.find((chat) => chat._id === currentChatId)
                         ?.title || "Zephyra Chat"}
                     </h2>
-                    {isLiveAudioActive && (
-                      <div
-                        className="flex items-center space-x-2 px-3 py-1 rounded-full text-sm"
-                        style={{
-                          background: "rgba(34, 197, 94, 0.1)",
-                          color: "#059669",
-                        }}
-                      >
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span>Live Audio Active</span>
-                      </div>
-                    )}
                   </div>
 
                   <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => speakSpecificText("Hello! I'm Zephyra, your mental wellness companion. How are you feeling today?")}
+                      className="p-3 rounded-xl transition-all duration-300 hover:shadow-lg group relative"
+                      style={{ color: "#10B981" }}
+                      title="Test Audio"
+                    >
+                      <SpeakerWaveIcon className="w-6 h-6" />
+                      <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
+                        Test Audio
+                      </span>
+                    </button>
                     <button
                       onClick={startNewChat}
                       className="p-3 rounded-xl transition-all duration-300 hover:shadow-lg group relative"
@@ -1025,37 +1017,34 @@ const ChatInterface = () => {
                       Start Your Conversation
                     </h3>
                     <p className="mb-6 max-w-md" style={{ color: "#475569" }}>
-                      {isLiveAudioActive
-                        ? "I'm listening! Speak naturally or type a message. I'm here to support your mental wellness journey."
-                        : "Type a message or use voice to start our conversation. I'm here to support your mental wellness journey."}
+                      Type a message or use voice to start our conversation. I'm here to support your mental wellness journey.
                     </p>
-                    {!isLiveAudioActive && (
-                      <button
-                        onClick={() => {
-                          setIsChatHistoryCollapsed(true);
-                          toggleContinuousRecording();
-                        }}
-                        className="px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                        }}
-                      >
-                        <MicrophoneIcon className="w-5 h-5 inline mr-2" />
-                        Start Voice Chat
-                      </button>
-                    )}
+                    <button
+                      onClick={() => {
+                        setIsChatHistoryCollapsed(true);
+                        toggleContinuousRecording();
+                      }}
+                      className="px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                      }}
+                    >
+                      <MicrophoneIcon className="w-5 h-5 inline mr-2" />
+                      Start Voice Chat
+                    </button>
                   </div>
                 ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${
-                        message.sender === "user"
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
+                  <>
+                    {messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${
+                          message.sender === "user"
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
+                      >
                       <div
                         className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg ${
                           message.sender === "user"
@@ -1082,34 +1071,32 @@ const ChatInterface = () => {
                           {message.text}
                         </p>
 
-                         {/* Audio controls for audio messages */}
-                         {message.type === "audio" && message.audioUrl && (
+                         {/* Audio controls for AI messages */}
+                         {message.sender === "ai" && (
                            <div className="mt-3 flex items-center space-x-2">
                              <button
-                               onClick={() => toggleAudioPlayback(message.audioUrl)}
-                               className={`p-2 rounded-lg transition-colors ${
-                                 message.sender === "user"
-                                   ? "bg-white/20 hover:bg-white/30"
-                                   : "bg-gray-100 hover:bg-gray-200"
-                               }`}
+                               onClick={() => {
+                                 if (message.audioUrl) {
+                                   toggleAudioPlayback(message.audioUrl);
+                                 } else {
+                                   // Use Web Speech API for this specific message
+                                   speakSpecificText(message.text);
+                                 }
+                               }}
+                               className="p-2 rounded-lg transition-colors bg-gray-100 hover:bg-gray-200"
+                               title="Play audio"
                              >
-                               {currentPlayingAudio === message.audioUrl && isAudioPlaying ? (
+                               {isAudioPlaying && currentPlayingAudio === message.audioUrl ? (
                                  <SpeakerXMarkIcon className="w-4 h-4" />
                                ) : (
                                  <SpeakerWaveIcon className="w-4 h-4" />
                                )}
                              </button>
                              <span
-                               className={`text-xs ${
-                                 message.sender === "user" ? "text-blue-100" : ""
-                               }`}
-                               style={
-                                 message.sender === "ai"
-                                   ? { color: "#64748B" }
-                                   : {}
-                               }
+                               className="text-xs"
+                               style={{ color: "#64748B" }}
                              >
-                               Audio Message
+                               {message.audioUrl ? "Audio Message" : "Text to Speech"}
                              </span>
                            </div>
                          )}
@@ -1126,32 +1113,61 @@ const ChatInterface = () => {
                         </p>
                       </div>
                     </div>
-                  ))
+                    ))}
+                    
+                    {/* Loading State */}
+                    {isLoading && (
+                      <div className="flex justify-start">
+                        <div className="max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg bg-white/80 backdrop-blur-sm">
+                          <div className="flex items-center space-x-3">
+                            {loadingType === 'audio' ? (
+                              <div className="flex items-center space-x-2">
+                                <MicrophoneIcon className="w-4 h-4 text-blue-500 animate-pulse" />
+                                <div className="flex space-x-1">
+                                  <div className="w-1 h-4 bg-blue-500 rounded-full animate-pulse"></div>
+                                  <div 
+                                    className="w-1 h-3 bg-blue-500 rounded-full animate-pulse"
+                                    style={{ animationDelay: "0.1s" }}
+                                  ></div>
+                                  <div 
+                                    className="w-1 h-5 bg-blue-500 rounded-full animate-pulse"
+                                    style={{ animationDelay: "0.2s" }}
+                                  ></div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex space-x-1">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                <div 
+                                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                                  style={{ animationDelay: "0.1s" }}
+                                ></div>
+                                <div 
+                                  className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+                                  style={{ animationDelay: "0.2s" }}
+                                ></div>
+                              </div>
+                            )}
+                            <span 
+                              className="text-sm"
+                              style={{ color: "#475569" }}
+                            >
+                              {loadingType === 'audio' 
+                                ? 'Processing your voice...' 
+                                : 'Zephyra is thinking...'
+                              }
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Input Area */}
               <div className="bg-white/60 backdrop-blur-sm border-t border-white/20 p-4 relative z-10">
-                {isLiveAudioActive && (
-                  <div
-                    className="mb-4 p-3 rounded-xl"
-                    style={{
-                      background: "rgba(34, 197, 94, 0.1)",
-                      border: "1px solid rgba(34, 197, 94, 0.2)",
-                    }}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span
-                        className="text-sm font-medium"
-                        style={{ color: "#059669" }}
-                      >
-                        Live Audio Active - Speak naturally or type a message
-                      </span>
-                    </div>
-                  </div>
-                )}
 
                 <div className="flex items-center space-x-3">
                   <div className="flex-1 relative">
@@ -1159,11 +1175,7 @@ const ChatInterface = () => {
                       type="text"
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
-                      placeholder={
-                        isLiveAudioActive
-                          ? "Live Audio Active - Use voice or type..."
-                          : "Type your message or use voice..."
-                      }
+                      placeholder="Type your message or use voice..."
                       className="w-full px-4 py-3 rounded-xl focus:ring-2 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300"
                       style={{
                         border: "1px solid rgba(60, 145, 197, 0.2)",
@@ -1184,8 +1196,6 @@ const ChatInterface = () => {
                     className={`p-3 rounded-xl transition-all duration-300 hover:shadow-lg ${
                       isContinuousRecording
                         ? "text-white animate-pulse"
-                        : isLiveAudioActive
-                        ? "text-white"
                         : "text-gray-600 hover:bg-white/50"
                     }`}
                     style={
@@ -1194,21 +1204,13 @@ const ChatInterface = () => {
                             background:
                               "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
                           }
-                        : isLiveAudioActive
-                        ? {
-                            background:
-                              "linear-gradient(135deg, #10B981 0%, #059669 100%)",
-                          }
                         : {}
                     }
                     title={
-                      isLiveAudioActive
-                        ? "Disabled during Live Audio"
-                        : isContinuousRecording
+                      isContinuousRecording
                         ? "Stop Continuous Recording"
                         : "Start Continuous Recording"
                     }
-                    disabled={isLiveAudioActive}
                   >
                     {isContinuousRecording ? (
                       <NoSymbolIcon className="w-6 h-6" />
