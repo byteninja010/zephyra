@@ -209,13 +209,13 @@ const authService = {
     }
   },
 
-
-  deleteChat: async (chatId) => {
+  // Get personalized quote
+  getPersonalizedQuote: async (firebaseUid) => {
     try {
-      const response = await axios.delete(`${API_URL}/api/chat/${chatId}`);
+      const response = await axios.get(`${API_URL}/api/auth/user/${firebaseUid}/personalized-quote`);
       return response.data;
     } catch (error) {
-      console.error('Error deleting chat:', error);
+      console.error('Error getting personalized quote:', error);
       throw error;
     }
   }

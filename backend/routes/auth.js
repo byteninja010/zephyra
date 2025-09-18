@@ -1,6 +1,10 @@
 const express = require('express');
 const User = require('../models/User');
+const { GoogleGenAI } = require('@google/genai');
 const router = express.Router();
+
+// Initialize Gemini AI
+const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 // Generate a user-friendly secret code (8 characters, alphanumeric)
 const generateSecretCode = () => {
@@ -397,6 +401,98 @@ router.get('/user/:firebaseUid/activities', async (req, res) => {
 
   } catch (error) {
     console.error('Error getting activity history:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Generate personalized quote based on user's mood history
+router.get('/user/:firebaseUid/personalized-quote', async (req, res) => {
+  try {
+    const { firebaseUid } = req.params;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Get recent mood history (last 7 days)
+    const recentMoods = user.moodHistory || [];
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const recentMoodHistory = recentMoods.filter(mood => 
+      new Date(mood.date) >= sevenDaysAgo
+    );
+
+    // Generate personalized quote using Gemini AI
+    let personalizedQuote = '';
+    try {
+      const moodContext = recentMoodHistory.length > 0 
+        ? recentMoodHistory.map(mood => `${mood.mood}${mood.note ? ` (${mood.note})` : ''}`).join(', ')
+        : 'No recent mood data available';
+
+      const quotePrompt = `Generate a personalized, encouraging wellness quote based on recent mood history.
+
+USER CONTEXT:
+- Recent mood history: ${moodContext}
+- Goals: ${user.goals?.join(', ') || 'General wellness'}
+- Age range: ${user.ageRange || 'Not specified'}
+
+REQUIREMENTS:
+- Create a motivational, supportive quote (1-2 sentences)
+- Make it personal and relevant to their mood patterns
+- Keep it uplifting and encouraging
+- Focus on mental wellness and self-care
+- Use warm, caring language
+- Maximum 150 characters
+- Do NOT include "User," or any name prefix in the quote
+- Start the quote directly with the motivational message
+- No quotes or special characters around the text
+
+Generate a personalized quote that will inspire and motivate:`;
+
+      const result = await genAI.models.generateContent({
+        model: "gemini-2.5-flash-lite",
+        contents: quotePrompt,
+        generationConfig: {
+          temperature: 0.8,
+          maxOutputTokens: 100
+        }
+      });
+
+      personalizedQuote = result.candidates[0].content.parts[0].text.trim();
+      
+      // Clean up the quote (remove quotes if present)
+      personalizedQuote = personalizedQuote.replace(/^["']|["']$/g, '');
+      
+    } catch (geminiError) {
+      console.error('Error generating personalized quote:', geminiError);
+      // Fallback quotes based on recent mood
+      const lastMood = recentMoodHistory[recentMoodHistory.length - 1]?.mood;
+      
+      const fallbackQuotes = {
+        happy: "Your joy is contagious and your positivity lights up the world around you.",
+        neutral: "Every small step forward is progress worth celebrating.",
+        sad: "It's okay to feel this way. You're stronger than you know, and better days are ahead.",
+        anxious: "Take a deep breath. You've overcome challenges before, and you'll overcome this too.",
+        tired: "Rest is not giving up; it's preparing for the journey ahead.",
+        calm: "Your inner peace is a gift that radiates outward to everyone around you.",
+        frustrated: "Challenges are opportunities in disguise. You have the strength to transform them.",
+        hopeful: "Your hope is a beacon of light that guides you through any darkness."
+      };
+      
+      personalizedQuote = fallbackQuotes[lastMood] || "Your wellness journey is unique and beautiful. Keep going, one step at a time.";
+    }
+
+    res.json({
+      success: true,
+      quote: personalizedQuote,
+      generatedAt: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error generating personalized quote:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
