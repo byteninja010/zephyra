@@ -15,7 +15,9 @@
   "scripts": {
     "dev": "react-scripts start",
     "start": "react-scripts start",
+    "start:prod": "REACT_APP_API_URL=https://zephyra-n7dn.onrender.com react-scripts start",
     "build": "react-scripts build",
+    "build:prod": "REACT_APP_API_URL=https://zephyra-n7dn.onrender.com react-scripts build",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

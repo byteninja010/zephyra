@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+import API_URL from '../config/api';
 
 console.log('🔧 sessionService.js loaded - this should appear when the page loads');
 

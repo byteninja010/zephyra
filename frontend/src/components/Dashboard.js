@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import API_URL from "../config/api";
 import MoodCheckInModal from "./MoodCheckInModal";
 import MoodGraph from "./MoodGraph";
 import BreathingExercise from "./BreathingExercise";
@@ -173,7 +174,7 @@ const Dashboard = () => {
       const firebaseUid = localStorage.getItem("firebaseUid");
       if (!firebaseUid) return;
 
-      const response = await fetch(`http://localhost:5000/api/sessions/upcoming/${firebaseUid}?limit=10`);
+      const response = await fetch(`${API_URL}/api/sessions/upcoming/${firebaseUid}?limit=10`);
       if (response.ok) {
         const data = await response.json();
         if (data.success) {

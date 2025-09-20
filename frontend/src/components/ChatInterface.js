@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
+import API_URL from "../config/api";
 import {
   MicrophoneIcon,
   PaperAirplaneIcon,
@@ -186,7 +187,7 @@ const ChatInterface = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/chat/${chatId}`, {
+      const response = await fetch(`${API_URL}/api/chat/${chatId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
