@@ -10,25 +10,35 @@ const router = express.Router();
 
 // Retry function for Gemini API calls with exponential backoff
 async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
+  console.log(`🚀 Starting Gemini API call with ${maxRetries} max retries`);
+  
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`🔄 Gemini API attempt ${attempt}/${maxRetries}`);
+      console.log(`🔑 API Key check - exists: ${!!process.env.GEMINI_API_KEY}, length: ${process.env.GEMINI_API_KEY?.length || 0}`);
+      
       const result = await apiCall();
       console.log(`✅ Gemini API call successful on attempt ${attempt}`);
       return result;
     } catch (error) {
-      console.log(`⚠️ Gemini API attempt ${attempt} failed:`, error.message);
+      console.log(`⚠️ Gemini API attempt ${attempt} failed:`);
+      console.log(`   📝 Error message: ${error.message}`);
+      console.log(`   🔢 Error code: ${error.code}`);
+      console.log(`   📊 Error status: ${error.status}`);
+      console.log(`   🏷️ Error name: ${error.name}`);
       
       if (attempt === maxRetries) {
+        console.log(`❌ All ${maxRetries} attempts failed, throwing error`);
         throw error; // Re-throw on final attempt
       }
       
       // Check if it's a retryable error (503, 429, 500)
       if (error.status === 503 || error.status === 429 || error.status === 500) {
         const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
-        console.log(`⏳ Waiting ${delay}ms before retry...`);
+        console.log(`⏳ Retryable error detected, waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
+        console.log(`❌ Non-retryable error detected, stopping retries`);
         throw error; // Don't retry for non-retryable errors
       }
     }
@@ -45,8 +55,8 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'audio-' + uniqueSuffix + path.extname(file.originalname));
+    // Use consistent filename for user audio uploads
+    cb(null, 'user-audio' + path.extname(file.originalname));
   }
 });
 
@@ -63,6 +73,11 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024 // 10MB limit
   }
 });
+
+// Get base URL for audio URLs
+const getBaseUrl = () => {
+  return process.env.BASE_URL || 'https://zephyra-n7dn.onrender.com';
+};
 
 // Initialize Gemini AI
 const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
@@ -765,24 +780,29 @@ router.post('/:chatId/message', async (req, res) => {
     // Generate AI response
     let aiResponse;
     try {
-              const systemPrompt = await getSystemPrompt(chat.context, isSessionChat);
+      console.log('🚀 Starting AI response generation...');
+      console.log('🔑 GEMINI_API_KEY exists:', !!process.env.GEMINI_API_KEY);
+      console.log('🔑 GEMINI_API_KEY length:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0);
+      console.log('🔑 GEMINI_API_KEY preview:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.substring(0, 10) + '...' : 'NOT SET');
       
-              // Build conversation history for context (last 100 messages for much better context)
-              const conversationHistory = chat.messages.slice(-100).map(msg => 
+      const systemPrompt = await getSystemPrompt(chat.context, isSessionChat);
+      
+      // Build conversation history for context (last 100 messages for much better context)
+      const conversationHistory = chat.messages.slice(-100).map(msg => 
         `${msg.sender}: ${msg.text}`
       ).join('\n');
 
-              // Detect language preference from recent messages
-              const recentMessages = chat.messages.slice(-10);
-              const languagePreference = detectLanguagePreference(recentMessages);
-              
-              // Add session context if this is a session chat
-              let sessionContext = '';
-              if (isSessionChat) {
-                sessionContext = '\n\nSESSION CONTEXT: This is a dedicated wellness session. The user has specifically chosen to engage in mental wellness work. Be extra supportive and comprehensive in your responses.';
-              }
-              
-              const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
+      // Detect language preference from recent messages
+      const recentMessages = chat.messages.slice(-10);
+      const languagePreference = detectLanguagePreference(recentMessages);
+      
+      // Add session context if this is a session chat
+      let sessionContext = '';
+      if (isSessionChat) {
+        sessionContext = '\n\nSESSION CONTEXT: This is a dedicated wellness session. The user has specifically chosen to engage in mental wellness work. Be extra supportive and comprehensive in your responses.';
+      }
+      
+      const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
       // Log the full prompt being sent to AI for debugging
       console.log('🤖 Full prompt being sent to AI:');
@@ -797,6 +817,7 @@ router.post('/:chatId/message', async (req, res) => {
       const maxTokens = isSessionChat ? 8192 : 2000;
       console.log(`🤖 Using model: ${modelName} with ${maxTokens} max output tokens`);
 
+      console.log('🔄 Calling Gemini API...');
       const result = await retryGeminiCall(() => 
         genAI.models.generateContent({
         model: modelName,
@@ -809,14 +830,47 @@ router.post('/:chatId/message', async (req, res) => {
         }
         })
       );
-      aiResponse = result.candidates[0].content.parts[0].text;
-    } catch (geminiError) {
-      console.error('Gemini API Error:', geminiError);
-      console.error('Error details:', {
-        message: geminiError.message,
-        code: geminiError.code,
-        status: geminiError.status
+      
+      console.log('✅ Gemini API call successful!');
+      console.log('📄 Response structure:', {
+        hasCandidates: !!result.candidates,
+        candidatesLength: result.candidates?.length || 0,
+        hasContent: !!result.candidates?.[0]?.content,
+        hasParts: !!result.candidates?.[0]?.content?.parts,
+        partsLength: result.candidates?.[0]?.content?.parts?.length || 0
       });
+      
+      aiResponse = result.candidates[0].content.parts[0].text;
+      console.log('📝 AI Response length:', aiResponse.length);
+      console.log('📝 AI Response preview:', aiResponse.substring(0, 100) + '...');
+    } catch (geminiError) {
+      console.error('❌ Gemini API Error occurred:');
+      console.error('🔍 Error type:', geminiError.constructor.name);
+      console.error('📝 Error message:', geminiError.message);
+      console.error('🔢 Error code:', geminiError.code);
+      console.error('📊 Error status:', geminiError.status);
+      console.error('🌐 Error stack:', geminiError.stack);
+      console.error('🔑 API Key status:', {
+        exists: !!process.env.GEMINI_API_KEY,
+        length: process.env.GEMINI_API_KEY?.length || 0,
+        startsWith: process.env.GEMINI_API_KEY?.substring(0, 5) || 'N/A'
+      });
+      
+      // Check if it's a network/connection error
+      if (geminiError.code === 'ENOTFOUND' || geminiError.code === 'ECONNREFUSED') {
+        console.error('🌐 Network error detected - check internet connection');
+      }
+      
+      // Check if it's an authentication error
+      if (geminiError.status === 401 || geminiError.status === 403) {
+        console.error('🔐 Authentication error - check API key');
+      }
+      
+      // Check if it's a quota/rate limit error
+      if (geminiError.status === 429) {
+        console.error('⏰ Rate limit exceeded - too many requests');
+      }
+      
       aiResponse = "I'm sorry, I'm having trouble connecting to my AI services right now. Please check your internet connection and try again. If the problem persists, please contact support.";
     }
 
@@ -836,7 +890,7 @@ router.post('/:chatId/message', async (req, res) => {
         }
         const audioFilePath = path.join(audioDir, audioFileName);
         fs.writeFileSync(audioFilePath, audioResponse);
-      audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
+        audioResponseUrl = `${getBaseUrl()}/uploads/audio/${audioFileName}`;
         console.log('✅ High-quality Gemini audio saved:', audioFilePath);
       } else {
         console.log('⚠️ No audio generated by Gemini, text-only response');
@@ -995,7 +1049,7 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
     const audioBuffer = fs.readFileSync(req.file.path);
     const transcription = await transcribeAudio(audioBuffer, req.file.mimetype);
 
-    const audioUrl = `http://localhost:5000/uploads/audio/${req.file.filename}`;
+    const audioUrl = `${getBaseUrl()}/uploads/audio/${req.file.filename}`;
 
     // Add user audio message with transcription
     const userMessage = {
@@ -1081,7 +1135,7 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
         }
         const audioFilePath = path.join(audioDir, audioFileName);
         fs.writeFileSync(audioFilePath, audioResponse);
-      audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
+        audioResponseUrl = `${getBaseUrl()}/uploads/audio/${audioFileName}`;
         console.log('✅ High-quality Gemini audio saved:', audioFilePath);
       } else {
         console.log('⚠️ No audio generated by Gemini, text-only response');
