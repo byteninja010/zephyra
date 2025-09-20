@@ -519,7 +519,10 @@ router.get('/history/:firebaseUid', async (req, res) => {
     const chats = await Chat.find({ 
       firebaseUid, 
       isActive: true,
-      sessionId: { $exists: false } // Exclude session chats from regular chat history
+      $or: [
+        { sessionId: { $exists: false } }, // Field doesn't exist
+        { sessionId: null } // Field exists but is null
+      ]
     }).sort({ updatedAt: -1 }).select('title createdAt updatedAt _id');
 
     res.json({
