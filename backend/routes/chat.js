@@ -817,7 +817,7 @@ router.post('/:chatId/message', async (req, res) => {
       
       if (audioResponse) {
         // Save the native audio response
-        const audioFileName = `response-${Date.now()}.wav`;
+        const audioFileName = 'ai-response.wav';
       const audioFilePath = path.join('uploads/audio', audioFileName);
       fs.writeFileSync(audioFilePath, audioResponse);
       audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
@@ -1058,7 +1058,7 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
 
       if (audioResponse) {
         // Save the native audio response
-        const audioFileName = `response-${Date.now()}.wav`;
+        const audioFileName = 'ai-response.wav';
       const audioFilePath = path.join('uploads/audio', audioFileName);
       fs.writeFileSync(audioFilePath, audioResponse);
       audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
