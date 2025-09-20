@@ -954,7 +954,7 @@ const Dashboard = () => {
               {/* Emergency Contact */}
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600 mb-2">988</div>
+                  <div className="text-3xl font-bold text-red-600 mb-2">14416</div>
                   <p className="text-sm text-red-700 font-medium mb-2">Suicide & Crisis Lifeline</p>
                   <p className="text-xs text-red-600 mb-3">Available 24/7, free and confidential</p>
                   <a
@@ -979,19 +979,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">Emergency Services</p>
-                    <p className="text-xs text-gray-600">Call 911 for immediate danger</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
-                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Crisis Text Line</p>
-                    <p className="text-xs text-gray-600">Text HOME to 741741</p>
+                    <p className="text-xs text-gray-600">Call 112 for immediate danger</p>
                   </div>
                 </div>
               </div>

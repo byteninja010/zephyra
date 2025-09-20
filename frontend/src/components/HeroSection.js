@@ -90,8 +90,8 @@ const HeroSection = () => {
                 </button>
                 
                 {/* Powered by Gemini */}
-                <div className="mt-6 flex justify-center">
-                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-white/20">                 
+                <div className="mt-4 flex">
+                  <div className="flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-6 py-2 shadow-lg border border-white/20">                 
                     <span className="text-sm font-semibold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
                       Powered by
                     </span>
