@@ -69,7 +69,19 @@ const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 // Initialize Google Cloud Speech client (for transcription only)
 const speechClient = new speech.SpeechClient({
-  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS || 'google-credentials.json'
+  credentials: {
+    type: "service_account",
+    project_id: process.env.GOOGLE_CLOUD_PROJECT_ID,
+    private_key_id: process.env.GOOGLE_CLOUD_PRIVATE_KEY_ID,
+    private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
+    client_id: process.env.GOOGLE_CLOUD_CLIENT_ID,
+    auth_uri: "https://accounts.google.com/o/oauth2/auth",
+    token_uri: "https://oauth2.googleapis.com/token",
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+    client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(process.env.GOOGLE_CLOUD_CLIENT_EMAIL)}`,
+    universe_domain: "googleapis.com"
+  }
 });
 
 // Cache for system prompts to avoid regenerating every time
@@ -818,8 +830,12 @@ router.post('/:chatId/message', async (req, res) => {
       if (audioResponse) {
         // Save the native audio response
         const audioFileName = 'ai-response.wav';
-      const audioFilePath = path.join('uploads/audio', audioFileName);
-      fs.writeFileSync(audioFilePath, audioResponse);
+        const audioDir = 'uploads/audio';
+        if (!fs.existsSync(audioDir)) {
+          fs.mkdirSync(audioDir, { recursive: true });
+        }
+        const audioFilePath = path.join(audioDir, audioFileName);
+        fs.writeFileSync(audioFilePath, audioResponse);
       audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
         console.log('✅ High-quality Gemini audio saved:', audioFilePath);
       } else {
@@ -1059,8 +1075,12 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
       if (audioResponse) {
         // Save the native audio response
         const audioFileName = 'ai-response.wav';
-      const audioFilePath = path.join('uploads/audio', audioFileName);
-      fs.writeFileSync(audioFilePath, audioResponse);
+        const audioDir = 'uploads/audio';
+        if (!fs.existsSync(audioDir)) {
+          fs.mkdirSync(audioDir, { recursive: true });
+        }
+        const audioFilePath = path.join(audioDir, audioFileName);
+        fs.writeFileSync(audioFilePath, audioResponse);
       audioResponseUrl = `http://localhost:5000/uploads/audio/${audioFileName}`;
         console.log('✅ High-quality Gemini audio saved:', audioFilePath);
       } else {
