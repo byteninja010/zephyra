@@ -603,7 +603,7 @@ const Dashboard = () => {
                 color: "white",
               }}
             >
-              🎨 Start Drawing
+              Start Drawing
             </button>
           </div>
 
