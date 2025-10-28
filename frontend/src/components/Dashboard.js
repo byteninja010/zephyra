@@ -7,6 +7,7 @@ import MoodGraph from "./MoodGraph";
 import BreathingExercise from "./BreathingExercise";
 import ReflectionChart from "./ReflectionChart";
 import StreakTracker from "./StreakTracker";
+import MindCanvas from "./MindCanvas";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -18,10 +19,24 @@ const Dashboard = () => {
   const [showBreathingExercise, setShowBreathingExercise] = useState(false);
   const [showReflectionChart, setShowReflectionChart] = useState(false);
   const [showStreakTracker, setShowStreakTracker] = useState(false);
+  const [showMindCanvas, setShowMindCanvas] = useState(false);
   const [personalizedQuote, setPersonalizedQuote] = useState("");
   const [quoteLoading, setQuoteLoading] = useState(true);
   const [scheduledSessions, setScheduledSessions] = useState([]);
   const [showCrisisModal, setShowCrisisModal] = useState(false);
+  const [showMindCanvasToast, setShowMindCanvasToast] = useState(true);
+
+  // Close toast on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (showMindCanvasToast) {
+        setShowMindCanvasToast(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showMindCanvasToast]);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -600,6 +615,85 @@ const Dashboard = () => {
           
         </div>
 
+        {/* Mind Canvas - Featured Section */}
+        <div id="mind-canvas-section" className="mb-12 scroll-mt-8">
+          <div
+            className="group p-8 rounded-3xl backdrop-blur-sm border-2 border-white/60 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden"
+            style={{ background: "rgba(255, 255, 255, 0.9)" }}
+          >
+            {/* Decorative elements */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400 to-cyan-400 opacity-5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-400 to-teal-400 opacity-5 rounded-full blur-3xl"></div>
+            
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-shrink-0">
+                <div
+                  className="w-24 h-24 rounded-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300"
+                  style={{
+                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                  }}
+                >
+                  <svg
+                    className="w-12 h-12 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                    />
+                  </svg>
+                </div>
+              </div>
+              
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
+                  <span className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold rounded-full">
+                    ✨ NEW FEATURE
+                  </span>
+                  <span className="inline-block px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+                    🤖 Powered by Vision AI
+                  </span>
+                </div>
+                <h3
+                  className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"
+                >
+                  Mind Canvas
+                </h3>
+                <p
+                  className="text-lg mb-1 italic"
+                  style={{ color: "#475569" }}
+                >
+                  "No words. Just colors — and AI feels what you draw."
+                </p>
+                <p
+                  className="text-sm"
+                  style={{ color: "#64748B" }}
+                >
+                  Express your emotions through art. Our AI analyzes your drawing to understand your mood and suggests personalized activities.
+                </p>
+              </div>
+              
+              <div className="flex-shrink-0">
+                <button
+                  onClick={() => setShowMindCanvas(true)}
+                  className="px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 flex items-center gap-3"
+                  style={{
+                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                    color: "white",
+                  }}
+                >
+                  <span>🎨</span>
+                  <span>Start Drawing</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Additional Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {/* Mood Check-in */}
@@ -859,6 +953,52 @@ const Dashboard = () => {
         isOpen={showStreakTracker}
         onClose={() => setShowStreakTracker(false)}
       />
+
+      {/* Mind Canvas Modal */}
+      <MindCanvas
+        isOpen={showMindCanvas}
+        onClose={() => setShowMindCanvas(false)}
+      />
+
+      {/* Mind Canvas Toast Notification - Fixed Top Center */}
+      {showMindCanvasToast && (
+        <div className="fixed top-20 left-[42%] -translate-x-1/2 z-40 animate-bounce">
+          <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
+            style={{
+              background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+            }}
+          >
+            <button
+              onClick={() => {
+                setShowMindCanvasToast(false);
+                const mindCanvasSection = document.getElementById('mind-canvas-section');
+                if (mindCanvasSection) {
+                  mindCanvasSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }}
+              className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
+            >
+              <span className="text-lg">🎨</span>
+              <span className="px-2 py-0.5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full">
+                NEW
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-white font-semibold text-sm">Try Out</span>
+                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">Mind Canvas</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setShowMindCanvasToast(false)}
+              className="ml-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-0.5 transition-all"
+              aria-label="Dismiss"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Crisis Support Button - Fixed Bottom Right */}
       <div className="fixed bottom-6 right-6 z-50">

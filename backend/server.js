@@ -33,6 +33,7 @@ connectDB();
 const authRoutes = require('./routes/auth');
 const chatRoutes = require('./routes/chat');
 const sessionRoutes = require('./routes/sessions');
+const canvasRoutes = require('./routes/canvas');
 
 // Routes
 app.get('/', (req, res) => {
@@ -56,6 +57,9 @@ app.use('/api/chat', chatRoutes);
 
 // Use session routes
 app.use('/api/sessions', sessionRoutes);
+
+// Use canvas routes
+app.use('/api/canvas', canvasRoutes);
 
 // Start server
 app.listen(PORT, () => {

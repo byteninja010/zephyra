@@ -41,6 +41,14 @@ A comprehensive mental health and wellness platform built with the MERN stack, f
 - **Streak Tracking**: Monitor wellness activity streaks
 - **Progress Analytics**: View long-term wellness trends
 
+### 🎨 Mind Canvas (NEW!)
+- **Emotional Art Expression**: Draw your feelings on a digital canvas
+- **AI Mood Analysis**: Gemini Vision AI interprets emotions from your artwork
+- **Color Psychology**: AI analyzes color choices and their emotional meaning
+- **Stroke Pattern Analysis**: Understands energy and emotional state from brushwork
+- **Personalized Insights**: Receive mood descriptions, analysis, and activity suggestions
+- **"No words. Just colors — and AI feels what you draw."**
+
 ### 🎯 Personalized Experience
 - **User Profiles**: Customizable user profiles with wellness goals
 - **Onboarding Flow**: Guided setup for new users
@@ -212,7 +220,11 @@ Backend (Node.js/Express)
 Zephyra/
 ├─ backend/
 │  ├─ models/              # MongoDB models (User, Chat, Session)
-│  ├─ routes/              # API routes (auth, chat, sessions)
+│  ├─ routes/              # API routes
+│  │  ├─ auth.js           # Authentication routes
+│  │  ├─ chat.js           # Chat routes
+│  │  ├─ sessions.js       # Session routes
+│  │  └─ canvas.js         # Mind Canvas routes (NEW!)
 │  ├─ services/            # Business logic services
 │  ├─ config/              # Firebase configuration
 │  ├─ uploads/             # Audio file storage
@@ -226,6 +238,7 @@ Zephyra/
 │  │  │  ├─ ChatInterface.js
 │  │  │  ├─ Dashboard.js
 │  │  │  ├─ SessionInterface.js
+│  │  │  ├─ MindCanvas.js  # Mind Canvas component (NEW!)
 │  │  │  ├─ MoodCheckInModal.js
 │  │  │  ├─ BreathingExercise.js
 │  │  │  └─ ... (15+ components)
@@ -237,7 +250,9 @@ Zephyra/
 │  ├─ public/              # Static assets
 │  ├─ tailwind.config.js   # TailwindCSS configuration
 │  └─ package.json
+├─ test-mind-canvas.js     # Mind Canvas testing script (NEW!)
 ├─ CHAT_SETUP.md           # Detailed chat setup guide
+├─ MIND_CANVAS_README.md   # Mind Canvas documentation (NEW!)
 └─ README.md
 ```
 
@@ -341,6 +356,10 @@ MongoDB Collections:
 - `DELETE /api/sessions/cancel/:sessionId` - Cancel session
 - `DELETE /api/sessions/cleanup/:firebaseUid` - Clean up duplicate sessions
 
+### Mind Canvas
+- `POST /api/canvas/analyze` - Analyze canvas drawing with AI
+- `GET /api/canvas/history/:firebaseUid` - Get canvas drawing history
+
 ## 🎨 Key Components
 
 ### Frontend Components
@@ -351,6 +370,7 @@ MongoDB Collections:
 - **SimpleSessionInterface**: Simplified session interface
 - **SessionsPage**: Session management and scheduling page
 - **SessionScheduling**: Session creation and scheduling component
+- **MindCanvas**: Drawing canvas with AI mood analysis (NEW!)
 - **MoodCheckInModal**: Mood tracking and reflection modal
 - **MoodGraph**: Mood visualization and analytics charts
 - **BreathingExercise**: Guided breathing exercises
@@ -430,12 +450,30 @@ MongoDB Collections:
 3. View your reflection history
 4. Track your personal growth over time
 
+### Using Mind Canvas 🎨
+1. Navigate to Dashboard and click "Start Drawing" on the Mind Canvas card
+2. Choose colors from the emotional palette
+3. Draw freely on the canvas - express your feelings through art
+4. Adjust brush size as needed
+5. Click "✨ Reveal My Mood" when ready
+6. Receive AI-powered mood analysis including:
+   - Detected mood with emoji
+   - Poetic mood description
+   - Color and stroke pattern analysis
+   - Personalized activity suggestion
+   - Encouraging message
+7. Create another drawing or explore your canvas history
+8. All canvas moods are automatically saved to your mood history
+
+See [MIND_CANVAS_README.md](MIND_CANVAS_README.md) for detailed documentation.
+
 ## 🚀 Current Status
 
 The platform currently includes:
 - **AI-powered chat system** with voice and text support
 - **Session management** with scheduling and instant sessions
 - **Mood tracking** and reflection tools
+- **Mind Canvas** - AI-powered mood analysis from drawings (NEW!)
 - **User authentication** and profile management
 - **Personalized AI responses** based on user context
 - **Audio processing** with speech-to-text and text-to-speech
@@ -459,6 +497,12 @@ Potential areas for expansion:
 - `npm run dev` - Start development server (alternative script)
 - `npm run build` - Build for production
 - `npm run eject` - Eject from Create React App (irreversible)
+
+### Testing
+- `node test-auth.js` - Test authentication flow
+- `node test-personalized-quote.js` - Test personalized quote generation
+- `node test-session-completion.js` - Test session completion flow
+- `node test-mind-canvas.js` - Test Mind Canvas AI mood analysis (NEW!)
 
 ## 🔧 Troubleshooting
 
