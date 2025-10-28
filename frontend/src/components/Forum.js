@@ -22,6 +22,7 @@ const Forum = () => {
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all'); // 'all' or 'my-posts'
+  const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const newPostRef = useRef(null);
 
   // Show notification (needs to be defined before use in other callbacks)
@@ -608,7 +609,32 @@ const Forum = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </button>
-              <h1 className="text-xl font-bold" style={{ color: '#1e293b' }}>Community</h1>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-xl font-bold" style={{ color: '#1e293b' }}>Support Forum</h1>
+                  <div className="relative mt-1">
+                    <div
+                      onMouseEnter={() => setShowInfoTooltip(true)}
+                      onMouseLeave={() => setShowInfoTooltip(false)}
+                      className="w-5 h-5 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+                      style={{ 
+                        backgroundColor:'#3C91C5' ,
+                        color: '#ffffff'
+                      }}
+                    >
+                      <span className="text-xs font-bold">i</span>
+                    </div>
+                    {showInfoTooltip && (
+                      <div className="absolute top-7 left-1/2 z-50" style={{ transform: 'translateX(-50%)' }}>
+                        <div className="bg-gray-900 text-white text-sm rounded-lg px-4 py-3 shadow-xl whitespace-nowrap">
+                          <div className="absolute -top-1 left-1/2 w-2 h-2 bg-gray-900 rotate-45" style={{ transform: 'translateX(-50%)' }}></div>
+                          <p className="font-semibold mb-1">🛡️ AI Moderated Forum</p>
+                          <p className="text-gray-300 text-xs">All posts and comments are automatically</p>
+                          <p className="text-gray-300 text-xs">reviewed by AI to ensure a safe space</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
             </div>
 
             {/* Right: Profile Badge */}

@@ -593,7 +593,7 @@ const Dashboard = () => {
               className="text-sm font-light text-center mb-4"
               style={{ color: "#475569" }}
             >
-              🤖 Draw your emotions, AI understands
+              Draw your emotions, AI understands
             </p>
             <button
               onClick={() => setShowMindCanvas(true)}
