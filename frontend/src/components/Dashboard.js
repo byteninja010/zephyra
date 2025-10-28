@@ -26,6 +26,7 @@ const Dashboard = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [showMindCanvasToast, setShowMindCanvasToast] = useState(true);
   const [showSupportForumToast, setShowSupportForumToast] = useState(true);
+  const [highlightedCard, setHighlightedCard] = useState(null);
 
   // Close toasts on scroll
   useEffect(() => {
@@ -480,16 +481,21 @@ const Dashboard = () => {
 
           {/* Support Forum */}
           <div
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
+            id="support-forum-section"
+            className={`group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
+              highlightedCard === 'support-forum' 
+                ? 'border-cyan-400 shadow-2xl ring-4 ring-cyan-300/50 animate-pulse' 
+                : 'border-white/40 hover:shadow-xl'
+            }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-4 py-1 bg-gradient-to-r from-teal-500 to-cyan-500 text-white text-xs font-semibold rounded-full shadow-lg">
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
                 ✨ NEW FEATURE
               </span>
-              <span className="inline-block px-4 py-1 bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-xs font-semibold rounded-full shadow-lg">
-                🤖 Moderated by Gemini
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+              ✨ MODERATED BY GEMINI
               </span>
             </div>
             
@@ -540,16 +546,20 @@ const Dashboard = () => {
           {/* Mind Canvas */}
           <div
             id="mind-canvas-section"
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8"
+            className={`group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
+              highlightedCard === 'mind-canvas' 
+                ? 'border-blue-400 shadow-2xl ring-4 ring-blue-300/50 animate-pulse' 
+                : 'border-white/40 hover:shadow-xl'
+            }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold rounded-full shadow-lg">
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
                 ✨ NEW FEATURE
               </span>
-              <span className="inline-block px-4 py-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-semibold rounded-full shadow-lg">
-                🤖 Powered by Vision AI
+              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+              ✨ POWERED BY VISION AI
               </span>
             </div>
             
@@ -1007,7 +1017,7 @@ const Dashboard = () => {
 
       {/* Support Forum Toast Notification - Fixed Top Center */}
       {showSupportForumToast && (
-        <div className="fixed top-8 left-[42%] -translate-x-1/2 z-40 animate-bounce">
+        <div className="fixed top-8 left-[41.5%] -translate-x-1/2 z-40 animate-bounce">
           <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
             style={{
               background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
@@ -1016,7 +1026,12 @@ const Dashboard = () => {
             <button
               onClick={() => {
                 setShowSupportForumToast(false);
-                navigate('/forum');
+                const supportForumSection = document.getElementById('support-forum-section');
+                if (supportForumSection) {
+                  supportForumSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  setHighlightedCard('support-forum');
+                  setTimeout(() => setHighlightedCard(null), 3000);
+                }
               }}
               className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
@@ -1056,6 +1071,8 @@ const Dashboard = () => {
                 const mindCanvasSection = document.getElementById('mind-canvas-section');
                 if (mindCanvasSection) {
                   mindCanvasSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  setHighlightedCard('mind-canvas');
+                  setTimeout(() => setHighlightedCard(null), 3000);
                 }
               }}
               className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
