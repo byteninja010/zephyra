@@ -13,6 +13,12 @@ const userSchema = new mongoose.Schema({
     unique: true,
     index: true
   },
+  pseudonym: {
+    type: String,
+    unique: true,
+    sparse: true, // Allow null values to be non-unique
+    index: true
+  },
   // Onboarding fields
   nickname: {
     type: String,

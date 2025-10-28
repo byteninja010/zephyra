@@ -25,18 +25,22 @@ const Dashboard = () => {
   const [scheduledSessions, setScheduledSessions] = useState([]);
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [showMindCanvasToast, setShowMindCanvasToast] = useState(true);
+  const [showSupportForumToast, setShowSupportForumToast] = useState(true);
 
-  // Close toast on scroll
+  // Close toasts on scroll
   useEffect(() => {
     const handleScroll = () => {
       if (showMindCanvasToast) {
         setShowMindCanvasToast(false);
       }
+      if (showSupportForumToast) {
+        setShowSupportForumToast(false);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [showMindCanvasToast]);
+  }, [showMindCanvasToast, showSupportForumToast]);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -126,6 +130,7 @@ const Dashboard = () => {
     };
 
     validateUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const handleSignOut = () => {
@@ -473,6 +478,125 @@ const Dashboard = () => {
             </button>
           </div>
 
+          {/* Support Forum */}
+          <div
+            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
+            style={{ background: "rgba(255, 255, 255, 0.8)" }}
+          >
+            {/* New Feature Badges */}
+            <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+              <span className="inline-block px-4 py-1 bg-gradient-to-r from-teal-500 to-cyan-500 text-white text-xs font-semibold rounded-full shadow-lg">
+                ✨ NEW FEATURE
+              </span>
+              <span className="inline-block px-4 py-1 bg-gradient-to-r from-teal-600 to-cyan-600 text-white text-xs font-semibold rounded-full shadow-lg">
+                🤖 Moderated by Gemini
+              </span>
+            </div>
+            
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              style={{
+                background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+              }}
+            >
+              <svg
+                className="w-8 h-8"
+                fill="none"
+                stroke="white"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
+                />
+              </svg>
+            </div>
+            <h3
+              className="text-xl font-semibold mb-3 text-center"
+              style={{ color: "#1E252B" }}
+            >
+              AI-Moderated Forum
+            </h3>
+            <p
+              className="text-sm font-light text-center mb-4"
+              style={{ color: "#475569" }}
+            >
+              Safe anonymous community with AI content moderation
+            </p>
+            <button
+              onClick={() => navigate("/forum")}
+              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                color: "white",
+              }}
+            >
+              Join Community
+            </button>
+          </div>
+
+          {/* Mind Canvas */}
+          <div
+            id="mind-canvas-section"
+            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8"
+            style={{ background: "rgba(255, 255, 255, 0.8)" }}
+          >
+            {/* New Feature Badges */}
+            <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+              <span className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold rounded-full shadow-lg">
+                ✨ NEW FEATURE
+              </span>
+              <span className="inline-block px-4 py-1 bg-gradient-to-r from-blue-600 to-cyan-600 text-white text-xs font-semibold rounded-full shadow-lg">
+                🤖 Powered by Vision AI
+              </span>
+            </div>
+            
+            <div
+              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              style={{
+                background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+              }}
+            >
+              <svg
+                className="w-8 h-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                />
+              </svg>
+            </div>
+            <h3
+              className="text-xl font-semibold mb-3 text-center"
+              style={{ color: "#1E252B" }}
+            >
+              Mind Canvas
+            </h3>
+            <p
+              className="text-sm font-light text-center mb-4"
+              style={{ color: "#475569" }}
+            >
+              🤖 Draw your emotions, AI understands
+            </p>
+            <button
+              onClick={() => setShowMindCanvas(true)}
+              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              style={{
+                background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                color: "white",
+              }}
+            >
+              🎨 Start Drawing
+            </button>
+          </div>
+
         </div>
 
 
@@ -613,85 +737,6 @@ const Dashboard = () => {
           </div>
 
           
-        </div>
-
-        {/* Mind Canvas - Featured Section */}
-        <div id="mind-canvas-section" className="mb-12 scroll-mt-8">
-          <div
-            className="group p-8 rounded-3xl backdrop-blur-sm border-2 border-white/60 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden"
-            style={{ background: "rgba(255, 255, 255, 0.9)" }}
-          >
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400 to-cyan-400 opacity-5 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-cyan-400 to-teal-400 opacity-5 rounded-full blur-3xl"></div>
-            
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-              <div className="flex-shrink-0">
-                <div
-                  className="w-24 h-24 rounded-2xl flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300"
-                  style={{
-                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                  }}
-                >
-                  <svg
-                    className="w-12 h-12 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                    />
-                  </svg>
-                </div>
-              </div>
-              
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start gap-2 mb-3">
-                  <span className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold rounded-full">
-                    ✨ NEW FEATURE
-                  </span>
-                  <span className="inline-block px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
-                    🤖 Powered by Vision AI
-                  </span>
-                </div>
-                <h3
-                  className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent"
-                >
-                  Mind Canvas
-                </h3>
-                <p
-                  className="text-lg mb-1 italic"
-                  style={{ color: "#475569" }}
-                >
-                  "No words. Just colors — and AI feels what you draw."
-                </p>
-                <p
-                  className="text-sm"
-                  style={{ color: "#64748B" }}
-                >
-                  Express your emotions through art. Our AI analyzes your drawing to understand your mood and suggests personalized activities.
-                </p>
-              </div>
-              
-              <div className="flex-shrink-0">
-                <button
-                  onClick={() => setShowMindCanvas(true)}
-                  className="px-8 py-4 rounded-2xl text-lg font-semibold transition-all duration-300 hover:shadow-2xl transform hover:scale-105 flex items-center gap-3"
-                  style={{
-                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                    color: "white",
-                  }}
-                >
-                  <span>🎨</span>
-                  <span>Start Drawing</span>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Additional Quick Actions */}
@@ -960,10 +1005,47 @@ const Dashboard = () => {
         onClose={() => setShowMindCanvas(false)}
       />
 
+      {/* Support Forum Toast Notification - Fixed Top Center */}
+      {showSupportForumToast && (
+        <div className="fixed top-8 left-[42%] -translate-x-1/2 z-40 animate-bounce">
+          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
+            style={{
+              background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+            }}
+          >
+            <button
+              onClick={() => {
+                setShowSupportForumToast(false);
+                navigate('/forum');
+              }}
+              className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
+            >
+              <span className="text-lg">💬</span>
+              <span className="px-2 py-0.5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full">
+                NEW
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-white font-semibold text-sm">Try Out</span>
+                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">Support Forum</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setShowSupportForumToast(false)}
+              className="ml-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-0.5 transition-all"
+              aria-label="Dismiss"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Mind Canvas Toast Notification - Fixed Top Center */}
       {showMindCanvasToast && (
         <div className="fixed top-20 left-[42%] -translate-x-1/2 z-40 animate-bounce">
-          <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
+          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
             style={{
               background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
             }}

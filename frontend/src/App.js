@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import OnboardingFlow from './components/OnboardingFlow';
 import ChatInterface from './components/ChatInterface';
 import SessionsPage from './components/SessionsPage';
+import Forum from './components/Forum';
 
 function App() {
   return (
@@ -37,6 +38,9 @@ function App() {
           
           {/* Sessions Route */}
           <Route path="/sessions" element={<SessionsPage />} />
+          
+          {/* Forum Route */}
+          <Route path="/forum" element={<Forum />} />
           
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
