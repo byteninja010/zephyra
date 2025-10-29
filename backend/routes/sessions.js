@@ -101,17 +101,16 @@ YOUR TASK:
 Generate TWO personalized prompts based on the user's therapeutic journey and current mood:
 
 1. IMAGE PROMPT - For generating a therapeutic nature scene background
+   ${customPreferences ? '⚠️ ABSOLUTE PRIORITY: The user has provided custom preferences above. You MUST generate the image prompt STRICTLY aligned with those preferences. The user preferences are MANDATORY and take precedence over everything else including mood, therapeutic journey, and any other context. Build the entire image prompt around the user\'s stated preferences first, then complement with mood-appropriate elements only if they don\'t conflict.' : '- Generate based on current mood, therapeutic journey, and emotional state'}
    - Must be a detailed, vivid description of a calming nature scene
-   - Should resonate with their therapeutic journey and current emotional state
    - Must be 40-60 words
-   - Focus on nature elements that support their current mood and progress
-   - Examples: forest, ocean, mountains, sunrise, garden, lake, meadow, etc.
    - Include: lighting, colors, atmosphere, mood, photography style
+   - Examples: forest, ocean, mountains, sunrise, garden, lake, meadow, etc.
    - Format: High-quality nature scene description
 
 2. MUSIC PROMPT - For generating therapeutic background music
+   ${customPreferences ? '⚠️ HIGH PRIORITY: If the user preferences mention music or audio elements, incorporate them. Otherwise, generate based on mood and preferences context.' : '- Generate based on current mood and therapeutic progress'}
    - Must describe an instrumental ambient soundscape
-   - Should support their emotional state and therapeutic progress
    - Must be 20-30 words
    - Include: instruments, tempo (BPM), mood descriptors, therapeutic purpose
    - No vocals, no lyrics, instrumental only
@@ -125,7 +124,7 @@ Return ONLY a valid JSON object with this exact structure (no markdown, no code 
 }
 
 CRITICAL REQUIREMENTS:
-- Make it deeply personal based on their therapeutic journey
+${customPreferences ? '- IMAGE PROMPT MUST BE GENERATED PRIMARILY FROM USER PREFERENCES - This is non-negotiable\n- User preferences override mood, therapeutic journey, and all other factors for image generation\n- Only use mood/journey as secondary enhancement if it complements user preferences' : '- Generate based on therapeutic journey and current mood'}
 - Ensure both prompts align with their current mood: ${userMood}
 - Keep it therapeutic and supportive
 - Use vivid, sensory language
@@ -162,6 +161,9 @@ CRITICAL REQUIREMENTS:
       throw new Error('Missing required prompt fields in response');
     }
     
+    console.log(prompts.imagePrompt);
+    console.log(prompts.musicPrompt);
+
     return prompts;
     
   } catch (error) {
