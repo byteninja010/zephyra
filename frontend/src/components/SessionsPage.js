@@ -23,6 +23,11 @@ const SessionsPage = () => {
   const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionLoadingMessage, setSessionLoadingMessage] = useState('');
   const [isSessionActive, setIsSessionActive] = useState(false);
+  
+  // Personalization modal states
+  const [showPersonalizationModal, setShowPersonalizationModal] = useState(false);
+  const [personalizationInput, setPersonalizationInput] = useState('');
+  const [pendingSessionType, setPendingSessionType] = useState(null); // 'instant' or sessionId
 
   useEffect(() => {
     console.log('🎯 SessionsPage component mounted');
@@ -98,9 +103,17 @@ const SessionsPage = () => {
     }
   };
 
-  const handleStartInstantSession = async () => {
+  const handleStartInstantSession = () => {
+    // Show personalization modal first
+    setPendingSessionType('instant');
+    setPersonalizationInput('');
+    setShowPersonalizationModal(true);
+  };
+
+  const proceedWithInstantSession = async (customPreferences = '') => {
     try {
       console.log('🚀 Starting instant session...');
+      console.log('🎨 Custom preferences:', customPreferences || 'None');
       setSessionLoading(true);
       setSessionLoadingMessage('Initializing your wellness session...');
       
@@ -109,6 +122,11 @@ const SessionsPage = () => {
         firebaseUid: localStorage.getItem('firebaseUid'),
         lastSessionSummary: null
       };
+      
+      // Add custom preferences if provided
+      if (customPreferences) {
+        contextToSend.customPreferences = customPreferences;
+      }
       
       console.log('Context to send:', contextToSend);
       
@@ -138,12 +156,27 @@ const SessionsPage = () => {
     }
   };
 
-  const handleStartScheduledSession = async (sessionId) => {
+  const handleStartScheduledSession = (sessionId) => {
+    // Show personalization modal first
+    setPendingSessionType(sessionId);
+    setPersonalizationInput('');
+    setShowPersonalizationModal(true);
+  };
+
+  const proceedWithScheduledSession = async (sessionId, customPreferences = '') => {
     try {
+      console.log('🚀 Starting scheduled session:', sessionId);
+      console.log('🎨 Custom preferences:', customPreferences || 'None');
       setSessionLoading(true);
       setSessionLoadingMessage('Starting your scheduled session...');
       
-      const response = await sessionService.startSession(sessionId, userContext);
+      // Add custom preferences to userContext if provided
+      const contextToSend = { ...userContext };
+      if (customPreferences) {
+        contextToSend.customPreferences = customPreferences;
+      }
+      
+      const response = await sessionService.startSession(sessionId, contextToSend);
       if (response.success) {
         setSessionLoadingMessage('Session ready! Loading interface...');
         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -159,6 +192,27 @@ const SessionsPage = () => {
       console.error('Error starting scheduled session:', error);
       setSessionLoading(false);
       alert('Error starting scheduled session. Please try again.');
+    }
+  };
+
+  const handlePersonalizationConfirm = () => {
+    setShowPersonalizationModal(false);
+    
+    if (pendingSessionType === 'instant') {
+      proceedWithInstantSession(personalizationInput.trim());
+    } else {
+      // It's a scheduled session
+      proceedWithScheduledSession(pendingSessionType, personalizationInput.trim());
+    }
+  };
+
+  const handlePersonalizationSkip = () => {
+    setShowPersonalizationModal(false);
+    
+    if (pendingSessionType === 'instant') {
+      proceedWithInstantSession('');
+    } else {
+      proceedWithScheduledSession(pendingSessionType, '');
     }
   };
 
@@ -253,6 +307,53 @@ const SessionsPage = () => {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)' }}>
+      {/* Personalization Modal */}
+      {showPersonalizationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4 shadow-2xl transform transition-all">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              ✨ Personalize Your Session
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Do you have anything specific in mind for your session's background or music? 
+              Share your preferences, and we'll create a truly personalized experience for you!
+            </p>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Preferences (Optional)
+              </label>
+              <textarea
+                value={personalizationInput}
+                onChange={(e) => setPersonalizationInput(e.target.value)}
+                placeholder="E.g., 'I'd love a peaceful ocean scene with gentle waves and calming piano music' or 'A forest scene with birds chirping and soft guitar'"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                rows="4"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                💡 Tip: Describe any visual scenes, colors, sounds, or instruments you'd like
+              </p>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={handlePersonalizationSkip}
+                className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-300"
+              >
+                Skip
+              </button>
+              <button
+                onClick={handlePersonalizationConfirm}
+                className="flex-1 px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300"
+                style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
+              >
+                {personalizationInput.trim() ? 'Personalize' : 'Continue'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Loading Overlay */}
       {sessionLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

@@ -143,13 +143,32 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Effect to set up background music
+  // Effect to set up background music and auto-play (only when music first loads)
   useEffect(() => {
     if (backgroundMusic && backgroundMusicRef.current) {
       backgroundMusicRef.current.volume = musicVolume;
       backgroundMusicRef.current.loop = true; // Loop the background music
+      
+      // Auto-play the music when it loads
+      backgroundMusicRef.current.play()
+        .then(() => {
+          setIsMusicPlaying(true);
+          console.log('🎵 Background music auto-playing');
+        })
+        .catch(err => {
+          console.log('⚠️ Auto-play blocked by browser, user needs to click play:', err.message);
+          // Music will remain paused, user can manually play it
+        });
     }
-  }, [backgroundMusic, musicVolume]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [backgroundMusic]); // Only trigger when backgroundMusic changes, not volume
+  
+  // Separate effect to update volume without restarting music
+  useEffect(() => {
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.volume = musicVolume;
+    }
+  }, [musicVolume]);
 
   // Toggle background music playback
   const toggleBackgroundMusic = () => {
@@ -286,23 +305,31 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       // Start recording
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorderRef.current = new MediaRecorder(stream);
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
+        
+        mediaRecorderRef.current = mediaRecorder;
         audioChunksRef.current = [];
 
-        mediaRecorderRef.current.ondataavailable = (event) => {
-          audioChunksRef.current.push(event.data);
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunksRef.current.push(event.data);
+          }
         };
 
-        mediaRecorderRef.current.onstop = async () => {
-          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        mediaRecorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm;codecs=opus' });
           await sendAudioMessage(audioBlob);
           stream.getTracks().forEach(track => track.stop());
         };
 
-        mediaRecorderRef.current.start();
+        mediaRecorder.start();
         setIsRecording(true);
+        console.log('🎤 Recording started...');
       } catch (error) {
         console.error('Error accessing microphone:', error);
+        alert('Error accessing microphone. Please check permissions.');
       }
     }
   };
@@ -315,12 +342,11 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         return;
       }
 
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'audio.webm');
-
+      console.log('🎤 Sending audio message to Gemini...');
+      
       const response = await authService.sendAudioMessage(
         chatId,
-        formData,
+        audioBlob,
         sessionId // Pass the sessionId for proper session chat detection
       );
       
@@ -330,7 +356,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
           text: response.transcription || '[Audio Message]',
           sender: 'user',
           timestamp: new Date(),
-          audioUrl: response.audioUrl
+          type: 'audio'
         };
         
         const aiMessage = {
@@ -343,12 +369,16 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         
         setMessages(prev => [...prev, userMessage, aiMessage]);
         
+        // Play the AI's audio response
         if (response.audioUrl) {
           playAudio(response.audioUrl);
         }
+        
+        console.log('✅ Audio message sent successfully');
       }
     } catch (error) {
       console.error('Error sending audio message:', error);
+      alert('Failed to send audio message. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -427,7 +457,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         <div className="bg-white rounded-2xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-lg">Loading session...</p>
+            <p className="text-lg">Making Your Session Personalized...</p>
           </div>
         </div>
       </div>

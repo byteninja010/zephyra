@@ -130,13 +130,29 @@ const sessionService = {
   startInstantSession: async (userContext) => {
     try {
       const firebaseUid = localStorage.getItem('firebaseUid');
-      console.log('🔗 Making API request to:', `${API_URL}/api/sessions/start-instant`);
-      console.log('📤 Request data:', { firebaseUid, userContext });
       
-      const response = await axios.post(`${API_URL}/api/sessions/start-instant`, {
+      // Extract customPreferences if it exists in userContext
+      const customPreferences = userContext?.customPreferences || null;
+      
+      // Remove customPreferences from userContext to avoid duplication
+      const cleanUserContext = { ...userContext };
+      delete cleanUserContext.customPreferences;
+      
+      console.log('🔗 Making API request to:', `${API_URL}/api/sessions/start-instant`);
+      console.log('📤 Request data:', { firebaseUid, userContext: cleanUserContext, customPreferences });
+      
+      const requestBody = {
         firebaseUid,
-        userContext
-      });
+        userContext: cleanUserContext
+      };
+      
+      // Add customPreferences as separate field if provided
+      if (customPreferences) {
+        requestBody.customPreferences = customPreferences;
+        console.log('🎨 Including custom preferences:', customPreferences);
+      }
+      
+      const response = await axios.post(`${API_URL}/api/sessions/start-instant`, requestBody);
       
       console.log('📥 API response:', response.data);
       return response.data;
@@ -153,9 +169,27 @@ const sessionService = {
   // Start a session
   startSession: async (sessionId, userContext) => {
     try {
-      const response = await axios.post(`${API_URL}/api/sessions/start/${sessionId}`, {
-        userContext
-      });
+      // Extract customPreferences if it exists in userContext
+      const customPreferences = userContext?.customPreferences || null;
+      
+      // Remove customPreferences from userContext to avoid duplication
+      const cleanUserContext = { ...userContext };
+      delete cleanUserContext.customPreferences;
+      
+      console.log('🔗 Making API request to start scheduled session:', sessionId);
+      console.log('📤 Request data:', { userContext: cleanUserContext, customPreferences });
+      
+      const requestBody = {
+        userContext: cleanUserContext
+      };
+      
+      // Add customPreferences as separate field if provided
+      if (customPreferences) {
+        requestBody.customPreferences = customPreferences;
+        console.log('🎨 Including custom preferences for scheduled session:', customPreferences);
+      }
+      
+      const response = await axios.post(`${API_URL}/api/sessions/start/${sessionId}`, requestBody);
       return response.data;
     } catch (error) {
       console.error('Error starting session:', error);

@@ -620,7 +620,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
         <div className="bg-white rounded-2xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-lg">Loading session...</p>
+            <p className="text-lg">Making Your Session Personalized...</p>
           </div>
         </div>
       </div>
