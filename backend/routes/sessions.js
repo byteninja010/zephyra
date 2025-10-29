@@ -74,6 +74,159 @@ async function retryGeminiCall(apiCall, maxRetries = 5, baseDelay = 2000) {
   }
 }
 
+// AI-powered personalized prompt generation using cumulative summary
+const generatePersonalizedPrompts = async (userMood, cumulativeSummary, customPreferences = null) => {
+  try {
+    console.log('🤖 ========================================');
+    console.log('🤖 GENERATING PERSONALIZED PROMPTS WITH AI');
+    console.log('🤖 User mood:', userMood);
+    console.log('🤖 Has cumulative summary:', !!cumulativeSummary);
+    if (cumulativeSummary) {
+      console.log('🤖 Cumulative summary preview:', cumulativeSummary.substring(0, 100) + '...');
+    }
+    console.log('🤖 Custom preferences:', customPreferences || 'None');
+    console.log('🤖 ========================================');
+
+    if (!cumulativeSummary && !customPreferences) {
+      console.log('⚠️ SKIPPING AI GENERATION - No cumulative summary or custom preferences');
+      console.log('⚠️ Returning null to use fallback static mood-based prompts');
+      return null; // Return null to trigger fallback to static prompts
+    }
+
+    // Build the prompt with custom preferences getting priority
+    let contextSection = '';
+    
+    if (customPreferences) {
+      console.log('✨ Including CUSTOM PREFERENCES (highest priority)');
+      contextSection += `USER'S CUSTOM PREFERENCES (HIGHEST PRIORITY):
+${customPreferences}
+
+⚠️ CRITICAL: The user's custom preferences above are MANDATORY and must be incorporated into both prompts. This is their explicit request and takes priority over all other context.
+
+`;
+    }
+    
+    if (cumulativeSummary) {
+      console.log('📚 Including CUMULATIVE SUMMARY (supporting context)');
+      contextSection += `USER'S THERAPEUTIC JOURNEY (Supporting Context):
+${cumulativeSummary}
+
+`;
+    }
+
+    const promptGenerationRequest = `You are a therapeutic AI assistant helping to create personalized wellness session content.
+
+${contextSection}CURRENT MOOD: ${userMood}
+
+YOUR TASK:
+Generate TWO personalized prompts based on the user's therapeutic journey and current mood:
+
+1. IMAGE PROMPT - For generating a therapeutic nature scene background
+   - Must be a detailed, vivid description of a calming nature scene
+   - Should resonate with their therapeutic journey and current emotional state
+   - Must be 40-60 words
+   - Focus on nature elements that support their current mood and progress
+   - Examples: forest, ocean, mountains, sunrise, garden, lake, meadow, etc.
+   - Include: lighting, colors, atmosphere, mood, photography style
+   - Format: High-quality nature scene description
+
+2. MUSIC PROMPT - For generating therapeutic background music
+   - Must describe an instrumental ambient soundscape
+   - Should support their emotional state and therapeutic progress
+   - Must be 20-30 words
+   - Include: instruments, tempo (BPM), mood descriptors, therapeutic purpose
+   - No vocals, no lyrics, instrumental only
+   - Examples: piano, ambient tones, nature sounds, singing bowls, etc.
+
+RESPONSE FORMAT:
+Return ONLY a valid JSON object with this exact structure (no markdown, no code blocks, no extra text):
+{
+  "imagePrompt": "Your 40-60 word nature scene description here...",
+  "musicPrompt": "Your 20-30 word music description here..."
+}
+
+CRITICAL REQUIREMENTS:
+- Make it deeply personal based on their therapeutic journey
+- Ensure both prompts align with their current mood: ${userMood}
+- Keep it therapeutic and supportive
+- Use vivid, sensory language
+- Return ONLY the JSON object - no markdown formatting, no explanation, no code blocks
+- The response must be parseable by JSON.parse()`;
+
+    console.log('🤖 ========================================');
+    console.log('🤖 FULL PROMPT BEING SENT TO GEMINI:');
+    console.log('🤖 ========================================');
+    console.log(promptGenerationRequest);
+    console.log('🤖 ========================================');
+    console.log('🤖 REQUEST CONFIGURATION:');
+    console.log('  - Model: gemini-2.5-flash-lite');
+    console.log('  - Temperature: 0.8');
+    console.log('  - Max Output Tokens: 300');
+    console.log('  - Response Format: application/json');
+    console.log('🤖 ========================================');
+    console.log('🤖 Calling Gemini API...');
+    
+    const result = await retryGeminiCall(() =>
+      genAI.models.generateContent({
+        model: 'gemini-2.5-flash-lite',
+        contents: promptGenerationRequest,
+        generationConfig: {
+          temperature: 0.8, // Higher creativity for personalization
+          maxOutputTokens: 300,
+          responseMimeType: 'application/json'
+        }
+      })
+    );
+
+    let responseText = result.candidates[0].content.parts[0].text;
+    console.log('🤖 ========================================');
+    console.log('🤖 GEMINI API RESPONSE RECEIVED');
+    console.log('🤖 ========================================');
+    console.log('🤖 Raw response:', responseText);
+    console.log('🤖 ========================================');
+    
+    // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
+    responseText = responseText.trim();
+    if (responseText.startsWith('```json')) {
+      responseText = responseText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+      console.log('🔧 Stripped ```json markdown wrapper');
+    } else if (responseText.startsWith('```')) {
+      responseText = responseText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      console.log('🔧 Stripped ``` markdown wrapper');
+    }
+    
+    // Parse JSON response
+    console.log('🔄 Parsing JSON response...');
+    const prompts = JSON.parse(responseText.trim());
+    
+    // Validate required fields
+    if (!prompts.imagePrompt || !prompts.musicPrompt) {
+      throw new Error('Missing required prompt fields in response');
+    }
+    
+    console.log('🤖 ========================================');
+    console.log('✅ PERSONALIZED PROMPTS GENERATED SUCCESSFULLY!');
+    console.log('🤖 ========================================');
+    console.log('🖼️  IMAGE PROMPT:');
+    console.log(prompts.imagePrompt);
+    console.log('─'.repeat(60));
+    console.log('🎵 MUSIC PROMPT:');
+    console.log(prompts.musicPrompt);
+    console.log('🤖 ========================================');
+    
+    return prompts;
+    
+  } catch (error) {
+    console.error('❌ Error generating personalized prompts:', error.message);
+    if (error.message.includes('JSON')) {
+      console.error('📛 JSON Parse Error - Response was not valid JSON');
+      console.error('📄 Attempted to parse:', error.message.substring(0, 300));
+    }
+    console.log('⚠️ Will fallback to static mood-based prompts');
+    return null; // Fallback to static prompts
+  }
+};
+
 // Helper function to get last session summary from MongoDB
 const getLastSessionSummary = async (firebaseUid) => {
   try {
@@ -193,7 +346,7 @@ const getUserMoodForBackground = async (firebaseUid) => {
 };
 
 // Helper function to generate personalized background using Gemini Imagen
-const generateSessionBackground = async (userContext, sessionType = 'general', firebaseUid = null) => {
+const generateSessionBackground = async (userContext, sessionType = 'general', firebaseUid = null, customPreferences = null) => {
   try {
     console.log('🎨 Generating personalized session background with Gemini Imagen...');
     
@@ -201,20 +354,42 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
     const userMood = await getUserMoodForBackground(firebaseUid || userContext?.firebaseUid);
     console.log(`📊 User mood for background: ${userMood}`);
     
-    // Create mood-appropriate therapeutic nature prompts for image generation
-    // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
-    const moodImagePrompts = {
-      'happy': 'A bright sunny meadow filled with colorful wildflowers, clear blue sky, soft sunlight, butterflies, uplifting positive energy, vibrant yet peaceful, beautiful nature photography, 4k quality',
-      'neutral': 'A tranquil zen garden with smooth stones, gentle flowing water, minimalist bamboo, balanced composition, neutral calming earth tones, meditative peaceful atmosphere, professional nature photography, 4k quality',
-      'sad': 'A serene sunset over calm ocean waters with warm orange and pink sky, gentle waves reflecting golden light, peaceful clouds, hopeful and soothing atmosphere, beautiful nature photography, 4k quality',
-      'anxious': 'A peaceful forest path with dappled sunlight filtering through tall trees, natural green tones, moss-covered ground, grounding protective atmosphere, serene nature photography, 4k quality',
-      'tired': 'A peaceful lake at golden hour with soft warm colors, gentle ripples, deeply restful atmosphere, hammock view, restorative scene, beautiful nature photography, 4k quality',
-      'calm': 'A misty morning in a Japanese garden with koi pond, lily pads, cherry blossoms, perfectly balanced composition, serene and peaceful, professional nature photography, 4k quality',
-      'frustrated': 'A vast open sky at dusk with slow-moving clouds, endless horizon, cool blues and purples, expansive releasing atmosphere, calming nature photography, 4k quality',
-      'hopeful': 'A vibrant sunrise breaking through morning clouds, new beginnings, warm golden light over a peaceful landscape, inspiring and uplifting, beautiful nature photography, 4k quality'
-    };
+    // Get user's cumulative summary for personalization
+    const User = require('../models/User');
+    const user = await User.findOne({ firebaseUid: firebaseUid || userContext?.firebaseUid, isActive: true });
+    const cumulativeSummary = user?.userContext?.cumulativeSessionSummary || null;
     
-    const imagePrompt = moodImagePrompts[userMood] || moodImagePrompts['calm'];
+    console.log(`📚 Cumulative summary available: ${cumulativeSummary ? 'YES' : 'NO'}`);
+    console.log(`🎨 Custom preferences available: ${customPreferences ? 'YES' : 'NO'}`);
+    
+    // Try to generate AI-powered personalized prompts first
+    let imagePrompt = null;
+    console.log('🔄 Attempting to generate personalized prompts...');
+    const personalizedPrompts = await generatePersonalizedPrompts(userMood, cumulativeSummary, customPreferences);
+    
+    if (personalizedPrompts && personalizedPrompts.imagePrompt) {
+      imagePrompt = personalizedPrompts.imagePrompt;
+      console.log('🎯 ✅ Using AI-generated personalized image prompt');
+      console.log('🖼️  Selected prompt:', imagePrompt);
+    } else {
+      console.log('📋 ⚠️ Personalized prompts returned null, falling back to static mood-based prompts');
+      
+      // Fallback: Static mood-based prompts (backward compatibility)
+      // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
+      const moodImagePrompts = {
+        'happy': 'A bright sunny meadow filled with colorful wildflowers, clear blue sky, soft sunlight, butterflies, uplifting positive energy, vibrant yet peaceful, beautiful nature photography, 4k quality',
+        'neutral': 'A tranquil zen garden with smooth stones, gentle flowing water, minimalist bamboo, balanced composition, neutral calming earth tones, meditative peaceful atmosphere, professional nature photography, 4k quality',
+        'sad': 'A serene sunset over calm ocean waters with warm orange and pink sky, gentle waves reflecting golden light, peaceful clouds, hopeful and soothing atmosphere, beautiful nature photography, 4k quality',
+        'anxious': 'A peaceful forest path with dappled sunlight filtering through tall trees, natural green tones, moss-covered ground, grounding protective atmosphere, serene nature photography, 4k quality',
+        'tired': 'A peaceful lake at golden hour with soft warm colors, gentle ripples, deeply restful atmosphere, hammock view, restorative scene, beautiful nature photography, 4k quality',
+        'calm': 'A misty morning in a Japanese garden with koi pond, lily pads, cherry blossoms, perfectly balanced composition, serene and peaceful, professional nature photography, 4k quality',
+        'frustrated': 'A vast open sky at dusk with slow-moving clouds, endless horizon, cool blues and purples, expansive releasing atmosphere, calming nature photography, 4k quality',
+        'hopeful': 'A vibrant sunrise breaking through morning clouds, new beginnings, warm golden light over a peaceful landscape, inspiring and uplifting, beautiful nature photography, 4k quality'
+      };
+      
+      imagePrompt = moodImagePrompts[userMood] || moodImagePrompts['calm'];
+    }
+    
     console.log(`🖼️ Generating image with prompt: ${imagePrompt.substring(0, 100)}...`);
     
     try {
@@ -312,7 +487,8 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
           prompt: imagePrompt,
           mood: userMood,
           type: 'gemini-image',
-          generatedWith: 'Imagen 3'
+          generatedWith: 'Imagen 3',
+          personalizedPrompts: personalizedPrompts // Include for music generation reuse
         };
       } else {
         throw new Error('No predictions in response or empty predictions array');
@@ -343,7 +519,8 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
       imageUrl: null,
       prompt: imagePrompt,
       mood: userMood,
-      type: 'gradient'
+      type: 'gradient',
+      personalizedPrompts: personalizedPrompts // Include for music generation reuse
     };
 
   } catch (error) {
@@ -352,34 +529,48 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
       imageUrl: null,
       prompt: 'Calming wellness session background',
       mood: 'calm',
-      type: 'gradient'
+      type: 'gradient',
+      personalizedPrompts: null
     };
   }
 };
 
 // Helper function to generate therapeutic music using Lyria
-const generateSessionMusic = async (userMood, sessionType = 'general', duration = 300) => {
+const generateSessionMusic = async (userMood, sessionType = 'general', duration = 300, firebaseUid = null, personalizedPrompts = null) => {
   try {
     console.log('🎵 ========================================');
     console.log('🎵 GENERATING THERAPEUTIC MUSIC WITH LYRIA');
     console.log('🎵 Mood:', userMood);
     console.log('🎵 Duration:', duration, 'seconds');
+    console.log('🎵 FirebaseUid:', firebaseUid || 'Not provided');
     console.log('🎵 ========================================');
     
-    // Create mood-appropriate therapeutic music prompts
-    // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
-    const moodMusicPrompts = {
-      'happy': 'Light melodic patterns with natural harmonics, joy enhancement music, 95 BPM, positive mood amplification, bright and cheerful',
-      'neutral': 'Minimalist ambient soundscape, balanced and neutral, 80 BPM, meditative background music, calming nature sounds',
-      'sad': 'Tender piano with rainfall ambience, emotional support music, 55 BPM, grief processing soundscape, gentle and safe',
-      'anxious': 'Deep breathing-focused ambient music, grounding bass tones, 60 BPM, anxiety relief soundscape, slow and stable',
-      'tired': 'Restorative ambient music, gentle energy renewal, 65 BPM, rest and recovery soundscape, rejuvenating',
-      'calm': 'Zen meditation music with singing bowls, perfect peace, 50 BPM, mindfulness support, serene atmosphere',
-      'frustrated': 'Gradual release soundscape, transformative ambient tones, 70 BPM, frustration processing music, cooling and expansive',
-      'hopeful': 'Sunrise-inspired ambient progression, new beginnings music, 75 BPM, optimism and possibility, emerging light'
-    };
+    // Try to use personalized prompt if available
+    let musicPrompt = null;
     
-    const musicPrompt = moodMusicPrompts[userMood] || moodMusicPrompts['calm'];
+    if (personalizedPrompts && personalizedPrompts.musicPrompt) {
+      // Use AI-generated personalized prompt
+      musicPrompt = personalizedPrompts.musicPrompt;
+      console.log('🎯 Using AI-generated personalized music prompt');
+    } else {
+      console.log('📋 Falling back to static mood-based music prompts');
+      
+      // Fallback: Static mood-based prompts (backward compatibility)
+      // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
+      const moodMusicPrompts = {
+        'happy': 'Light melodic patterns with natural harmonics, joy enhancement music, 95 BPM, positive mood amplification, bright and cheerful',
+        'neutral': 'Minimalist ambient soundscape, balanced and neutral, 80 BPM, meditative background music, calming nature sounds',
+        'sad': 'Tender piano with rainfall ambience, emotional support music, 55 BPM, grief processing soundscape, gentle and safe',
+        'anxious': 'Deep breathing-focused ambient music, grounding bass tones, 60 BPM, anxiety relief soundscape, slow and stable',
+        'tired': 'Restorative ambient music, gentle energy renewal, 65 BPM, rest and recovery soundscape, rejuvenating',
+        'calm': 'Zen meditation music with singing bowls, perfect peace, 50 BPM, mindfulness support, serene atmosphere',
+        'frustrated': 'Gradual release soundscape, transformative ambient tones, 70 BPM, frustration processing music, cooling and expansive',
+        'hopeful': 'Sunrise-inspired ambient progression, new beginnings music, 75 BPM, optimism and possibility, emerging light'
+      };
+      
+      musicPrompt = moodMusicPrompts[userMood] || moodMusicPrompts['calm'];
+    }
+    
     console.log('🎼 Music prompt:', musicPrompt);
     
     try {
@@ -608,13 +799,27 @@ router.get('/schedule/:firebaseUid', async (req, res) => {
 // Start an instant session (for testing)
 router.post('/start-instant', async (req, res) => {
   try {
-    console.log('🚀 Starting instant session...');
-    const { firebaseUid, userContext } = req.body;
-    console.log('Request body:', { firebaseUid, userContext });
+    console.log('🚀 ========================================');
+    console.log('🚀 INSTANT SESSION START REQUEST');
+    console.log('🚀 ========================================');
+    const { firebaseUid, userContext, customPreferences } = req.body;
+    console.log('📦 Request body keys:', Object.keys(req.body));
+    console.log('👤 firebaseUid:', firebaseUid);
+    console.log('📋 userContext:', userContext);
+    console.log('🎨 customPreferences:', customPreferences || 'None');
+    console.log('🚀 ========================================');
 
     if (!firebaseUid) {
       console.log('❌ No Firebase UID provided');
       return res.status(400).json({ error: 'Firebase UID is required' });
+    }
+    
+    // Log custom preferences if provided
+    if (customPreferences) {
+      console.log('✅ Custom preferences detected and will be used!');
+      console.log('🎨 Custom preferences value:', customPreferences);
+    } else {
+      console.log('⚠️ No custom preferences provided');
     }
 
     // Check if there's already an active instant session for this user
@@ -627,18 +832,29 @@ router.post('/start-instant', async (req, res) => {
     if (session) {
       console.log('✅ Found existing active session:', session.sessionId);
       
+      // Force regeneration if user provided custom preferences
+      const forceRegenerate = !!customPreferences;
+      
+      if (forceRegenerate) {
+        console.log('🔄 FORCING REGENERATION - User provided custom preferences!');
+        console.log('🎨 Custom preferences:', customPreferences);
+      }
+      
       // Check if we need to generate missing content
-      const needsBackground = !session.sessionData.backgroundImage;
-      const needsMusic = !session.sessionData.backgroundMusic;
+      const needsBackground = !session.sessionData.backgroundImage || forceRegenerate;
+      const needsMusic = !session.sessionData.backgroundMusic || forceRegenerate;
       
       if (needsBackground || needsMusic) {
-        console.log('🔄 Generating missing content...');
-        console.log('  - Background needed:', needsBackground);
-        console.log('  - Music needed:', needsMusic);
+        console.log('🔄 Generating content...');
+        console.log('  - Background needed:', needsBackground, forceRegenerate ? '(FORCED)' : '');
+        console.log('  - Music needed:', needsMusic, forceRegenerate ? '(FORCED)' : '');
+        
+        // Store personalized prompts if background is generated
+        let personalizedPromptsForMusic = null;
         
         // Generate background only if missing
         if (needsBackground) {
-          const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
+          const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid, customPreferences);
           console.log('🎨 Background generated:', backgroundData?.type || 'None');
           
           if (backgroundData) {
@@ -648,6 +864,8 @@ router.post('/start-instant', async (req, res) => {
             if (backgroundData.generatedWith) {
               session.sessionData.generatedWith = backgroundData.generatedWith;
             }
+            // Store personalized prompts for music generation
+            personalizedPromptsForMusic = backgroundData.personalizedPrompts;
           }
         } else {
           console.log('✅ Background already exists, skipping generation');
@@ -656,7 +874,7 @@ router.post('/start-instant', async (req, res) => {
         // Generate music only if missing
         if (needsMusic) {
           const userMood = await getUserMoodForBackground(firebaseUid);
-          const musicData = await generateSessionMusic(userMood, 'instant', 30);
+          const musicData = await generateSessionMusic(userMood, 'instant', 30, firebaseUid, personalizedPromptsForMusic);
           
           if (musicData) {
             session.sessionData.backgroundMusic = musicData.musicUrl;
@@ -671,7 +889,11 @@ router.post('/start-instant', async (req, res) => {
         await session.save();
         console.log('💾 Session updated with generated content');
       } else {
-        console.log('✅ Session already has background and music, returning existing content');
+        console.log('⚠️ ========================================');
+        console.log('⚠️ USING CACHED CONTENT');
+        console.log('⚠️ Session already has background and music');
+        console.log('⚠️ No custom preferences provided, so reusing existing content');
+        console.log('⚠️ ========================================');
       }
       
       return res.json({
@@ -709,9 +931,19 @@ router.post('/start-instant', async (req, res) => {
     // Generate personalized background based on user mood
     console.log('🎨 ========================================');
     console.log('🎨 CALLING generateSessionBackground...');
-    const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
+    console.log('🎨 Parameters being passed:');
+    console.log('  - userContext:', userContext);
+    console.log('  - sessionType: instant');
+    console.log('  - firebaseUid:', firebaseUid);
+    console.log('  - customPreferences:', customPreferences || 'NONE PASSED');
+    console.log('🎨 ========================================');
+    const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid, customPreferences);
+    console.log('🎨 ========================================');
     console.log('🎨 Background generated:', backgroundData?.type, '- Generated with:', backgroundData?.generatedWith || 'Gradient');
     console.log('🎨 ========================================');
+    
+    // Store personalized prompts for music generation reuse
+    let personalizedPromptsForMusic = backgroundData?.personalizedPrompts || null;
     
     // Update session with background
     if (backgroundData) {
@@ -729,11 +961,11 @@ router.post('/start-instant', async (req, res) => {
       console.log('  - generatedWith:', session.sessionData.generatedWith);
     }
 
-    // Generate therapeutic music based on user mood
+    // Generate therapeutic music based on user mood (using personalized prompts if available)
     const userMood = await getUserMoodForBackground(firebaseUid);
     console.log('🎵 ========================================');
     console.log('🎵 CALLING generateSessionMusic...');
-    const musicData = await generateSessionMusic(userMood, 'instant', 30);
+    const musicData = await generateSessionMusic(userMood, 'instant', 30, firebaseUid, personalizedPromptsForMusic);
     console.log('🎵 MUSIC DATA RECEIVED:', musicData ? 'SUCCESS' : 'FAILED');
     console.log('🎵 ========================================');
     
@@ -884,14 +1116,12 @@ router.post('/complete/:sessionId', async (req, res) => {
       return res.status(400).json({ error: 'Session is not active' });
     }
 
-    // Get the most recent cumulative summary from user's reflections
+    // Get the most recent cumulative summary from user's context
     const User = require('../models/User');
     const user = await User.findOne({ firebaseUid: finalFirebaseUid, isActive: true });
-    const previousCumulativeSummary = user?.reflections
-      ?.filter(r => r.category === 'cumulative_session_summary')
-      ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.text || '';
+    const previousCumulativeSummary = user?.userContext?.cumulativeSessionSummary || '';
     
-    console.log('🔍 CUMULATIVE SUMMARY TEST - Step 1: Retrieving previous summary');
+    console.log('🔍 CUMULATIVE SUMMARY TEST - Step 1: Retrieving previous summary from userContext');
     console.log(`Previous cumulative summary length: ${previousCumulativeSummary.length} characters`);
     console.log(`Previous cumulative summary preview: ${previousCumulativeSummary.substring(0, 100)}...`);
 
@@ -961,14 +1191,14 @@ ${newSessionSummary}
 
 INSTRUCTIONS:
 1. Combine both summaries into ONE comprehensive summary
-2. EXACTLY 1000 words (no more, no less)
-3. Preserve all important information from both summaries
-4. Maintain chronological progression
-5. Keep insights, patterns, and therapeutic progress
-6. Ensure continuity and flow between old and new content
-7. Focus on the most important and impactful information
+2. EXACTLY 150 words (no more, no less) - count every word carefully
+3. Focus only on the MOST CRITICAL therapeutic information
+4. Include: key mood patterns, major breakthroughs, recurring themes, current progress
+5. Maintain chronological flow
+6. Be concise but preserve essential therapeutic context
+7. Prioritize recent insights and actionable patterns
 
-Create a professional therapeutic cumulative summary that captures the complete journey while staying within exactly 1000 words.`;
+Create a professional therapeutic cumulative summary that captures the essential journey in exactly 150 words.`;
 
       const cumulativeResult = await retryGeminiCall(() => 
         genAI.models.generateContent({
@@ -976,7 +1206,7 @@ Create a professional therapeutic cumulative summary that captures the complete 
           contents: cumulativePrompt,
           generationConfig: {
             temperature: 0.2,
-            maxOutputTokens: 1000
+            maxOutputTokens: 200
           }
         })
       );
@@ -985,7 +1215,7 @@ Create a professional therapeutic cumulative summary that captures the complete 
       console.log('🔍 CUMULATIVE SUMMARY TEST - Step 3: Generated cumulative summary');
       console.log(`Final cumulative summary length: ${cumulativeSummary.length} characters`);
       console.log(`Final cumulative summary preview: ${cumulativeSummary.substring(0, 150)}...`);
-      console.log('🎯 TARGET: 1000 words (~4000-5000 characters)');
+      console.log('🎯 TARGET: 150 words (~600-800 characters)');
     } catch (cumulativeError) {
       console.error('Error generating cumulative summary:', cumulativeError);
       cumulativeSummary = newSessionSummary; // Fallback to new session summary
@@ -1003,29 +1233,16 @@ Create a professional therapeutic cumulative summary that captures the complete 
 
     await session.save();
 
-    // Remove old cumulative summaries and add new one
+    // Update user context with new cumulative summary
     console.log('🔍 CUMULATIVE SUMMARY TEST - Step 4: Updating user profile');
-    const removeResult = await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { firebaseUid: finalFirebaseUid },
       {
-        $pull: {
-          reflections: { category: 'cumulative_session_summary' }
-        }
-      }
-    );
-    console.log(`Removed old cumulative summaries for user: ${finalFirebaseUid}`);
-
-    // Add new cumulative summary to user's reflection history
-    const addResult = await User.findOneAndUpdate(
-      { firebaseUid: finalFirebaseUid },
-      {
+        $set: {
+          'userContext.cumulativeSessionSummary': cumulativeSummary,
+          'userContext.lastUpdated': new Date()
+        },
         $push: {
-          reflections: {
-            text: cumulativeSummary,
-            mood: session.sessionData?.moodCheckIn?.mood || 'neutral',
-            category: 'cumulative_session_summary',
-            date: new Date()
-          },
           activityHistory: {
             type: 'therapyVisit',
             date: new Date()
@@ -1033,7 +1250,7 @@ Create a professional therapeutic cumulative summary that captures the complete 
         }
       }
     );
-    console.log('✅ Added new cumulative summary to user profile');
+    console.log('✅ Updated user context with new cumulative summary (150 words)');
     console.log('🔍 CUMULATIVE SUMMARY TEST - COMPLETED SUCCESSFULLY!');
 
     res.json({
@@ -1095,7 +1312,16 @@ router.delete('/cleanup/:firebaseUid', async (req, res) => {
 router.post('/start/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
-    const { userContext } = req.body;
+    const { userContext, customPreferences } = req.body;
+
+    console.log('🚀 ========================================');
+    console.log('🚀 SCHEDULED SESSION START REQUEST');
+    console.log('🚀 SessionId:', sessionId);
+    console.log('🎨 Custom preferences:', customPreferences || 'None');
+    if (customPreferences) {
+      console.log('✅ Custom preferences detected:', customPreferences);
+    }
+    console.log('🚀 ========================================');
 
     const session = await Session.findOne({ sessionId });
     if (!session) {
@@ -1107,9 +1333,11 @@ router.post('/start/:sessionId', async (req, res) => {
       if (session.status === 'active') {
         const hasBackground = !!session.sessionData.backgroundImage;
         const hasMusic = !!session.sessionData.backgroundMusic;
+        const forceRegenerate = !!customPreferences;
         
-        if (hasBackground && hasMusic) {
-          console.log('✅ Session already active with background and music, returning existing content');
+        if (hasBackground && hasMusic && !forceRegenerate) {
+          console.log('⚠️ Session already active with background and music');
+          console.log('⚠️ No custom preferences, returning existing content');
           return res.json({
             success: true,
             session: {
@@ -1124,6 +1352,8 @@ router.post('/start/:sessionId', async (req, res) => {
             },
             message: 'Session already active'
           });
+        } else if (forceRegenerate) {
+          console.log('🔄 Session is active but REGENERATING due to custom preferences');
         }
       } else {
         return res.status(400).json({ error: 'Session is not in scheduled status' });
@@ -1133,17 +1363,23 @@ router.post('/start/:sessionId', async (req, res) => {
     // Update session status to active
     session.status = 'active';
     
+    // Force regeneration if user provided custom preferences
+    const forceRegenerate = !!customPreferences;
+    
     // Check if we need to generate content
-    const needsBackground = !session.sessionData.backgroundImage;
-    const needsMusic = !session.sessionData.backgroundMusic;
+    const needsBackground = !session.sessionData.backgroundImage || forceRegenerate;
+    const needsMusic = !session.sessionData.backgroundMusic || forceRegenerate;
     
     console.log('🔄 Generating content for scheduled session...');
-    console.log('  - Background needed:', needsBackground);
-    console.log('  - Music needed:', needsMusic);
+    console.log('  - Background needed:', needsBackground, forceRegenerate ? '(FORCED)' : '');
+    console.log('  - Music needed:', needsMusic, forceRegenerate ? '(FORCED)' : '');
+    
+    // Store personalized prompts if background is generated
+    let personalizedPromptsForMusic = null;
     
     // Generate personalized background only if missing
     if (needsBackground) {
-      const backgroundData = await generateSessionBackground(userContext, 'scheduled', session.firebaseUid);
+      const backgroundData = await generateSessionBackground(userContext, 'scheduled', session.firebaseUid, customPreferences);
       
       if (backgroundData) {
         // Store the generated image URL or mood for gradient fallback
@@ -1153,6 +1389,8 @@ router.post('/start/:sessionId', async (req, res) => {
         if (backgroundData.generatedWith) {
           session.sessionData.generatedWith = backgroundData.generatedWith;
         }
+        // Store personalized prompts for music generation
+        personalizedPromptsForMusic = backgroundData.personalizedPrompts;
       }
     } else {
       console.log('✅ Background already exists, skipping generation');
@@ -1161,7 +1399,7 @@ router.post('/start/:sessionId', async (req, res) => {
     // Generate therapeutic music only if missing
     if (needsMusic) {
       const userMood = await getUserMoodForBackground(session.firebaseUid);
-      const musicData = await generateSessionMusic(userMood, 'scheduled', 30);
+      const musicData = await generateSessionMusic(userMood, 'scheduled', 30, session.firebaseUid, personalizedPromptsForMusic);
       
       if (musicData) {
         session.sessionData.backgroundMusic = musicData.musicUrl;

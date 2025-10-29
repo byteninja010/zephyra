@@ -163,64 +163,17 @@ SESSION FOCUS: If they mentioned something specific at the start, gently explore
     }
     
     if (reflections && reflections.length > 0) {
-      const recentReflections = reflections.filter(r => r.category !== 'cumulative_session_summary').slice(-3).map(r => `${r.category}: ${r.text.substring(0, 100)}...`).join('; ');
+      const recentReflections = reflections.slice(-3).map(r => `${r.category}: ${r.text.substring(0, 100)}...`).join('; ');
       if (recentReflections) contextInfo += `- Recent reflections: ${recentReflections}\n`;
     }
 
-    // Add cumulative session summary for continuity (AI-condensed for system prompt)
+    // Add cumulative session summary for continuity (already 150 words, no need to condense)
     if (isSessionChat && cumulativeSessionSummary) {
       contextInfo += "\n\nCUMULATIVE SESSION HISTORY:\n";
+      contextInfo += `${cumulativeSessionSummary}\n\n`;
       
-      // Use Gemini to condense the cumulative summary to exactly 100 words for system prompt
-      try {
-        const { GoogleGenAI } = require('@google/genai');
-        const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
-        
-        const condensePrompt = `Condense this summary to EXACTLY 150 words (count them):
-
-${cumulativeSessionSummary}
-
-STRICT REQUIREMENTS:
-- EXACTLY 150 words - count every single word
-- Keep only the most critical therapeutic context
-- Include: current mood patterns, main themes, recent breakthroughs
-- Exclude: detailed conversations, specific dates, lengthy descriptions
-- Format: Brief, bullet-point style if needed
-- Word count: Must be exactly 150 words
-
-Count your words and ensure it's exactly 150.`;
-
-        const condenseResult = await retryGeminiCall(() => 
-          genAI.models.generateContent({
-            model: "gemini-2.5-flash-lite",
-            contents: condensePrompt,
-            generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 150
-            }
-          })
-        );
-        
-        const condensedSummary = condenseResult.candidates[0].content.parts[0].text;
-        
-        // Validate word count
-        const wordCount = condensedSummary.split(/\s+/).filter(word => word.length > 0).length;
-        console.log(`📝 AI-condensed summary: ${wordCount} words (target: 150)`);
-        
-        if (wordCount > 200) {
-          console.log('⚠️ Summary too long, using fallback');
-          const fallbackSummary = cumulativeSessionSummary.substring(0, 300) + '...';
-          contextInfo += `${fallbackSummary}\n\n`;
-        } else {
-          contextInfo += `${condensedSummary}\n\n`;
-        }
-      } catch (condenseError) {
-        console.error('Error condensing cumulative summary:', condenseError);
-        // Fallback to first 200 characters if AI condensation fails
-        const fallbackSummary = cumulativeSessionSummary.substring(0, 200) + '...';
-        contextInfo += `${fallbackSummary}\n\n`;
-        console.log(`📝 Using fallback summary: ${fallbackSummary.length} chars`);
-      }
+      const wordCount = cumulativeSessionSummary.split(/\s+/).filter(word => word.length > 0).length;
+      console.log(`📝 Using cumulative summary: ${wordCount} words, ${cumulativeSessionSummary.length} characters`);
     }
 
     // Add session-specific context ONLY for session chats
@@ -712,12 +665,10 @@ router.post('/:chatId/message', async (req, res) => {
           const Session = require('../models/Session');
           const sessionData = await Session.findOne({ sessionId });
           
-          // Get the cumulative session summary from user's reflections
-          const cumulativeSessionSummary = user.reflections
-            ?.filter(r => r.category === 'cumulative_session_summary')
-            ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.text || '';
+          // Get the cumulative session summary from user's context
+          const cumulativeSessionSummary = user.userContext?.cumulativeSessionSummary || '';
           
-          console.log('🔍 CHAT CONTEXT TEST - Retrieving cumulative summary for session chat');
+          console.log('🔍 CHAT CONTEXT TEST - Retrieving cumulative summary from userContext');
           console.log(`Cumulative summary found: ${cumulativeSessionSummary ? 'YES' : 'NO'}`);
           console.log(`Cumulative summary length: ${cumulativeSessionSummary.length} characters`);
           if (cumulativeSessionSummary) {
@@ -990,12 +941,10 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
           const Session = require('../models/Session');
           const sessionData = await Session.findOne({ sessionId });
           
-          // Get the cumulative session summary from user's reflections
-          const cumulativeSessionSummary = user.reflections
-            ?.filter(r => r.category === 'cumulative_session_summary')
-            ?.sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.text || '';
+          // Get the cumulative session summary from user's context
+          const cumulativeSessionSummary = user.userContext?.cumulativeSessionSummary || '';
           
-          console.log('🔍 CHAT CONTEXT TEST - Retrieving cumulative summary for session chat');
+          console.log('🔍 CHAT CONTEXT TEST - Retrieving cumulative summary from userContext');
           console.log(`Cumulative summary found: ${cumulativeSessionSummary ? 'YES' : 'NO'}`);
           console.log(`Cumulative summary length: ${cumulativeSessionSummary.length} characters`);
           if (cumulativeSessionSummary) {
@@ -1158,9 +1107,32 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
 
     await chat.save();
 
+    // Update session data with the conversation if this is a session chat
+    if (isSessionChat && sessionId) {
+      try {
+        const Session = require('../models/Session');
+        await Session.findOneAndUpdate(
+          { sessionId },
+          {
+            $push: {
+              'sessionData.exploration': {
+                userMessage: transcription || '[Audio Message]',
+                aiResponse: aiResponse,
+                timestamp: new Date()
+              }
+            }
+          }
+        );
+        console.log('✅ Session exploration data updated with audio conversation');
+      } catch (sessionUpdateError) {
+        console.error('Error updating session data:', sessionUpdateError);
+      }
+    }
+
     res.json({
       success: true,
       message: aiResponse,
+      transcription: transcription || '[Audio Message]',
       messageType: 'audio',
       audioUrl: audioResponseUrl
     });

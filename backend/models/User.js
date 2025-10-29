@@ -86,6 +86,17 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  // User context for AI - stores cumulative session summary
+  userContext: {
+    cumulativeSessionSummary: {
+      type: String,
+      default: null
+    },
+    lastUpdated: {
+      type: Date,
+      default: null
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now
