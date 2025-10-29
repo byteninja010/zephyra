@@ -128,7 +128,7 @@ const setupForumHandlers = (io) => {
         }
 
         // Get post
-        const post = await ForumPost.findOne({ postId, isActive: true });
+        const post = await ForumPost.findOne({ postId });
         if (!post) {
           socket.emit('comment_error', { error: 'Post not found' });
           return;

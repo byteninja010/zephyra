@@ -48,13 +48,13 @@ router.get('/posts', async (req, res) => {
     const { page = 1, limit = 20 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const posts = await ForumPost.find({ isActive: true })
+    const posts = await ForumPost.find({})
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(skip)
       .select('postId firebaseUid pseudonym content commentCount createdAt updatedAt');
 
-    const totalPosts = await ForumPost.countDocuments({ isActive: true });
+    const totalPosts = await ForumPost.countDocuments({});
 
     res.json({
       success: true,
@@ -78,7 +78,7 @@ router.get('/posts/:postId', async (req, res) => {
   try {
     const { postId } = req.params;
 
-    const post = await ForumPost.findOne({ postId, isActive: true });
+    const post = await ForumPost.findOne({ postId });
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
@@ -191,7 +191,7 @@ router.post('/posts/:postId/comments', async (req, res) => {
     }
 
     // Get post
-    const post = await ForumPost.findOne({ postId, isActive: true });
+    const post = await ForumPost.findOne({ postId });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -266,7 +266,7 @@ router.delete('/posts/:postId', async (req, res) => {
       return res.status(400).json({ error: 'Firebase UID is required' });
     }
 
-    const post = await ForumPost.findOne({ postId, isActive: true });
+    const post = await ForumPost.findOne({ postId });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -276,9 +276,10 @@ router.delete('/posts/:postId', async (req, res) => {
       return res.status(403).json({ error: 'You can only delete your own posts' });
     }
 
-    // Soft delete
-    post.isActive = false;
-    await post.save();
+    // Hard delete - remove post and all its comments from database
+    await ForumPost.deleteOne({ postId });
+
+    console.log(`🗑️ Post deleted permanently: ${postId} (with ${post.comments.length} comments)`);
 
     res.json({
       success: true,
@@ -301,7 +302,7 @@ router.delete('/posts/:postId/comments/:commentId', async (req, res) => {
       return res.status(400).json({ error: 'Firebase UID is required' });
     }
 
-    const post = await ForumPost.findOne({ postId, isActive: true });
+    const post = await ForumPost.findOne({ postId });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -316,13 +317,39 @@ router.delete('/posts/:postId/comments/:commentId', async (req, res) => {
       return res.status(403).json({ error: 'You can only delete your own comments' });
     }
 
-    // Remove comment
-    post.comments.splice(commentIndex, 1);
+    // Recursively find all descendant comment IDs (children, grandchildren, etc.)
+    const findAllDescendants = (parentId, comments) => {
+      const descendants = [];
+      const directChildren = comments.filter(c => c.parentCommentId === parentId);
+      
+      for (const child of directChildren) {
+        descendants.push(child.commentId);
+        // Recursively find descendants of this child
+        const childDescendants = findAllDescendants(child.commentId, comments);
+        descendants.push(...childDescendants);
+      }
+      
+      return descendants;
+    };
+
+    // Get all descendant IDs
+    const descendantIds = findAllDescendants(commentId, post.comments);
+    const allIdsToDelete = [commentId, ...descendantIds];
+    
+    console.log(`🗑️ Deleting comment ${commentId} and ${descendantIds.length} descendants: [${allIdsToDelete.join(', ')}]`);
+    
+    // Remove the comment and all its descendants
+    post.comments = post.comments.filter(c => !allIdsToDelete.includes(c.commentId));
+    
     await post.save();
+
+    console.log(`✅ Successfully deleted ${allIdsToDelete.length} comment(s) from database`);
 
     res.json({
       success: true,
-      message: 'Comment deleted successfully'
+      message: 'Comment deleted successfully',
+      deletedCount: allIdsToDelete.length,
+      deletedIds: allIdsToDelete
     });
 
   } catch (error) {
@@ -338,13 +365,13 @@ router.get('/my-posts/:firebaseUid', async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const posts = await ForumPost.find({ firebaseUid, isActive: true })
+    const posts = await ForumPost.find({ firebaseUid })
       .sort({ createdAt: -1 })
       .limit(parseInt(limit))
       .skip(skip)
       .select('postId pseudonym content commentCount createdAt updatedAt');
 
-    const totalPosts = await ForumPost.countDocuments({ firebaseUid, isActive: true });
+    const totalPosts = await ForumPost.countDocuments({ firebaseUid });
 
     res.json({
       success: true,

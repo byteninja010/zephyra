@@ -37,11 +37,19 @@ const sessionSchema = new mongoose.Schema({
   },
   sessionData: {
     backgroundImage: {
-      type: String, // URL to generated background
+      type: String, // URL to generated background or mood emoji
       default: null
     },
     backgroundPrompt: {
       type: String, // The prompt used to generate the background
+      default: null
+    },
+    backgroundType: {
+      type: String, // 'gemini-image' or 'gradient'
+      default: 'gradient'
+    },
+    generatedWith: {
+      type: String, // 'Imagen 3' or other generator
       default: null
     },
     greeting: {

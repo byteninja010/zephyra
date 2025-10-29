@@ -23,23 +23,101 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   const [moodNote, setMoodNote] = useState('');
   const [chatId, setChatId] = useState(null);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [backgroundGradient, setBackgroundGradient] = useState('linear-gradient(135deg, #4ade80 0%, #22c55e 100%)');
   
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
+  // Function to get mood-based gradient
+  const getMoodGradient = (mood) => {
+    const gradients = {
+      '😢': 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #c9b8e8 100%)', // Soft lavender
+      '😔': 'linear-gradient(135deg, #ffd89b 0%, #f7a593 50%, #ffc3a0 100%)', // Warm sunset
+      '😐': 'linear-gradient(135deg, #d4e6f1 0%, #a9cce3 50%, #aed6f1 100%)', // Neutral zen
+      '😊': 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #b8e986 100%)', // Sunny meadow
+      '😄': 'linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #fed766 100%)', // Joyful spring
+      'anxious': 'linear-gradient(135deg, #a8dadc 0%, #90be6d 50%, #b5e7a0 100%)', // Forest green
+      'stressed': 'linear-gradient(135deg, #81c784 0%, #4db6ac 50%, #66bb6a 100%)', // Stream green
+      'sad': 'linear-gradient(135deg, #b2dfdb 0%, #80cbc4 50%, #a0c4c4 100%)', // Rainy greenhouse
+      'happy': 'linear-gradient(135deg, #c8e6c9 0%, #a5d6a7 50%, #aed581 100%)', // Bamboo forest
+      'calm': 'linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)', // Japanese garden
+      'angry': 'linear-gradient(135deg, #b3cde0 0%, #9fa8da 50%, #b39ddb 100%)', // Dusk sky
+      'tired': 'linear-gradient(135deg, #ffe4b5 0%, #ffd8a8 50%, #ffcc99 100%)', // Golden hour
+      'excited': 'linear-gradient(135deg, #fff59d 0%, #ffee58 50%, #ffd54f 100%)', // Sunrise hills
+      'shared': 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #b8e986 100%)', // Shared/Connected (Sunny meadow)
+      'grateful': 'linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 50%, #fed766 100%)', // Grateful (Joyful spring)
+      'lonely': 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #c9b8e8 100%)', // Lonely (Soft lavender)
+      'hopeful': 'linear-gradient(135deg, #a8e6cf 0%, #dcedc1 50%, #b8e986 100%)', // Hopeful (Sunny meadow)
+      'overwhelmed': 'linear-gradient(135deg, #a8dadc 0%, #90be6d 50%, #b5e7a0 100%)' // Overwhelmed (Forest green)
+    };
+    
+    return gradients[mood] || gradients['calm'];
+  };
+
   const loadSession = useCallback(async () => {
     try {
-      // For now, we'll simulate loading session data
+      console.log('🔄 Loading session data...');
+      // Load actual session data from backend
+      const response = await sessionService.getSession(sessionId);
+      console.log('📦 Session response:', response);
+      
+      if (response.success && response.session) {
+        setSession(response.session);
+        console.log('✅ Session loaded:', response.session);
+        
+        // Check if we have an AI-generated image or mood-based gradient
+        if (response.session.backgroundImage) {
+          console.log(`🎨 Background data - Type: ${response.session.backgroundType}, Image: ${response.session.backgroundImage?.substring(0, 50)}...`);
+          
+          // Check if it's a generated image (data URL or regular URL)
+          if (response.session.backgroundType === 'gemini-image' || response.session.backgroundType === 'generated-image') {
+            const imageUrl = response.session.backgroundImage;
+            
+            if (imageUrl.startsWith('data:image') || imageUrl.startsWith('http')) {
+              // Use AI-generated image as background
+              const bgUrl = `url("${imageUrl}")`;
+              setBackgroundGradient(bgUrl);
+              console.log(`🖼️ Applied AI-generated background image from: ${response.session.backgroundType}`);
+            } else {
+              // Fallback to gradient if image URL is invalid
+              const gradient = getMoodGradient(response.session.backgroundImage);
+              setBackgroundGradient(gradient);
+              console.log(`🎨 Invalid image URL, using mood-based gradient for: "${response.session.backgroundImage}"`);
+            }
+          } else {
+            // Fallback to mood-based gradient
+            const gradient = getMoodGradient(response.session.backgroundImage);
+            setBackgroundGradient(gradient);
+            console.log(`🎨 Applied mood-based gradient for mood: "${response.session.backgroundImage}"`);
+            console.log(`🎨 Gradient: ${gradient}`);
+          }
+        } else {
+          console.log('⚠️ No background image in session data, using default');
+          setBackgroundGradient('linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)');
+        }
+      } else {
+        console.log('⚠️ No valid session in response, using fallback');
+        // Fallback session data
+        setSession({
+          sessionId,
+          backgroundImage: null,
+          greeting: "Welcome to your personalized wellness session! I'm here to support you today.",
+          status: 'active'
+        });
+        setBackgroundGradient('linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)');
+      }
+    } catch (error) {
+      console.error('❌ Error loading session:', error);
+      // Fallback session data
       setSession({
         sessionId,
         backgroundImage: null,
         greeting: "Welcome to your personalized wellness session! I'm here to support you today.",
         status: 'active'
       });
-    } catch (error) {
-      console.error('Error loading session:', error);
+      setBackgroundGradient('linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)');
     }
   }, [sessionId]);
 
@@ -309,7 +387,15 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center transition-all duration-1000 ease-in-out" 
+      style={{ 
+        background: backgroundGradient,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       {/* Completion Loading Overlay */}
       {isCompleting && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -323,41 +409,6 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
           </div>
         </div>
       )}
-
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <span className="text-2xl">🎯</span>
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">Wellness Session</h2>
-              <p className="text-sm opacity-90">Your personalized AI companion</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={completeSession}
-              disabled={isCompleting}
-              className={`px-4 py-2 rounded-lg transition-colors text-sm ${
-                isCompleting 
-                  ? 'bg-white/10 text-white/50 cursor-not-allowed' 
-                  : 'bg-white/20 hover:bg-white/30'
-              }`}
-            >
-              {isCompleting ? 'Completing...' : 'Complete Session'}
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/20 transition-colors"
-            >
-              <XMarkIcon className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Session Start Modal */}
       {showMoodCheckIn && (
@@ -403,82 +454,247 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         </div>
       )}
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
-                message.sender === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 text-gray-800'
-              }`}
-            >
-              <p className="text-sm">{message.text}</p>
-              {message.audioUrl && (
-                <button
-                  onClick={() => toggleAudioPlayback(message.audioUrl)}
-                  className="mt-2 p-1 rounded-lg hover:bg-white/20"
+      {/* AI Image Attribution */}
+      {(session?.backgroundType === 'gemini-image' || session?.backgroundType === 'generated-image') && (
+        <div 
+          className="absolute bottom-4 left-4 z-40 px-3 py-2 rounded-lg text-xs"
+          style={{
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(10px)',
+            color: 'white'
+          }}
+        >
+          🎨 Background by {session?.backgroundType === 'gemini-image' ? 'Gemini Imagen 3' : 'AI'}
+        </div>
+      )}
+
+      {/* Centered Chat Interface Container - 50% width with glass effect */}
+      <div 
+        className="w-1/2 h-[calc(100%-4rem)] my-8 flex flex-col rounded-[2.5rem] overflow-hidden border-2"
+        style={{ 
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(50px) saturate(200%)',
+          boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
+          borderColor: 'rgba(255, 255, 255, 0.3)',
+          WebkitBackdropFilter: 'blur(50px) saturate(200%)'
+        }}
+      >
+        {/* Header */}
+        <div 
+          className="p-4 border-b"
+          style={{ 
+            background: 'rgba(147, 197, 253, 0.15)',
+            backdropFilter: 'blur(40px) saturate(200%)',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 4px 16px 0 rgba(255, 255, 255, 0.1)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%)'
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              
+              <div>
+                <h2 
+                  className="text-xl font-bold" 
+                  style={{ 
+                    color: '#1e293b',
+                    textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)'
+                  }}
                 >
-                  {isPlaying && currentPlayingAudio === message.audioUrl ? (
-                    <SpeakerXMarkIcon className="w-4 h-4" />
-                  ) : (
-                    <SpeakerWaveIcon className="w-4 h-4" />
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-        
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-gray-100 px-4 py-3 rounded-2xl">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  Wellness Session
+                </h2>
+                <p 
+                  className="text-sm" 
+                  style={{ 
+                    color: '#334155',
+                    textShadow: '0 1px 1px rgba(255, 255, 255, 0.3)'
+                  }}
+                >
+                  Your personalized AI companion
+                </p>
               </div>
             </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={completeSession}
+                disabled={isCompleting}
+                className={`px-4 py-2 rounded-lg transition-all duration-300 text-sm border-2 font-medium ${
+                  isCompleting 
+                    ? 'cursor-not-allowed' 
+                    : 'hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]'
+                }`}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(40px) saturate(200%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                  borderColor: 'rgba(255, 255, 255, 0.4)',
+                  boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
+                  color: isCompleting ? '#64748b' : '#1e293b',
+                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)'
+                }}
+              >
+                {isCompleting ? 'Completing...' : 'Complete Session'}
+              </button>
+              <button
+                onClick={onClose}
+                className="p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
+                style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  backdropFilter: 'blur(40px) saturate(200%)',
+                  WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                  borderColor: 'rgba(255, 255, 255, 0.4)',
+                  boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
+                  color: '#1e293b'
+                }}
+              >
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+            </div>
           </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+        </div>
 
-      {/* Input Area */}
-      <div className="border-t border-gray-200 p-4">
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={handleSendAudioMessage}
-            className={`p-3 rounded-xl transition-all duration-300 ${
-              isRecording 
-                ? 'bg-red-500 text-white' 
-                : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
-            }`}
-          >
-            <MicrophoneIcon className="w-5 h-5" />
-          </button>
+        {/* Chat Messages */}
+        <div 
+          className="flex-1 overflow-y-auto p-4 space-y-4"
+          style={{ 
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(40px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%)'
+          }}
+        >
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+            <div
+              className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl border-2 ${
+                message.sender === 'user'
+                  ? 'text-white'
+                  : 'text-gray-800'
+              }`}
+              style={message.sender === 'user' ? {
+                background: 'rgba(147, 197, 253, 0.2)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+                boxShadow: '0 8px 32px 0 rgba(147, 197, 253, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)'
+              } : {
+                background: 'rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
+              }}
+            >
+                <p className="text-sm">{message.text}</p>
+                {message.audioUrl && (
+                  <button
+                    onClick={() => toggleAudioPlayback(message.audioUrl)}
+                    className="mt-2 p-1 rounded-lg hover:bg-white/20"
+                  >
+                    {isPlaying && currentPlayingAudio === message.audioUrl ? (
+                      <SpeakerXMarkIcon className="w-4 h-4" />
+                    ) : (
+                      <SpeakerWaveIcon className="w-4 h-4" />
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
           
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-          />
-          
-          <button
-            onClick={handleSendMessage}
-            disabled={!inputMessage.trim() || isLoading}
-            className="p-3 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
-          >
-            <PaperAirplaneIcon className="w-5 h-5" />
-          </button>
+        {isLoading && (
+          <div className="flex justify-start">
+            <div 
+              className="px-4 py-3 rounded-2xl border-2"
+              style={{
+                background: 'rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
+              }}
+            >
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div 
+          className="border-t p-4"
+          style={{ 
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(40px) saturate(200%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+            borderColor: 'rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 -4px 16px 0 rgba(255, 255, 255, 0.1)'
+          }}
+        >
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleSendAudioMessage}
+              className={`p-3 rounded-xl transition-all duration-300 border-2 ${
+                isRecording 
+                  ? 'text-white' 
+                  : 'text-gray-700 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]'
+              }`}
+              style={isRecording ? {
+                background: 'rgba(239, 68, 68, 0.3)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 8px 32px 0 rgba(239, 68, 68, 0.3), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)'
+              } : {
+                background: 'rgba(255, 255, 255, 0.25)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
+              }}
+            >
+              <MicrophoneIcon className="w-5 h-5" />
+            </button>
+            
+            <input
+              type="text"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Type your message..."
+              className="flex-1 px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-white/30 focus:outline-none placeholder-gray-500 text-gray-800"
+              style={{
+                background: 'rgba(255, 255, 255, 0.3)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.6)',
+                boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+            />
+            
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              className="p-3 text-white rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 hover:shadow-[0_8px_32px_0_rgba(147,197,253,0.3)]"
+              style={{
+                background: 'rgba(147, 197, 253, 0.3)',
+                backdropFilter: 'blur(40px) saturate(200%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 8px 32px 0 rgba(147, 197, 253, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)'
+              }}
+            >
+              <PaperAirplaneIcon className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
 

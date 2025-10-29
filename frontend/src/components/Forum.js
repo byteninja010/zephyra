@@ -286,7 +286,7 @@ const Forum = () => {
     setCommentInputs(prev => ({ ...prev, [postId]: '' }));
   };
 
-  // Organize comments into a hierarchical structure
+  // Organize comments into a hierarchical structure with unlimited depth
   const organizeCommentsHierarchy = (comments) => {
     if (!comments || comments.length === 0) return [];
 
@@ -303,15 +303,112 @@ const Forum = () => {
       }
     });
 
-    // Attach replies to their parents
+    // Recursively attach replies to their parents
     const attachReplies = (comment) => {
+      const directReplies = repliesMap[comment.commentId] || [];
       return {
         ...comment,
-        replies: repliesMap[comment.commentId] || []
+        replies: directReplies.map(reply => attachReplies(reply))
       };
     };
 
     return topLevelComments.map(attachReplies);
+  };
+
+  // Render a comment with its nested replies recursively
+  const renderCommentThread = (comment, postId, depth = 0) => {
+    const isAuthor = comment.firebaseUid === firebaseUid;
+    const hasReplies = comment.replies && comment.replies.length > 0;
+
+    return (
+      <div key={comment.commentId}>
+        {/* Comment Container */}
+        <div className={`flex space-x-3 py-3 ${depth === 0 ? 'border-b' : ''}`} style={{ 
+          borderColor: '#f1f5f9',
+          paddingLeft: `${depth * 48}px`
+        }}>
+          {/* Threading Line for nested comments */}
+          {depth > 0 && (
+            <div 
+              className="absolute w-0.5" 
+              style={{ 
+                backgroundColor: '#cbd5e1',
+                left: `${(depth - 1) * 48 + 81}px`,
+                top: 0,
+                bottom: 0,
+                height: '100%'
+              }}
+            ></div>
+          )}
+          
+          {/* Avatar - with solid background to cover threading lines */}
+          <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs relative" style={{ 
+            background: getAvatarGradient(comment.pseudonym),
+            zIndex: 1
+          }}>
+            {comment.pseudonym?.[0] || '?'}
+          </div>
+          
+          {/* Comment Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between mb-1">
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
+                <p className="font-bold text-sm" style={{ color: '#0f172a' }}>{comment.pseudonym}</p>
+                <span style={{ color: '#cbd5e1' }}>·</span>
+                <p className="text-xs" style={{ color: '#64748b' }}>{formatTime(comment.createdAt)}</p>
+              </div>
+              
+              {/* Delete button */}
+              {isAuthor && (
+                <button
+                  onClick={() => handleDeleteComment(postId, comment.commentId)}
+                  className="flex-shrink-0 p-1 rounded-full hover:bg-red-50 transition-colors group"
+                  title="Delete comment"
+                >
+                  <svg className="w-4 h-4 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            
+            <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2" style={{ color: '#0f172a' }}>{comment.content}</p>
+            
+            {/* Reply button */}
+            <button
+              onClick={() => handleReplyToComment(postId, comment.commentId, comment.pseudonym)}
+              className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium transition-colors"
+              style={{ color: '#64748b' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#E8F4FD';
+                e.currentTarget.style.color = '#3C91C5';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#64748b';
+              }}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+              <span>Reply</span>
+              {hasReplies && (
+                <span className="px-1.5 py-0.5 rounded-full text-xs" style={{ backgroundColor: '#E8F4FD', color: '#3C91C5' }}>
+                  {comment.replies.length}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Nested Replies - Recursive rendering */}
+        {hasReplies && (
+          <div className="relative">
+            {comment.replies.map((reply) => renderCommentThread(reply, postId, depth + 1))}
+          </div>
+        )}
+      </div>
+    );
   };
 
   // Delete post
@@ -351,18 +448,30 @@ const Forum = () => {
       );
 
       if (response.data.success) {
-        // Remove comment from local state
+        const deletedCount = response.data.deletedCount || 1;
+        const deletedIds = response.data.deletedIds || [commentId];
+        
+        console.log(`Removing ${deletedCount} comment(s) from UI:`, deletedIds);
+        
+        // Remove all deleted comments from local state using the deletedIds array
         setPosts(prev => prev.map(post => {
           if (post.postId === postId) {
+            // Filter out all deleted comments by their IDs
+            const updatedComments = post.comments.filter(c => !deletedIds.includes(c.commentId));
+            
             return {
               ...post,
-              comments: post.comments.filter(c => c.commentId !== commentId),
-              commentCount: post.commentCount - 1
+              comments: updatedComments,
+              commentCount: Math.max(0, post.commentCount - deletedCount)
             };
           }
           return post;
         }));
-        showNotification('Comment deleted successfully', 'success');
+        
+        const message = deletedCount > 1 
+          ? `Comment and ${deletedCount - 1} ${deletedCount === 2 ? 'reply' : 'replies'} deleted successfully`
+          : 'Comment deleted successfully';
+        showNotification(message, 'success');
       }
     } catch (error) {
       console.error('Error deleting comment:', error);
@@ -913,120 +1022,13 @@ const Forum = () => {
                         </div>
 
                         {/* Comments List - Hierarchical/Threaded */}
-                        <div className="space-y-1 ml-15">
+                        <div className="ml-15">
                           {post.comments && post.comments.length > 0 ? (
-                            organizeCommentsHierarchy(post.comments).map((comment) => (
-                              <div key={comment.commentId} className="space-y-1">
-                                {/* Top-level Comment */}
-                                <div className="flex space-x-3 py-3 border-b" style={{ borderColor: '#f1f5f9' }}>
-                                  <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs" style={{ background: getAvatarGradient(comment.pseudonym) }}>
-                                    {comment.pseudonym?.[0] || '?'}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between mb-1">
-                                      <div className="flex items-center space-x-2 flex-1 min-w-0">
-                                        <p className="font-bold text-sm" style={{ color: '#0f172a' }}>{comment.pseudonym}</p>
-                                        <span style={{ color: '#cbd5e1' }}>·</span>
-                                        <p className="text-xs" style={{ color: '#64748b' }}>{formatTime(comment.createdAt)}</p>
-                                      </div>
-                                      
-                                      {/* Delete button */}
-                                      {comment.firebaseUid === firebaseUid && (
-                                        <button
-                                          onClick={() => handleDeleteComment(post.postId, comment.commentId)}
-                                          className="flex-shrink-0 p-1 rounded-full hover:bg-red-50 transition-colors group"
-                                          title="Delete comment"
-                                        >
-                                          <svg className="w-4 h-4 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                          </svg>
-                                        </button>
-                                      )}
-                                    </div>
-                                    <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2" style={{ color: '#0f172a' }}>{comment.content}</p>
-                                    
-                                    {/* Reply button */}
-                                    <button
-                                      onClick={() => handleReplyToComment(post.postId, comment.commentId, comment.pseudonym)}
-                                      className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium transition-colors"
-                                      style={{ color: '#64748b' }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#E8F4FD';
-                                        e.currentTarget.style.color = '#3C91C5';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'transparent';
-                                        e.currentTarget.style.color = '#64748b';
-                                      }}
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                      </svg>
-                                      <span>Reply</span>
-                                      {comment.replies && comment.replies.length > 0 && (
-                                        <span>({comment.replies.length})</span>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-
-                                {/* Nested Replies */}
-                                {comment.replies && comment.replies.length > 0 && (
-                                  <div className="ml-13 border-l-2 pl-3" style={{ borderColor: '#E8F4FD' }}>
-                                    {comment.replies.map((reply) => (
-                                      <div key={reply.commentId} className="flex space-x-3 py-3 border-b" style={{ borderColor: '#f1f5f9' }}>
-                                        <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs" style={{ background: getAvatarGradient(reply.pseudonym) }}>
-                                          {reply.pseudonym?.[0] || '?'}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <div className="flex items-start justify-between mb-1">
-                                            <div className="flex items-center space-x-2 flex-1 min-w-0">
-                                              <p className="font-bold text-sm" style={{ color: '#0f172a' }}>{reply.pseudonym}</p>
-                                              <span style={{ color: '#cbd5e1' }}>·</span>
-                                              <p className="text-xs" style={{ color: '#64748b' }}>{formatTime(reply.createdAt)}</p>
-                                            </div>
-                                            
-                                            {/* Delete button */}
-                                            {reply.firebaseUid === firebaseUid && (
-                                              <button
-                                                onClick={() => handleDeleteComment(post.postId, reply.commentId)}
-                                                className="flex-shrink-0 p-1 rounded-full hover:bg-red-50 transition-colors group"
-                                                title="Delete reply"
-                                              >
-                                                <svg className="w-3 h-3 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                              </button>
-                                            )}
-                                          </div>
-                                          <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2" style={{ color: '#0f172a' }}>{reply.content}</p>
-                                          
-                                          {/* Reply to reply button */}
-                                          <button
-                                            onClick={() => handleReplyToComment(post.postId, comment.commentId, reply.pseudonym)}
-                                            className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium transition-colors"
-                                            style={{ color: '#64748b' }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.backgroundColor = '#E8F4FD';
-                                              e.currentTarget.style.color = '#3C91C5';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.backgroundColor = 'transparent';
-                                              e.currentTarget.style.color = '#64748b';
-                                            }}
-                                          >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
-                                            </svg>
-                                            <span>Reply</span>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            ))
+                            <div className="space-y-0">
+                              {organizeCommentsHierarchy(post.comments).map((comment) => 
+                                renderCommentThread(comment, post.postId, 0)
+                              )}
+                            </div>
                           ) : (
                             <div className="py-8 text-center">
                               <p className="text-sm" style={{ color: '#94a3b8' }}>No comments yet. Be the first to reply!</p>

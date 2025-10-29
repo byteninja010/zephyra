@@ -60,6 +60,9 @@ MODERATION GUIDELINES:
 - Contains sensitive topics handled respectfully
 - Discusses suicidal thoughts in a help-seeking context (NOT promoting)
 - Uses emotional language to express genuine pain or struggle
+- Contains greetings and friendly messages (e.g., "Hello everyone", "Good morning", "How is everyone doing?")
+- Includes general day-to-day questions or statements that don't promote self-harm (e.g., "What did you do today?", "I had a good day", "The weather is nice")
+- Shares positive experiences, achievements, or casual conversations
 
 ❌ REJECT the content if it:
 - Contains abusive language, profanity, or insults directed at others (e.g., "fuck you", cursing at people)
@@ -70,19 +73,26 @@ MODERATION GUIDELINES:
 - Contains explicit threats or violence towards others
 - Is deliberately abusive, disrespectful, or trolling
 - Uses offensive language in an aggressive or attacking manner
+- Contains frustrated or angry comments directed at other users (e.g., blaming others, lashing out at the community)
+- Shows hostility or aggression toward individuals or groups
+- Expresses frustration in a way that attacks, belittles, or targets others
 
 IMPORTANT CONTEXT:
 - This is a MENTAL HEALTH SUPPORT FORUM focused on safety and respect
 - Emotional, vulnerable, and sensitive discussions are WELCOMED
+- Greetings, casual conversations, and day-to-day sharing are ENCOURAGED
 - Users are anonymous and seeking a safe space
-- Look at the INTENT: Is the user seeking help or attacking others?
+- Look at the INTENT: Is the user seeking help, sharing positively, or attacking others?
 - Vulnerability is welcome, aggression is not
+- Frustration about personal situations is okay, but frustration directed at others is not
 - When in doubt about aggressive or abusive content, REJECT to maintain a safe space
 
-KEY PRINCIPLE:
+KEY PRINCIPLES:
 Distinguish between:
-- EMOTIONAL EXPRESSION (allowed): "I'm so fucking depressed" or "This is so hard"
-- DIRECTED ABUSE (not allowed): "Fuck you" or cursing AT other people
+- EMOTIONAL EXPRESSION (allowed): "I'm so fucking depressed" or "This is so hard" or "I'm frustrated with my situation"
+- DIRECTED ABUSE (not allowed): "Fuck you" or cursing AT other people or "You people are useless" or "Fuck Everybody"
+- CASUAL SHARING (allowed): "Hello!", "How's everyone?", "I went for a walk today", "Good morning friends"
+- FRUSTRATED ATTACK (not allowed): "This community sucks", "You all don't understand", "Why are you people so stupid"
 
 Respond ONLY with valid JSON in this exact format:
 {

@@ -109,6 +109,23 @@ const sessionService = {
     }
   },
 
+  // Get session data by ID
+  getSession: async (sessionId) => {
+    try {
+      const firebaseUid = localStorage.getItem('firebaseUid');
+      // For now, we'll use the startInstantSession response
+      // In production, you'd want a dedicated GET endpoint
+      const response = await axios.post(`${API_URL}/api/sessions/start-instant`, {
+        firebaseUid,
+        userContext: {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error getting session:', error);
+      return { success: false };
+    }
+  },
+
   // Start an instant session (for testing)
   startInstantSession: async (userContext) => {
     try {
@@ -171,20 +188,6 @@ const sessionService = {
       return response.data;
     } catch (error) {
       console.error('Error getting session history:', error);
-      throw error;
-    }
-  },
-
-  // Get upcoming sessions
-  getUpcomingSessions: async (limit = 5) => {
-    try {
-      const firebaseUid = localStorage.getItem('firebaseUid');
-      const response = await axios.get(`${API_URL}/api/sessions/upcoming/${firebaseUid}`, {
-        params: { limit }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error getting upcoming sessions:', error);
       throw error;
     }
   },

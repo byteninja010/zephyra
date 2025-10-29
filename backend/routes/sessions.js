@@ -1,10 +1,30 @@
 const express = require('express');
 const Session = require('../models/Session');
 const { GoogleGenAI } = require('@google/genai');
+const axios = require('axios');
+const { VertexAI } = require('@google-cloud/vertexai');
+const { GoogleAuth } = require('google-auth-library');
 const router = express.Router();
 
 // Initialize Gemini AI
 const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
+
+// Initialize Vertex AI for Imagen 3
+// Set the credentials path for authentication
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = require('path').resolve(__dirname, '..', process.env.GOOGLE_APPLICATION_CREDENTIALS);
+}
+
+const vertexAI = new VertexAI({
+  project: process.env.GOOGLE_CLOUD_PROJECT_ID,
+  location: process.env.GOOGLE_CLOUD_LOCATION || 'us-central1'
+});
+
+// Initialize Google Auth for direct API calls
+const auth = new GoogleAuth({
+  keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+  scopes: ['https://www.googleapis.com/auth/cloud-platform']
+});
 
 // Retry function for Gemini API calls with exponential backoff
 async function retryGeminiCall(apiCall, maxRetries = 5, baseDelay = 2000) {
@@ -93,6 +113,7 @@ const formatSessionResponse = (session, message = 'Session retrieved successfull
       status: session.status,
       backgroundImage: session.sessionData?.backgroundImage,
       backgroundPrompt: session.sessionData?.backgroundPrompt,
+      backgroundType: session.sessionData?.backgroundType,
       greeting: session.sessionData?.greeting,
       schedule: session.schedule,
       nextSessionDate: session.nextSessionDate,
@@ -108,24 +129,217 @@ const handleError = (res, error, message = 'Internal server error') => {
   res.status(500).json({ error: message });
 };
 
-// Helper function to generate personalized background using Gemini
-const generateSessionBackground = async (userContext, sessionType = 'general') => {
+// Helper function to get user's recent mood for background generation
+const getUserMoodForBackground = async (firebaseUid) => {
   try {
-    console.log('🎨 Generating personalized session background...');
+    const User = require('../models/User');
+    const user = await User.findOne({ firebaseUid, isActive: true });
     
-    // For now, return a simple placeholder since image generation is complex
-    // TODO: Implement proper image generation when needed
-    console.log('⚠️ Using placeholder background (image generation not implemented)');
+    if (!user || !user.reflections || user.reflections.length === 0) {
+      return 'calm'; // Default mood
+    }
     
+    // Get today's reflections
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayReflections = user.reflections
+      .filter(r => new Date(r.date) >= today && r.mood)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    if (todayReflections.length > 0) {
+      return todayReflections[0].mood;
+    }
+    
+    // Get most recent mood from any day
+    const recentReflections = user.reflections
+      .filter(r => r.mood)
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    return recentReflections.length > 0 ? recentReflections[0].mood : 'calm';
+  } catch (error) {
+    console.error('Error getting user mood:', error);
+    return 'calm';
+  }
+};
+
+// Helper function to generate personalized background using Gemini Imagen
+const generateSessionBackground = async (userContext, sessionType = 'general', firebaseUid = null) => {
+  try {
+    console.log('🎨 Generating personalized session background with Gemini Imagen...');
+    
+    // Get user's current mood
+    const userMood = await getUserMoodForBackground(firebaseUid || userContext?.firebaseUid);
+    console.log(`📊 User mood for background: ${userMood}`);
+    
+    // Create mood-appropriate therapeutic nature prompts for image generation
+    const moodImagePrompts = {
+      '😢': 'A soft, peaceful lavender field at dawn with gentle morning mist, warm pastel colors, water droplets on flowers, serene and comforting atmosphere, professional nature photography, therapeutic calming scene, 4k quality',
+      '😔': 'A serene sunset over calm ocean waters with warm orange and pink sky, gentle waves reflecting golden light, peaceful clouds, hopeful and soothing atmosphere, beautiful nature photography, 4k quality',
+      '😐': 'A tranquil zen garden with smooth stones, gentle flowing water, minimalist bamboo, balanced composition, neutral calming earth tones, meditative peaceful atmosphere, professional nature photography, 4k quality',
+      '😊': 'A bright sunny meadow filled with colorful wildflowers, clear blue sky, soft sunlight, butterflies, uplifting positive energy, vibrant yet peaceful, beautiful nature photography, 4k quality',
+      '😄': 'A joyful spring garden in full bloom with colorful flowers, cherry blossoms, butterflies, warm sunlight filtering through, energizing yet calming, celebration of nature, professional photography, 4k quality',
+      'anxious': 'A peaceful forest path with dappled sunlight filtering through tall trees, natural green tones, moss-covered ground, grounding protective atmosphere, serene nature photography, 4k quality',
+      'stressed': 'A gentle mountain stream with crystal clear flowing water, smooth moss-covered rocks, lush greenery, water droplets, deeply calming nature sounds visualized, professional photography, 4k quality',
+      'sad': 'A cozy rainy rainforest scene with tropical plants, soft rainfall, water droplets on leaves, warm diffused lighting, nurturing safe atmosphere, beautiful nature photography, 4k quality',
+      'happy': 'A sunlit bamboo forest with golden rays of light filtering through green leaves, peaceful atmosphere, sense of growth and renewal, serene nature photography, 4k quality',
+      'calm': 'A misty morning in a Japanese garden with koi pond, lily pads, cherry blossoms, perfectly balanced composition, serene and peaceful, professional nature photography, 4k quality',
+      'angry': 'A vast open sky at dusk with slow-moving clouds, endless horizon, cool blues and purples, expansive releasing atmosphere, calming nature photography, 4k quality',
+      'tired': 'A peaceful lake at golden hour with soft warm colors, gentle ripples, deeply restful atmosphere, hammock view, restorative scene, beautiful nature photography, 4k quality',
+      'excited': 'A vibrant sunrise over rolling hills with golden light, fresh morning energy, balanced excitement with tranquility, inspiring nature photography, 4k quality',
+      'shared': 'A warm community garden with blooming flowers, people connecting, natural beauty, bright welcoming atmosphere, sense of belonging and connection, beautiful nature photography, 4k quality',
+      'grateful': 'A golden autumn forest with warm amber light filtering through colorful leaves, peaceful atmosphere of appreciation and abundance, beautiful nature photography, 4k quality',
+      'lonely': 'A single majestic tree on a peaceful hill at dawn, soft morning light, gentle fog, serene solitude, comforting and grounding atmosphere, beautiful nature photography, 4k quality',
+      'hopeful': 'A vibrant sunrise breaking through morning clouds, new beginnings, warm golden light over a peaceful landscape, inspiring and uplifting, beautiful nature photography, 4k quality',
+      'overwhelmed': 'A wide open beach with gentle waves, vast sky, spacious calming atmosphere, sense of release and freedom, soothing nature photography, 4k quality'
+    };
+    
+    const imagePrompt = moodImagePrompts[userMood] || moodImagePrompts['calm'];
+    console.log(`🖼️ Generating image with prompt: ${imagePrompt.substring(0, 100)}...`);
+    
+    try {
+      // Use Vertex AI Imagen 3 for image generation
+      console.log('📸 ========================================');
+      console.log('📸 GENERATING BACKGROUND IMAGE WITH IMAGEN 3');
+      console.log('📸 Mood:', userMood);
+      console.log('📸 Prompt:', imagePrompt);
+      console.log('📸 ========================================');
+      
+      // Get access token for authentication
+      const client = await auth.getClient();
+      const accessToken = await client.getAccessToken();
+      
+      if (!accessToken || !accessToken.token) {
+        throw new Error('Failed to get access token');
+      }
+      
+      console.log('🔐 Got authentication token');
+      
+      // Call Vertex AI Imagen API directly via REST
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+      const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
+      
+      // Use predict endpoint with correct instances format for Imagen 3
+      const apiEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/imagen-3.0-generate-001:predict`;
+      
+      console.log('📸 Calling Imagen API at:', apiEndpoint);
+      
+      // Correct request format with instances for Imagen 3
+      const requestBody = {
+        instances: [
+          {
+            prompt: imagePrompt
+          }
+        ],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: "16:9",
+          negativePrompt: "",
+          seed: 1,
+          addWatermark: false
+        }
+      };
+      
+      console.log('📸 Request body:', JSON.stringify(requestBody, null, 2));
+      
+      const result = await axios.post(apiEndpoint, requestBody, {
+        headers: {
+          'Authorization': `Bearer ${accessToken.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('📸 Imagen API Response received');
+      console.log('📸 Response status:', result.status);
+      console.log('📸 Response data keys:', Object.keys(result.data || {}));
+      
+      // Parse Imagen 3 response - predictions format
+      if (result.data && result.data.predictions && Array.isArray(result.data.predictions) && result.data.predictions.length > 0) {
+        const prediction = result.data.predictions[0];
+        console.log('📸 Prediction keys:', Object.keys(prediction));
+        
+        let imageBase64 = null;
+        
+        // Try different field names that Imagen 3 might use
+        if (prediction.bytesBase64Encoded) {
+          imageBase64 = prediction.bytesBase64Encoded;
+          console.log('📸 Found image in "bytesBase64Encoded" field');
+        } else if (prediction.image) {
+          imageBase64 = prediction.image;
+          console.log('📸 Found image in "image" field');
+        } else if (prediction.data) {
+          imageBase64 = prediction.data;
+          console.log('📸 Found image in "data" field');
+        } else if (typeof prediction === 'string') {
+          imageBase64 = prediction;
+          console.log('📸 Prediction is direct base64 string');
+        }
+        
+        if (!imageBase64) {
+          console.log('📸 Full prediction object:', JSON.stringify(prediction, null, 2));
+          throw new Error('No image data found in prediction. Keys: ' + Object.keys(prediction).join(', '));
+        }
+        
+        // Clean up base64 string (remove any data URL prefix if present)
+        if (typeof imageBase64 === 'string' && imageBase64.startsWith('data:')) {
+          imageBase64 = imageBase64.split(',')[1];
+        }
+        
+        const imageUrl = `data:image/png;base64,${imageBase64}`;
+        
+        console.log('✅ Successfully generated image with Imagen 3!');
+        console.log('📏 Image data length:', imageBase64.length, 'characters');
+        console.log('📸 ========================================');
+        
+        return {
+          imageUrl: imageUrl,
+          prompt: imagePrompt,
+          mood: userMood,
+          type: 'gemini-image',
+          generatedWith: 'Imagen 3'
+        };
+      } else {
+        console.log('📸 Full response data:', JSON.stringify(result.data, null, 2));
+        throw new Error('No predictions in response or empty predictions array');
+      }
+    } catch (imageError) {
+      console.log('⚠️ Imagen 3 generation failed:', imageError.message);
+      
+      // Log specific error details
+      if (imageError.response) {
+        console.log('📛 API Error Status:', imageError.response.status);
+        console.log('📛 API Error Data:', JSON.stringify(imageError.response.data, null, 2));
+        
+        if (imageError.response.status === 429) {
+          console.log('🚨 RATE LIMIT EXCEEDED!');
+          console.log('🚨 You have hit Google Cloud\'s API quota limit.');
+          console.log('🚨 Solutions:');
+          console.log('   1. Wait a few minutes and try again');
+          console.log('   2. Check your Google Cloud quotas at: https://console.cloud.google.com/iam-admin/quotas');
+          console.log('   3. Request quota increase if needed');
+          console.log('   4. Make sure billing is enabled on your project');
+        }
+      }
+      
+      console.log('🔄 Falling back to mood-based gradient...');
+    }
+    
+    // Fallback to gradient if image generation fails
     return {
-      imageData: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
-      mimeType: 'image/gif',
-      prompt: 'Calming wellness session background'
+      imageUrl: null,
+      prompt: imagePrompt,
+      mood: userMood,
+      type: 'gradient'
     };
 
   } catch (error) {
-    console.error('Error generating session background:', error);
-    return null;
+    console.error('❌ Error generating session background:', error);
+    return {
+      imageUrl: null,
+      prompt: 'Calming wellness session background',
+      mood: 'calm',
+      type: 'gradient'
+    };
   }
 };
 
@@ -240,6 +454,23 @@ router.post('/start-instant', async (req, res) => {
 
     if (session) {
       console.log('✅ Found existing active session:', session.sessionId);
+      console.log('🔄 Regenerating background for existing session...');
+      
+      // Regenerate background even for existing session
+      const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
+      console.log('🎨 BACKGROUND DATA:', JSON.stringify(backgroundData, null, 2));
+      
+      if (backgroundData) {
+        session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
+        session.sessionData.backgroundPrompt = backgroundData.prompt;
+        session.sessionData.backgroundType = backgroundData.type;
+        if (backgroundData.generatedWith) {
+          session.sessionData.generatedWith = backgroundData.generatedWith;
+        }
+        await session.save();
+        console.log('💾 Background updated for existing session');
+      }
+      
       return res.json({
         success: true,
         session: {
@@ -247,6 +478,7 @@ router.post('/start-instant', async (req, res) => {
           status: session.status,
           backgroundImage: session.sessionData.backgroundImage,
           backgroundPrompt: session.sessionData.backgroundPrompt,
+          backgroundType: session.sessionData.backgroundType,
           greeting: session.sessionData.greeting
         },
         message: 'Using existing active session'
@@ -269,13 +501,27 @@ router.post('/start-instant', async (req, res) => {
       nextSessionDate: new Date(Date.now() + 24 * 60 * 60 * 1000) // Tomorrow
     });
 
-    // Generate personalized background
-    const backgroundData = await generateSessionBackground(userContext);
+    // Generate personalized background based on user mood
+    console.log('🎨 ========================================');
+    console.log('🎨 CALLING generateSessionBackground...');
+    const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
+    console.log('🎨 BACKGROUND DATA RECEIVED:', JSON.stringify(backgroundData, null, 2));
+    console.log('🎨 ========================================');
     
     // Update session with background
     if (backgroundData) {
-      session.sessionData.backgroundImage = `data:${backgroundData.mimeType};base64,${backgroundData.imageData}`;
+      // Store the generated image URL or mood for gradient fallback
+      session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
       session.sessionData.backgroundPrompt = backgroundData.prompt;
+      session.sessionData.backgroundType = backgroundData.type; // 'generated-image' or 'gradient'
+      if (backgroundData.generatedWith) {
+        session.sessionData.generatedWith = backgroundData.generatedWith;
+      }
+      
+      console.log('💾 SAVED TO SESSION:');
+      console.log('  - backgroundImage:', session.sessionData.backgroundImage);
+      console.log('  - backgroundType:', session.sessionData.backgroundType);
+      console.log('  - generatedWith:', session.sessionData.generatedWith);
     }
 
     // Get last session summary from MongoDB
@@ -289,17 +535,26 @@ router.post('/start-instant', async (req, res) => {
     await session.save();
     console.log('✅ Session saved successfully:', session.sessionId);
 
-    res.json({
+    const responseData = {
       success: true,
       session: {
         sessionId: session.sessionId,
         status: session.status,
         backgroundImage: session.sessionData.backgroundImage,
         backgroundPrompt: session.sessionData.backgroundPrompt,
+        backgroundType: session.sessionData.backgroundType,
         greeting: session.sessionData.greeting
       },
       message: 'Instant session started successfully'
-    });
+    };
+    
+    console.log('📤 ========================================');
+    console.log('📤 SENDING RESPONSE TO FRONTEND:');
+    console.log('📤 backgroundImage:', responseData.session.backgroundImage);
+    console.log('📤 backgroundType:', responseData.session.backgroundType);
+    console.log('📤 ========================================');
+    
+    res.json(responseData);
 
   } catch (error) {
     handleError(res, error, 'Error starting instant session');
@@ -631,14 +886,19 @@ router.post('/start/:sessionId', async (req, res) => {
       return res.status(400).json({ error: 'Session is not in scheduled status' });
     }
 
-    // Generate personalized background
-    const backgroundData = await generateSessionBackground(userContext);
+    // Generate personalized background based on user mood
+    const backgroundData = await generateSessionBackground(userContext, 'scheduled', session.firebaseUid);
     
     // Update session status and background
     session.status = 'active';
     if (backgroundData) {
-      session.sessionData.backgroundImage = `data:${backgroundData.mimeType};base64,${backgroundData.imageData}`;
+      // Store the generated image URL or mood for gradient fallback
+      session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
       session.sessionData.backgroundPrompt = backgroundData.prompt;
+      session.sessionData.backgroundType = backgroundData.type; // 'gemini-image' or 'gradient'
+      if (backgroundData.generatedWith) {
+        session.sessionData.generatedWith = backgroundData.generatedWith;
+      }
     }
 
     // Get last session summary from Firestore
@@ -657,6 +917,7 @@ router.post('/start/:sessionId', async (req, res) => {
         status: session.status,
         backgroundImage: session.sessionData.backgroundImage,
         backgroundPrompt: session.sessionData.backgroundPrompt,
+        backgroundType: session.sessionData.backgroundType,
         greeting: session.sessionData.greeting
       },
       message: 'Session started successfully'
