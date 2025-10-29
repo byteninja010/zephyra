@@ -191,7 +191,8 @@ const StreakTracker = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div className="overflow-y-auto max-h-[90vh] p-4 sm:p-6 md:p-8">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>
             Streak Tracker
@@ -328,6 +329,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
               : "Start your wellness journey today! Every small step counts. 💪"
             }
           </p>
+        </div>
         </div>
       </div>
     </div>

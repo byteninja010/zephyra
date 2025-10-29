@@ -105,6 +105,17 @@ const authService = {
     }
   },
 
+  // Delete reflection
+  deleteReflection: async (firebaseUid, reflectionId) => {
+    try {
+      const response = await axios.delete(`${API_URL}/api/auth/user/${firebaseUid}/reflection/${reflectionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting reflection:', error);
+      throw error;
+    }
+  },
+
   // Get activity history
   getActivityHistory: async (firebaseUid) => {
     try {

@@ -395,6 +395,41 @@ router.get('/user/:firebaseUid/activities', async (req, res) => {
   }
 });
 
+// Delete reflection
+router.delete('/user/:firebaseUid/reflection/:reflectionId', async (req, res) => {
+  try {
+    const { firebaseUid, reflectionId } = req.params;
+
+    const user = await User.findOne({ firebaseUid, isActive: true });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Find and remove the reflection
+    const reflectionIndex = user.reflections.findIndex(
+      ref => ref._id.toString() === reflectionId
+    );
+
+    if (reflectionIndex === -1) {
+      return res.status(404).json({ error: 'Reflection not found' });
+    }
+
+    user.reflections.splice(reflectionIndex, 1);
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Reflection deleted successfully',
+      reflections: user.reflections
+    });
+
+  } catch (error) {
+    console.error('Error deleting reflection:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Generate personalized quote based on user's mood history
 router.get('/user/:firebaseUid/personalized-quote', async (req, res) => {
   try {

@@ -7,6 +7,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
   const [selectedMood, setSelectedMood] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [viewMode, setViewMode] = useState('write'); // 'write' or 'view'
+  const [deletingId, setDeletingId] = useState(null); // Track which reflection is being deleted
 
   const moodOptions = [
     { value: 'grateful', label: 'Grateful', emoji: '🙏', color: '#10B981' },
@@ -90,10 +91,71 @@ const ReflectionChart = ({ isOpen, onClose }) => {
     }
   };
 
-  const deleteReflection = (id) => {
-    const updatedReflections = reflections.filter(ref => ref.id !== id);
-    setReflections(updatedReflections);
-    localStorage.setItem('reflections', JSON.stringify(updatedReflections));
+  const deleteReflection = async (reflectionId) => {
+    if (!reflectionId) {
+      alert('Invalid reflection ID');
+      return;
+    }
+
+    // Show confirmation dialog
+    const confirmDelete = window.confirm('Are you sure you want to delete this reflection? This action cannot be undone.');
+    
+    if (!confirmDelete) {
+      return;
+    }
+
+    // Set loading state
+    setDeletingId(reflectionId);
+
+    try {
+      const firebaseUid = localStorage.getItem('firebaseUid');
+      if (!firebaseUid) {
+        alert('User not found. Please sign in again.');
+        setDeletingId(null);
+        return;
+      }
+
+      // Call backend API to delete reflection
+      const response = await authService.deleteReflection(firebaseUid, reflectionId);
+      
+      if (response.success) {
+        // Update local state with the updated reflections from backend
+        setReflections(response.reflections || []);
+        // Remove localStorage fallback as we're now fully backend-driven
+        localStorage.removeItem('reflections');
+      } else {
+        alert('Failed to delete reflection. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting reflection:', error);
+      
+      // Provide more specific error messages
+      if (error.response) {
+        if (error.response.status === 404) {
+          alert('Reflection not found. It may have already been deleted.');
+          // Refresh the list
+          try {
+            const firebaseUid = localStorage.getItem('firebaseUid');
+            const response = await authService.getReflections(firebaseUid);
+            if (response.success) {
+              setReflections(response.reflections || []);
+            }
+          } catch (refreshError) {
+            console.error('Error refreshing reflections:', refreshError);
+          }
+        } else if (error.response.status === 401 || error.response.status === 403) {
+          alert('Authentication error. Please sign in again.');
+        } else {
+          alert('Failed to delete reflection. Please try again.');
+        }
+      } else if (error.request) {
+        alert('Network error. Please check your connection and try again.');
+      } else {
+        alert('Failed to delete reflection. Please try again.');
+      }
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const getMoodData = (mood) => {
@@ -289,9 +351,10 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                 <div className="space-y-3 sm:space-y-4">
                   {reflections.map((reflection, index) => {
                     const moodData = getMoodData(reflection.mood);
+                    const reflectionId = reflection._id || reflection.id;
                     return (
                       <div
-                        key={reflection.id || reflection._id || index}
+                        key={reflectionId || index}
                         className="p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
                       >
                         <div className="flex justify-between items-start mb-2">
@@ -302,17 +365,34 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                                 {moodData.label}
                               </div>
                               <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>
-                                {reflection.category} • {reflection.timestamp}
+                                {reflection.category} • {new Date(reflection.date).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                })}
                               </div>
                             </div>
                           </div>
                           <button
-                            onClick={() => deleteReflection(reflection.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
+                            onClick={() => deleteReflection(reflectionId)}
+                            disabled={deletingId === reflectionId}
+                            className={`transition-colors flex-shrink-0 ${
+                              deletingId === reflectionId 
+                                ? 'text-gray-300 cursor-not-allowed' 
+                                : 'text-gray-400 hover:text-red-500'
+                            }`}
+                            title={deletingId === reflectionId ? "Deleting..." : "Delete reflection"}
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                            {deletingId === reflectionId ? (
+                              <svg className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            )}
                           </button>
                         </div>
                         <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>
