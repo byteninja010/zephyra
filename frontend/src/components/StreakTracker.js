@@ -3,10 +3,10 @@ import authService from '../services/authService';
 
 const StreakTracker = ({ isOpen, onClose }) => {
   const [streaks, setStreaks] = useState({
-    moodCheckIns: 0,
-    therapyVisits: 0,
-    breathingExercises: 0,
-    reflections: 0
+    moodCheckIn: 0,
+    therapyVisit: 0,
+    breathingExercise: 0,
+    reflection: 0
   });
   const [history, setHistory] = useState([]);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -29,8 +29,9 @@ const StreakTracker = ({ isOpen, onClose }) => {
         // Fallback to localStorage if backend fails
         const savedHistory = localStorage.getItem('streakHistory');
         if (savedHistory) {
-          setHistory(JSON.parse(savedHistory));
-          calculateStreaks();
+          const parsedHistory = JSON.parse(savedHistory);
+          setHistory(parsedHistory);
+          calculateStreaksFromHistory(parsedHistory);
         }
       }
     };
@@ -41,57 +42,99 @@ const StreakTracker = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   const calculateStreaksFromHistory = (activityHistory) => {
-    const today = new Date().toDateString();
-    
-    let current = 0;
-    let longest = 0;
-    let tempStreak = 0;
-
-    // Calculate current streak (consecutive days)
-    for (let i = activityHistory.length - 1; i >= 0; i--) {
-      const entry = activityHistory[i];
-      const entryDate = new Date(entry.date).toDateString();
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toDateString();
-
-      if (entryDate === today || entryDate === yesterdayStr) {
-        current++;
-        tempStreak++;
-      } else {
-        break;
-      }
+    if (!activityHistory || activityHistory.length === 0) {
+      setCurrentStreak(0);
+      setLongestStreak(0);
+      return;
     }
 
-    // Calculate longest streak
-    tempStreak = 0;
-    for (let i = 0; i < activityHistory.length; i++) {
-      if (i === 0) {
-        tempStreak = 1;
-      } else {
-        const prevDate = new Date(activityHistory[i - 1].date);
-        const currentDate = new Date(activityHistory[i].date);
-        const diffTime = Math.abs(currentDate - prevDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Extract unique days (format: YYYY-MM-DD) from activity history
+    const uniqueDaysSet = new Set();
+    activityHistory.forEach(entry => {
+      const date = new Date(entry.date);
+      // Normalize to start of day to avoid timezone issues
+      const dateStr = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toISOString().split('T')[0];
+      uniqueDaysSet.add(dateStr);
+    });
 
+    // Convert to array and sort chronologically (oldest to newest)
+    const uniqueDays = Array.from(uniqueDaysSet).sort();
+
+    if (uniqueDays.length === 0) {
+      setCurrentStreak(0);
+      setLongestStreak(0);
+      return;
+    }
+
+    // Calculate current streak (consecutive days ending today or yesterday)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
+    
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    let currentStreak = 0;
+    const mostRecentDay = uniqueDays[uniqueDays.length - 1];
+    
+    // Only count as current streak if most recent activity was today or yesterday
+    if (mostRecentDay === todayStr || mostRecentDay === yesterdayStr) {
+      currentStreak = 1;
+      
+      // Count backwards through consecutive days
+      for (let i = uniqueDays.length - 2; i >= 0; i--) {
+        const currentDay = new Date(uniqueDays[i + 1]);
+        const prevDay = new Date(uniqueDays[i]);
+        
+        const diffTime = currentDay - prevDay;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
         if (diffDays === 1) {
-          tempStreak++;
+          currentStreak++;
         } else {
-          longest = Math.max(longest, tempStreak);
-          tempStreak = 1;
+          break;
         }
       }
     }
-    longest = Math.max(longest, tempStreak);
 
-    setCurrentStreak(current);
-    setLongestStreak(longest);
-  };
+    // Calculate longest streak (any consecutive days in history)
+    let longestStreak = 1;
+    let tempStreak = 1;
 
-  const calculateStreaks = () => {
-    const today = new Date().toDateString();
-    const streakHistory = JSON.parse(localStorage.getItem('streakHistory') || '[]');
-    calculateStreaksFromHistory(streakHistory);
+    for (let i = 1; i < uniqueDays.length; i++) {
+      const currentDay = new Date(uniqueDays[i]);
+      const prevDay = new Date(uniqueDays[i - 1]);
+      
+      const diffTime = currentDay - prevDay;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) {
+        tempStreak++;
+        longestStreak = Math.max(longestStreak, tempStreak);
+      } else {
+        tempStreak = 1;
+      }
+    }
+
+    setCurrentStreak(currentStreak);
+    setLongestStreak(longestStreak);
+
+    // Also update the activity type counts
+    const activityCounts = {
+      moodCheckIn: 0,
+      therapyVisit: 0,
+      breathingExercise: 0,
+      reflection: 0
+    };
+
+    activityHistory.forEach(entry => {
+      if (activityCounts.hasOwnProperty(entry.type)) {
+        activityCounts[entry.type]++;
+      }
+    });
+
+    setStreaks(activityCounts);
   };
 
   const addActivity = async (activityType) => {
@@ -106,12 +149,8 @@ const StreakTracker = ({ isOpen, onClose }) => {
       
       if (response.success) {
         setHistory(response.activityHistory || []);
+        // Recalculate all streaks and activity counts from the updated history
         calculateStreaksFromHistory(response.activityHistory || []);
-        
-        // Update local streaks count
-        const newStreaks = { ...streaks };
-        newStreaks[activityType] = (newStreaks[activityType] || 0) + 1;
-        setStreaks(newStreaks);
       } else {
         alert('Failed to log activity. Please try again.');
       }
@@ -123,43 +162,43 @@ const StreakTracker = ({ isOpen, onClose }) => {
 
   const getActivityIcon = (type) => {
     const icons = {
-      moodCheckIns: '😊',
-      therapyVisits: '💬',
-      breathingExercises: '🫁',
-      reflections: '📝'
+      moodCheckIn: '😊',
+      therapyVisit: '💬',
+      breathingExercise: '🫁',
+      reflection: '📝'
     };
     return icons[type] || '⭐';
   };
 
   const getActivityName = (type) => {
     const names = {
-      moodCheckIns: 'Mood Check-ins',
-      therapyVisits: 'Therapy Visits',
-      breathingExercises: 'Breathing Exercises',
-      reflections: 'Reflections'
+      moodCheckIn: 'Mood Check-ins',
+      therapyVisit: 'Therapy Visits',
+      breathingExercise: 'Breathing Exercises',
+      reflection: 'Reflections'
     };
     return names[type] || type;
   };
 
   const getActivityColor = (type) => {
     const colors = {
-      moodCheckIns: '#3B82F6',
-      therapyVisits: '#8B5CF6',
-      breathingExercises: '#10B981',
-      reflections: '#F59E0B'
+      moodCheckIn: '#3B82F6',
+      therapyVisit: '#8B5CF6',
+      breathingExercise: '#10B981',
+      reflection: '#F59E0B'
     };
     return colors[type] || '#6B7280';
   };
 
   const getRecentActivity = () => {
-    const today = new Date().toDateString();
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toDateString();
+    const now = new Date();
+    const twoDaysAgo = new Date(now);
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
 
-    return history.filter(entry => 
-      entry.dateStr === today || entry.dateStr === yesterdayStr
-    ).slice(0, 5);
+    return history
+      .filter(entry => new Date(entry.date) >= twoDaysAgo)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
   };
 
   const getWeeklyStats = () => {
@@ -171,14 +210,16 @@ const StreakTracker = ({ isOpen, onClose }) => {
     );
 
     const stats = {
-      moodCheckIns: 0,
-      therapyVisits: 0,
-      breathingExercises: 0,
-      reflections: 0
+      moodCheckIn: 0,
+      therapyVisit: 0,
+      breathingExercise: 0,
+      reflection: 0
     };
 
     weekHistory.forEach(entry => {
-      stats[entry.type] = (stats[entry.type] || 0) + 1;
+      if (stats.hasOwnProperty(entry.type)) {
+        stats[entry.type]++;
+      }
     });
 
     return stats;
@@ -294,9 +335,9 @@ const StreakTracker = ({ isOpen, onClose }) => {
             </div>
           ) : (
             <div className="space-y-2">
-              {recentActivity.map((entry) => (
+              {recentActivity.map((entry, index) => (
                 <div
-                  key={entry.id}
+                  key={entry._id || entry.id || index}
                   className="flex items-center justify-between p-2 sm:p-3 rounded-lg"
                   style={{ background: 'rgba(229, 231, 235, 0.3)' }}
                 >
@@ -307,7 +348,12 @@ const StreakTracker = ({ isOpen, onClose }) => {
                         {getActivityName(entry.type)}
                       </div>
                       <div className="text-xs" style={{ color: '#475569' }}>
-                        {new Date(entry.date).toLocaleString()}
+                        {new Date(entry.date).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </div>
                     </div>
                   </div>

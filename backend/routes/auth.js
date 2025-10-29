@@ -270,6 +270,12 @@ router.post('/user/:firebaseUid/mood', async (req, res) => {
       new Date(moodEntry.date) >= sevenDaysAgo
     );
 
+    // Log mood check-in activity
+    user.activityHistory.push({
+      type: 'moodCheckIn',
+      date: date ? new Date(date) : new Date()
+    });
+
     await user.save();
 
     res.json({
