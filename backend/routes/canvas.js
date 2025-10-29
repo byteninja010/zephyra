@@ -128,30 +128,8 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
       };
     }
 
-    // Save the canvas drawing analysis to user's mood history
-    if (user) {
-      user.moodHistory.push({
-        mood: analysis.mood,
-        note: `Mind Canvas: ${analysis.moodDescription}`,
-        date: new Date()
-      });
-
-      // Keep only last 30 days of mood data
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      user.moodHistory = user.moodHistory.filter(moodEntry => 
-        new Date(moodEntry.date) >= thirtyDaysAgo
-      );
-
-      // Add to activity history
-      user.activityHistory.push({
-        type: 'moodCheckIn',
-        date: new Date()
-      }      );
-
-      await user.save();
-    }
+    // Mind Canvas analysis is for display only - does not update mood history
+    // Users can explore their emotions through drawing without it being tracked
 
     res.json({
       success: true,

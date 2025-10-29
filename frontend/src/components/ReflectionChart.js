@@ -287,11 +287,11 @@ const ReflectionChart = ({ isOpen, onClose }) => {
 
                 {/* Reflections List */}
                 <div className="space-y-4">
-                  {reflections.map((reflection) => {
+                  {reflections.map((reflection, index) => {
                     const moodData = getMoodData(reflection.mood);
                     return (
                       <div
-                        key={reflection.id}
+                        key={reflection.id || reflection._id || index}
                         className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
                       >
                         <div className="flex justify-between items-start mb-2">
