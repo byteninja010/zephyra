@@ -1354,7 +1354,7 @@ const Dashboard = () => {
                   <p className="text-sm text-red-700 font-medium mb-2">Suicide & Crisis Lifeline</p>
                   <p className="text-xs text-red-600 mb-3">Available 24/7, free and confidential</p>
                   <a
-                    href="tel:988"
+                    href="tel:14416"
                     className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
