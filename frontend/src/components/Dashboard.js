@@ -27,6 +27,53 @@ const Dashboard = () => {
   const [showMindCanvasToast, setShowMindCanvasToast] = useState(true);
   const [showSupportForumToast, setShowSupportForumToast] = useState(true);
   const [highlightedCard, setHighlightedCard] = useState(null);
+  const [showCompanionTooltip, setShowCompanionTooltip] = useState(false);
+  const [currentActivity, setCurrentActivity] = useState(0);
+  const [companionActive, setCompanionActive] = useState(true);
+
+  // Activity suggestions for the companion robot
+  const activitySuggestions = [
+    { icon: "🧘", text: "Try a breathing exercise", action: () => setShowBreathingExercise(true) },
+    { icon: "😊", text: "Check in on your mood", action: () => setShowMoodModal(true) },
+    { icon: "💬", text: "Chat with your AI friend", action: () => navigate("/chat") },
+    { icon: "🎨", text: "Express yourself on Mind Canvas", action: () => setShowMindCanvas(true) },
+    { icon: "📝", text: "Reflect on your thoughts", action: () => setShowReflectionChart(true) },
+    { icon: "🔥", text: "Check your wellness streak", action: () => setShowStreakTracker(true) },
+    { icon: "👥", text: "Visit the support forum", action: () => navigate("/forum") },
+    { icon: "📅", text: "Schedule a wellness session", action: () => navigate("/sessions") }
+  ];
+
+  // Companion robot tooltip cycling
+  useEffect(() => {
+    if (!companionActive) {
+      setShowCompanionTooltip(false);
+      return;
+    }
+
+    // Show the same activity suggestion every 15 seconds
+    const showTooltipInterval = setInterval(() => {
+      setShowCompanionTooltip(true);
+      setTimeout(() => setShowCompanionTooltip(false), 5000);
+    }, 20000);
+
+    // Initial show after 2 seconds
+    const initialShow = setTimeout(() => {
+      setShowCompanionTooltip(true);
+      setTimeout(() => setShowCompanionTooltip(false), 5000);
+    }, 2000);
+
+    // Switch to next activity every 5 minutes
+    const cycleActivity = setInterval(() => {
+      setCurrentActivity((prev) => (prev + 1) % activitySuggestions.length);
+    }, 300000); // 5 minutes
+
+    return () => {
+      clearTimeout(initialShow);
+      clearInterval(showTooltipInterval);
+      clearInterval(cycleActivity);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companionActive]);
 
   // Close toasts on scroll
   useEffect(() => {
@@ -1099,11 +1146,120 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Companion Robot - Fixed Bottom Right (above crisis button) */}
+      <div className="fixed bottom-20 sm:bottom-24 md:bottom-28 right-3 sm:right-4 md:right-6 z-50">
+        {/* Tooltip */}
+        {showCompanionTooltip && (
+          <div className="absolute bottom-full right-0 mb-2 sm:mb-3 w-44 sm:w-56 md:w-60 animate-fade-in">
+            <div 
+              className="bg-white rounded-lg sm:rounded-2xl shadow-xl border-2 p-2 sm:p-3 relative"
+              style={{
+                borderColor: "#3C91C5",
+                background: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)"
+              }}
+            >
+              {/* Speech bubble arrow */}
+              <div 
+                className="absolute -bottom-2 right-3 sm:right-6 w-3 h-3 sm:w-4 sm:h-4 bg-white transform rotate-45 border-r-2 border-b-2"
+                style={{ borderColor: "#3C91C5" }}
+              ></div>
+              
+              <div className="relative z-10 flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
+                <span className="text-lg sm:text-2xl">{activitySuggestions[currentActivity].icon}</span>
+                <p className="text-xs sm:text-sm font-medium text-gray-800 flex-1 leading-tight">
+                  {activitySuggestions[currentActivity].text}
+                </p>
+              </div>
+              
+              <div className="relative z-10 flex gap-1.5 sm:gap-2">
+                <button
+                  onClick={() => {
+                    activitySuggestions[currentActivity].action();
+                    setShowCompanionTooltip(false);
+                    // Cycle to next activity after user completes current one
+                    setCurrentActivity((prev) => (prev + 1) % activitySuggestions.length);
+                  }}
+                  className="flex-1 py-1 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-md active:scale-95"
+                  style={{
+                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                    color: "white"
+                  }}
+                >
+                  Let's do it!
+                </button>
+                <button
+                  onClick={() => {
+                    setCompanionActive(!companionActive);
+                    setShowCompanionTooltip(false);
+                  }}
+                  className="py-1 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-md active:scale-95 border"
+                  style={{
+                    background: companionActive ? "#FEE2E2" : "#D1FAE5",
+                    color: companionActive ? "#991B1B" : "#065F46",
+                    borderColor: companionActive ? "#FCA5A5" : "#86EFAC"
+                  }}
+                  title={companionActive ? "Pause suggestions" : "Resume suggestions"}
+                >
+                  {companionActive ? "⏸️" : "▶️"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Companion Robot Button */}
+        <button
+          onClick={() => setShowCompanionTooltip(!showCompanionTooltip)}
+          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center relative group ${companionActive ? "bg-cyan-700" : "bg-gray-600"}`}
+          style={{
+            color: "white",
+            animation: companionActive ? "bounceSlow 3s ease-in-out infinite" : "none"
+          }}
+          title={companionActive ? "Your Wellness Companion (Active)" : "Your Wellness Companion (Paused)"}
+        >
+           {/* Robot Face */}
+           <div className="relative scale-75 sm:scale-90 md:scale-100">
+             {/* Head */}
+             <div className="w-8 h-8 bg-white rounded-lg flex flex-col items-center justify-center relative">
+               {/* Left Ear */}
+               <div className="absolute -left-2 top-2 w-1.5 h-3 bg-orange-400 rounded-sm"></div>
+               
+               {/* Right Ear */}
+               <div className="absolute -right-2 top-2 w-1.5 h-3 bg-orange-400 rounded-sm"></div>
+               
+               {/* Antenna */}
+               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
+                 <div className="w-0.5 h-2 bg-white"></div>
+                 <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
+               </div>
+               
+               {/* Eyes */}
+               <div className="flex gap-1.5 mb-1">
+                 <div className="w-1.5 h-1.5 bg-gray-800 rounded-full animate-blink"></div>
+                 <div className="w-1.5 h-1.5 bg-gray-800 rounded-full animate-blink"></div>
+               </div>
+               
+               {/* Smile */}
+               <div className="w-4 h-1.5 border-b-2 border-gray-800 rounded-full"></div>
+             </div>
+             
+             {/* Notification badge */}
+             <div 
+               className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white"
+               style={{
+                 background: companionActive ? "#4ADE80" : "#F87171",
+                 animation: companionActive ? "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite" : "none"
+               }}
+             ></div>
+           </div>
+        </button>
+      </div>
+
       {/* Crisis Support Button - Fixed Bottom Right */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-3 sm:bottom-4 md:bottom-6 right-3 sm:right-4 md:right-6 z-50">
         <button
           onClick={() => setShowCrisisModal(true)}
-          className="w-16 h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center"
+          className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center"
           style={{
             background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
             color: "white"
@@ -1111,7 +1267,7 @@ const Dashboard = () => {
           title="Crisis Support"
         >
           <svg
-            className="w-8 h-8"
+            className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
