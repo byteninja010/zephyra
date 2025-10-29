@@ -8,6 +8,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [viewMode, setViewMode] = useState('write'); // 'write' or 'view'
   const [deletingId, setDeletingId] = useState(null); // Track which reflection is being deleted
+  const [isSaving, setIsSaving] = useState(false); // Track saving state
 
   const moodOptions = [
     { value: 'grateful', label: 'Grateful', emoji: '🙏', color: '#10B981' },
@@ -61,10 +62,12 @@ const ReflectionChart = ({ isOpen, onClose }) => {
       return;
     }
 
+    setIsSaving(true);
     try {
       const firebaseUid = localStorage.getItem('firebaseUid');
       if (!firebaseUid) {
         alert('User not found. Please sign in again.');
+        setIsSaving(false);
         return;
       }
 
@@ -82,12 +85,16 @@ const ReflectionChart = ({ isOpen, onClose }) => {
         setCurrentReflection('');
         setSelectedMood('');
         setSelectedCategory('');
+        // Switch to view mode to show the new reflection with AI comment
+        setViewMode('view');
       } else {
         alert('Failed to save reflection. Please try again.');
       }
     } catch (error) {
       console.error('Error saving reflection:', error);
       alert('Failed to save reflection. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -162,33 +169,12 @@ const ReflectionChart = ({ isOpen, onClose }) => {
     return moodOptions.find(m => m.value === mood) || { label: mood, emoji: '💭', color: '#6B7280' };
   };
 
-  const getReflectionsByCategory = () => {
-    const grouped = {};
-    reflections.forEach(reflection => {
-      if (!grouped[reflection.category]) {
-        grouped[reflection.category] = [];
-      }
-      grouped[reflection.category].push(reflection);
-    });
-    return grouped;
-  };
-
-  const getReflectionsByMood = () => {
-    const grouped = {};
-    reflections.forEach(reflection => {
-      if (!grouped[reflection.mood]) {
-        grouped[reflection.mood] = [];
-      }
-      grouped[reflection.mood].push(reflection);
-    });
-    return grouped;
-  };
-
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <div className="overflow-y-auto max-h-[90vh] p-4 sm:p-6 md:p-8">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>
             Reflection Chart
@@ -303,10 +289,23 @@ const ReflectionChart = ({ isOpen, onClose }) => {
 
               <button
                 onClick={saveReflection}
-                className="w-full px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base text-white font-medium transition-all duration-300 hover:shadow-lg"
+                disabled={isSaving}
+                className={`w-full px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base text-white font-medium transition-all duration-300 ${
+                  isSaving ? 'opacity-75 cursor-not-allowed' : 'hover:shadow-lg'
+                }`}
                 style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
               >
-                Save Reflection
+                {isSaving ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <svg className="animate-spin h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Saving & Generating AI Response...</span>
+                  </div>
+                ) : (
+                  'Save Reflection'
+                )}
               </button>
             </div>
           </div>
@@ -395,9 +394,37 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                             )}
                           </button>
                         </div>
-                        <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>
+                        <p className="text-xs sm:text-sm mb-3" style={{ color: '#475569' }}>
                           {reflection.text}
                         </p>
+                        
+                        {/* Gemini Appreciation Comment */}
+                        {reflection.geminiComment && (
+                          <div className="mt-3 p-3 rounded-lg border-l-4" style={{ 
+                            background: 'linear-gradient(to right, rgba(60, 145, 197, 0.05), rgba(60, 145, 197, 0.02))',
+                            borderColor: '#3C91C5'
+                          }}>
+                            <div className="flex items-start space-x-2">
+                              <div className="flex-shrink-0 mt-0.5">
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 24 24" style={{ color: '#3C91C5' }}>
+                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" opacity="0.3"/>
+                                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                  <circle cx="12" cy="12" r="2" fill="white"/>
+                                  <path d="M12 6.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 9c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" fill="#3C91C5"/>
+                                </svg>
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-xs font-medium mb-1 flex " style={{ color: '#3C91C5' }}>
+                                  <img src='/Google_Gemini_logo.png' className='w-12 h-4 mr-2' alt='Gemini'></img> 
+                                  <h1 className='text-sm'>wanna say somethin' to you !! </h1>
+                                </div>
+                                <p className="text-xs sm:text-sm leading-relaxed" style={{ color: '#1E252B' }}>
+                                  {reflection.geminiComment}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -406,6 +433,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -301,12 +301,74 @@ router.post('/user/:firebaseUid/reflection', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Add new reflection
+    // Generate Gemini appreciation comment
+    let geminiComment = '';
+    try {
+      const moodLabels = {
+        grateful: 'grateful',
+        proud: 'proud',
+        hopeful: 'hopeful',
+        peaceful: 'peaceful',
+        inspired: 'inspired',
+        content: 'content'
+      };
+
+      const moodLabel = moodLabels[mood] || mood;
+
+      const prompt = `A user has written a personal reflection about their mental wellness journey. Please generate a warm, supportive, and encouraging response.
+
+USER'S REFLECTION:
+Mood: ${moodLabel}
+Category: ${category}
+Reflection: "${text}"
+
+INSTRUCTIONS:
+- Give more priority to Reflection than the other fields.
+- Generate a personalized, heartfelt appreciation message (2-3 sentences)
+- Acknowledge their specific reflection and the courage it took to share
+- Be empathetic, supportive, and encouraging
+- Use warm, caring language that validates their feelings
+- Focus on positive reinforcement and growth
+- Keep it genuine and personal (not generic)
+- Maximum 70 words
+- Do NOT use "User" or any name prefix
+- Start directly with the supportive message
+
+Generate an uplifting response that makes them feel heard, valued, and encouraged:`;
+
+      const result = await genAI.models.generateContent({
+        model: "gemini-2.5-flash-lite",
+        contents: prompt,
+        generationConfig: {
+          temperature: 0.9,
+          maxOutputTokens: 150
+        }
+      });
+
+      geminiComment = result.candidates[0].content.parts[0].text.trim();
+      
+    } catch (geminiError) {
+      console.error('Error generating Gemini comment:', geminiError);
+      // Fallback appreciation messages based on mood
+      const fallbackMessages = {
+        grateful: "Thank you for sharing what you're grateful for. Your ability to recognize and appreciate the positive moments in your life is truly beautiful and shows great emotional awareness.",
+        proud: "Your pride in your accomplishments is well-deserved! Celebrating your wins, big or small, is an important part of your growth journey. Keep recognizing your strength!",
+        hopeful: "Your hope shines through your words. Holding onto hope during challenging times takes courage, and you're doing wonderfully. Keep nurturing that optimism!",
+        peaceful: "Finding and acknowledging peace within yourself is a precious gift. Thank you for taking the time to reflect on these calm moments. Your mindfulness is inspiring.",
+        inspired: "Your sense of inspiration is contagious! It's beautiful to see you connecting with moments that spark your creativity and motivation. Keep following that light!",
+        content: "Your contentment radiates through your reflection. Being present and finding satisfaction in the moment is a wonderful practice. Thank you for sharing this peaceful insight."
+      };
+      
+      geminiComment = fallbackMessages[mood] || "Thank you for taking the time to reflect and share your thoughts. Your self-awareness and commitment to your wellness journey is truly admirable. Keep nurturing your growth!";
+    }
+
+    // Add new reflection with Gemini comment
     user.reflections.push({
       text,
       mood,
       category,
-      date: new Date()
+      date: new Date(),
+      geminiComment: geminiComment
     });
 
     // Add to activity history
@@ -324,6 +386,7 @@ router.post('/user/:firebaseUid/reflection', async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Error saving reflection:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

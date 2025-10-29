@@ -59,6 +59,10 @@ const userSchema = new mongoose.Schema({
     date: {
       type: Date,
       default: Date.now
+    },
+    geminiComment: {
+      type: String,
+      default: null
     }
   }],
   activityHistory: [{
