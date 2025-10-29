@@ -90,10 +90,19 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async () => {
     try {
-      const { signInAnonymous } = await import('../firebase');
+      const { signInAnonymous, signOutUser } = await import('../firebase');
       
       // Clear any existing data
       clearAuthData();
+      
+      // IMPORTANT: Sign out from Firebase before signup to ensure fresh anonymous session
+      // This prevents reusing cached Firebase UID which would return same secret code
+      try {
+        await signOutUser();
+      } catch (error) {
+        // Ignore errors if no user is signed in
+        console.log('No existing Firebase session to sign out from');
+      }
       
       const firebaseUser = await signInAnonymous();
       const response = await authService.createUser(firebaseUser.uid);
@@ -123,7 +132,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      const { signOutUser } = await import('../firebase');
+      // Sign out from Firebase to ensure fresh session on next signup
+      await signOutUser();
+    } catch (error) {
+      // Ignore errors if no user is signed in
+      console.log('Error signing out from Firebase:', error);
+    }
     clearAuthData();
   };
 
