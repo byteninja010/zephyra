@@ -20,10 +20,8 @@ if (!admin.apps.length) {
         projectId: process.env.FIREBASE_PROJECT_ID
       });
     }
-    
-    console.log('✅ Firebase Admin SDK initialized successfully');
   } catch (error) {
-    console.error('❌ Error initializing Firebase Admin SDK:', error);
+    // Error initializing Firebase
   }
 }
 

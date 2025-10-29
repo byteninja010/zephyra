@@ -81,7 +81,6 @@ router.post('/create-user', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating user:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -127,7 +126,6 @@ router.post('/validate-secret-code', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error validating secret code:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -164,7 +162,6 @@ router.get('/user/:firebaseUid', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting user:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -189,7 +186,6 @@ router.put('/user/:firebaseUid/last-login', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error updating last login:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -243,7 +239,6 @@ router.put('/user/:firebaseUid/onboarding', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error updating onboarding data:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -284,7 +279,6 @@ router.post('/user/:firebaseUid/mood', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error submitting mood:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -324,7 +318,6 @@ router.post('/user/:firebaseUid/reflection', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error submitting reflection:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -356,7 +349,6 @@ router.post('/user/:firebaseUid/activity', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error logging activity:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -378,7 +370,6 @@ router.get('/user/:firebaseUid/reflections', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting reflections:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -400,7 +391,6 @@ router.get('/user/:firebaseUid/activities', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting activity history:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -467,7 +457,6 @@ Generate a personalized quote that will inspire and motivate:`;
       personalizedQuote = personalizedQuote.replace(/^["']|["']$/g, '');
       
     } catch (geminiError) {
-      console.error('Error generating personalized quote:', geminiError);
       // Fallback quotes based on recent mood
       const lastMood = recentMoodHistory[recentMoodHistory.length - 1]?.mood;
       
@@ -492,7 +481,6 @@ Generate a personalized quote that will inspire and motivate:`;
     });
 
   } catch (error) {
-    console.error('Error generating personalized quote:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

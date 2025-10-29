@@ -7,28 +7,19 @@ const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
  * Retry function for Gemini API calls with exponential backoff
  */
 async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
-  console.log(`🚀 Starting Gemini API call with ${maxRetries} max retries`);
-  
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`🔄 Moderation attempt ${attempt}/${maxRetries}`);
       const result = await apiCall();
-      console.log(`✅ Moderation call successful on attempt ${attempt}`);
       return result;
     } catch (error) {
-      console.log(`⚠️ Moderation attempt ${attempt} failed:`, error.message);
-      
       if (attempt === maxRetries) {
-        console.log(`❌ All ${maxRetries} attempts failed, throwing error`);
         throw error;
       }
       
       if (error.status === 503 || error.status === 429 || error.status === 500) {
         const delay = baseDelay * Math.pow(2, attempt - 1);
-        console.log(`⏳ Retryable error detected, waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
-        console.log(`❌ Non-retryable error detected, stopping retries`);
         throw error;
       }
     }
@@ -43,7 +34,6 @@ async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
  */
 const moderateContent = async (content, contentType = 'post') => {
   try {
-    console.log(`🔍 Moderating ${contentType}: ${content.substring(0, 50)}...`);
     
     const moderationPrompt = `You are a content moderator for a mental health support forum where users share their struggles, emotions, and seek support anonymously.
 
@@ -119,7 +109,6 @@ OR
     );
 
     const responseText = result.candidates[0].content.parts[0].text;
-    console.log(`📝 Moderation response: ${responseText}`);
 
     // Parse the JSON response
     let moderationResult;
@@ -132,7 +121,6 @@ OR
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
-      console.error('Error parsing moderation response:', parseError);
       // Fallback: accept by default if parsing fails (fail-safe approach)
       moderationResult = {
         verdict: 'accept',
@@ -142,7 +130,6 @@ OR
 
     // Validate response structure
     if (!moderationResult.verdict || !['accept', 'reject'].includes(moderationResult.verdict)) {
-      console.error('Invalid verdict in response:', moderationResult);
       // Fallback to accept
       return {
         verdict: 'accept',
@@ -150,11 +137,9 @@ OR
       };
     }
 
-    console.log(`✅ Moderation result: ${moderationResult.verdict} - ${moderationResult.reason}`);
     return moderationResult;
 
   } catch (error) {
-    console.error('❌ Error during content moderation:', error);
     
     // Fail-safe: Accept content if moderation service fails
     // This ensures the forum remains functional even if AI is down

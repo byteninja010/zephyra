@@ -9,16 +9,12 @@ const { moderateContent } = require('../services/moderationService');
  */
 const setupForumHandlers = (io) => {
   io.on('connection', (socket) => {
-    console.log(`🔌 User connected: ${socket.id}`);
-
     // Join forum room (for broadcasting)
     socket.join('forum');
-    console.log(`📡 Socket ${socket.id} joined forum room`);
 
     // Handle new post submission
     socket.on('submit_post', async (data) => {
       try {
-        console.log(`📝 Received post submission from socket ${socket.id}`);
         const { firebaseUid, content } = data;
 
         // Validation
@@ -43,21 +39,13 @@ const setupForumHandlers = (io) => {
           const pseudonym = await generateUniquePseudonym(User);
           user.pseudonym = pseudonym;
           await user.save();
-          console.log(`✅ Generated pseudonym for user ${firebaseUid}: ${pseudonym}`);
         }
-
-        console.log(`🤖 Moderating post from ${user.pseudonym}...`);
-        const startTime = Date.now();
 
         // Moderate content with Gemini 2.5 Flash
         const moderationResult = await moderateContent(content, 'post');
-        
-        const moderationTime = Date.now() - startTime;
-        console.log(`⏱️ Moderation completed in ${moderationTime}ms`);
 
         // If rejected, notify only the sender
         if (moderationResult.verdict === 'reject') {
-          console.log(`❌ Post rejected: ${moderationResult.reason}`);
           socket.emit('post_rejected', {
             reason: moderationResult.reason,
             message: 'Your post was not published. Here\'s why: ' + moderationResult.reason,
@@ -67,7 +55,6 @@ const setupForumHandlers = (io) => {
         }
 
         // If accepted, save and broadcast
-        console.log(`✅ Post accepted: ${moderationResult.reason}`);
         
         const postId = `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const post = new ForumPost({
@@ -79,7 +66,6 @@ const setupForumHandlers = (io) => {
         });
 
         await post.save();
-        console.log(`💾 Post saved to database: ${postId}`);
 
         // Broadcast to all users in the forum room
         const postData = {
@@ -93,7 +79,6 @@ const setupForumHandlers = (io) => {
         };
 
         io.to('forum').emit('new_post', postData);
-        console.log(`📡 Broadcasted new post to all users in forum`);
 
         // Notify sender of success
         socket.emit('post_accepted', {
@@ -102,7 +87,6 @@ const setupForumHandlers = (io) => {
         });
 
       } catch (error) {
-        console.error('❌ Error handling post submission:', error);
         socket.emit('post_error', { 
           error: 'Failed to process post',
           details: error.message 
@@ -113,7 +97,6 @@ const setupForumHandlers = (io) => {
     // Handle new comment submission
     socket.on('submit_comment', async (data) => {
       try {
-        console.log(`💬 Received comment submission from socket ${socket.id}`);
         const { firebaseUid, postId, content, parentCommentId } = data;
 
         // Validation
@@ -154,21 +137,13 @@ const setupForumHandlers = (io) => {
           const pseudonym = await generateUniquePseudonym(User);
           user.pseudonym = pseudonym;
           await user.save();
-          console.log(`✅ Generated pseudonym for user ${firebaseUid}: ${pseudonym}`);
         }
-
-        console.log(`🤖 Moderating ${parentCommentId ? 'reply' : 'comment'} from ${user.pseudonym}...`);
-        const startTime = Date.now();
 
         // Moderate content with Gemini 2.5 Flash
         const moderationResult = await moderateContent(content, 'comment');
-        
-        const moderationTime = Date.now() - startTime;
-        console.log(`⏱️ Moderation completed in ${moderationTime}ms`);
 
         // If rejected, notify only the sender
         if (moderationResult.verdict === 'reject') {
-          console.log(`❌ Comment rejected: ${moderationResult.reason}`);
           socket.emit('comment_rejected', {
             postId,
             parentCommentId,
@@ -180,7 +155,6 @@ const setupForumHandlers = (io) => {
         }
 
         // If accepted, save and broadcast
-        console.log(`✅ Comment accepted: ${moderationResult.reason}`);
         
         const commentId = `comment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const comment = {
@@ -204,7 +178,6 @@ const setupForumHandlers = (io) => {
 
         post.comments.push(comment);
         await post.save();
-        console.log(`💾 ${parentCommentId ? 'Reply' : 'Comment'} saved to database: ${commentId}`);
 
         // Broadcast to all users in the forum room
         const commentData = {
@@ -220,7 +193,6 @@ const setupForumHandlers = (io) => {
         };
 
         io.to('forum').emit('new_comment', commentData);
-        console.log(`📡 Broadcasted new comment to all users in forum`);
 
         // Notify sender of success
         socket.emit('comment_accepted', {
@@ -229,7 +201,6 @@ const setupForumHandlers = (io) => {
         });
 
       } catch (error) {
-        console.error('❌ Error handling comment submission:', error);
         socket.emit('comment_error', { 
           error: 'Failed to process comment',
           details: error.message 
@@ -239,16 +210,14 @@ const setupForumHandlers = (io) => {
 
     // Handle disconnection
     socket.on('disconnect', () => {
-      console.log(`🔌 User disconnected: ${socket.id}`);
+      // Socket disconnected
     });
 
     // Handle errors
     socket.on('error', (error) => {
-      console.error(`❌ Socket error for ${socket.id}:`, error);
+      // Socket error
     });
   });
-
-  console.log('✅ Forum Socket.IO handlers initialized');
 };
 
 module.exports = { setupForumHandlers };

@@ -8,28 +8,19 @@ const genAI = new GoogleGenAI(process.env.GEMINI_API_KEY);
 
 // Retry function for Gemini API calls with exponential backoff
 async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
-  console.log(`🚀 Starting Gemini API call with ${maxRetries} max retries`);
-  
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`🔄 Gemini API attempt ${attempt}/${maxRetries}`);
       const result = await apiCall();
-      console.log(`✅ Gemini API call successful on attempt ${attempt}`);
       return result;
     } catch (error) {
-      console.log(`⚠️ Gemini API attempt ${attempt} failed:`, error.message);
-      
       if (attempt === maxRetries) {
-        console.log(`❌ All ${maxRetries} attempts failed, throwing error`);
         throw error;
       }
       
       if (error.status === 503 || error.status === 429 || error.status === 500) {
         const delay = baseDelay * Math.pow(2, attempt - 1);
-        console.log(`⏳ Retryable error detected, waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
-        console.log(`❌ Non-retryable error detected, stopping retries`);
         throw error;
       }
     }
@@ -39,7 +30,6 @@ async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
 // Analyze canvas drawing using Gemini Vision
 router.post('/analyze', async (req, res) => {
   try {
-    console.log('🎨 Starting canvas drawing analysis...');
     const { firebaseUid, imageData } = req.body;
 
     if (!firebaseUid || !imageData) {
@@ -51,8 +41,6 @@ router.post('/analyze', async (req, res) => {
     
     // Extract base64 data (remove data:image/png;base64, prefix if present)
     const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
-    
-    console.log('🖼️ Image data received, length:', base64Data.length);
 
     // Prepare the prompt for Gemini Vision
     const analysisPrompt = `You are analyzing a drawing created by someone as a form of emotional expression.
@@ -92,8 +80,6 @@ Based on your analysis, respond with a JSON object in this exact format:
 
 Be empathetic, insightful, and supportive. Focus on emotional resonance, not technical art critique.`;
 
-    console.log('🤖 Calling Gemini Vision API...');
-
     // Call Gemini Vision API with the image
     const result = await retryGeminiCall(() =>
       genAI.models.generateContent({
@@ -117,11 +103,8 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
         }
       })
     );
-
-    console.log('✅ Gemini Vision analysis complete');
     
     const responseText = result.candidates[0].content.parts[0].text;
-    console.log('📝 AI Response:', responseText);
 
     // Parse the JSON response
     let analysis;
@@ -134,7 +117,6 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
         throw new Error('No JSON found in response');
       }
     } catch (parseError) {
-      console.error('Error parsing AI response:', parseError);
       // Fallback response
       analysis = {
         mood: "contemplative",
@@ -166,10 +148,9 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
       user.activityHistory.push({
         type: 'moodCheckIn',
         date: new Date()
-      });
+      }      );
 
       await user.save();
-      console.log('💾 Saved canvas analysis to user mood history');
     }
 
     res.json({
@@ -186,7 +167,6 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
     });
 
   } catch (error) {
-    console.error('❌ Error analyzing canvas:', error);
     res.status(500).json({ 
       error: 'Failed to analyze canvas drawing',
       details: error.message 
@@ -218,7 +198,6 @@ router.get('/history/:firebaseUid', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting canvas history:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

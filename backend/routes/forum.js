@@ -28,8 +28,6 @@ router.get('/pseudonym/:firebaseUid', async (req, res) => {
     user.pseudonym = pseudonym;
     await user.save();
 
-    console.log(`✅ Generated pseudonym for user ${firebaseUid}: ${pseudonym}`);
-
     res.json({
       success: true,
       pseudonym: pseudonym,
@@ -37,7 +35,6 @@ router.get('/pseudonym/:firebaseUid', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting/creating pseudonym:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -68,7 +65,6 @@ router.get('/posts', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting forum posts:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -99,7 +95,6 @@ router.get('/posts/:postId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting post:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -129,13 +124,10 @@ router.post('/posts', async (req, res) => {
       await user.save();
     }
 
-    console.log(`📝 Moderating post from ${user.pseudonym}...`);
-
     // Moderate content
     const moderationResult = await moderateContent(content, 'post');
 
     if (moderationResult.verdict === 'reject') {
-      console.log(`❌ Post rejected: ${moderationResult.reason}`);
       return res.status(403).json({
         success: false,
         rejected: true,
@@ -156,8 +148,6 @@ router.post('/posts', async (req, res) => {
 
     await post.save();
 
-    console.log(`✅ Post accepted and published: ${postId}`);
-
     res.json({
       success: true,
       post: {
@@ -171,7 +161,6 @@ router.post('/posts', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating post:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -208,13 +197,10 @@ router.post('/posts/:postId/comments', async (req, res) => {
       await user.save();
     }
 
-    console.log(`💬 Moderating comment from ${user.pseudonym}...`);
-
     // Moderate content
     const moderationResult = await moderateContent(content, 'comment');
 
     if (moderationResult.verdict === 'reject') {
-      console.log(`❌ Comment rejected: ${moderationResult.reason}`);
       return res.status(403).json({
         success: false,
         rejected: true,
@@ -237,8 +223,6 @@ router.post('/posts/:postId/comments', async (req, res) => {
     post.comments.push(comment);
     await post.save();
 
-    console.log(`✅ Comment accepted and published: ${commentId}`);
-
     res.json({
       success: true,
       comment: {
@@ -251,7 +235,6 @@ router.post('/posts/:postId/comments', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error adding comment:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -279,15 +262,12 @@ router.delete('/posts/:postId', async (req, res) => {
     // Hard delete - remove post and all its comments from database
     await ForumPost.deleteOne({ postId });
 
-    console.log(`🗑️ Post deleted permanently: ${postId} (with ${post.comments.length} comments)`);
-
     res.json({
       success: true,
       message: 'Post deleted successfully'
     });
 
   } catch (error) {
-    console.error('Error deleting post:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -336,14 +316,10 @@ router.delete('/posts/:postId/comments/:commentId', async (req, res) => {
     const descendantIds = findAllDescendants(commentId, post.comments);
     const allIdsToDelete = [commentId, ...descendantIds];
     
-    console.log(`🗑️ Deleting comment ${commentId} and ${descendantIds.length} descendants: [${allIdsToDelete.join(', ')}]`);
-    
     // Remove the comment and all its descendants
     post.comments = post.comments.filter(c => !allIdsToDelete.includes(c.commentId));
     
     await post.save();
-
-    console.log(`✅ Successfully deleted ${allIdsToDelete.length} comment(s) from database`);
 
     res.json({
       success: true,
@@ -353,7 +329,6 @@ router.delete('/posts/:postId/comments/:commentId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error deleting comment:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -385,7 +360,6 @@ router.get('/my-posts/:firebaseUid', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting user posts:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

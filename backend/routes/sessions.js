@@ -49,25 +49,18 @@ const auth = new GoogleAuth({
 async function retryGeminiCall(apiCall, maxRetries = 5, baseDelay = 2000) {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`🔄 Gemini API attempt ${attempt}/${maxRetries}`);
       const result = await apiCall();
-      console.log(`✅ Gemini API call successful on attempt ${attempt}`);
       return result;
     } catch (error) {
-      console.log(`⚠️ Gemini API attempt ${attempt} failed:`, error.message);
-      
       if (attempt === maxRetries) {
-        console.log(`❌ All ${maxRetries} attempts failed, giving up`);
         throw error; // Re-throw on final attempt
       }
       
       // Check if it's a retryable error (503, 429, 500)
       if (error.status === 503 || error.status === 429 || error.status === 500) {
         const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
-        console.log(`⏳ Waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
-        console.log(`❌ Non-retryable error (${error.status}), giving up`);
         throw error; // Don't retry for non-retryable errors
       }
     }
@@ -77,19 +70,7 @@ async function retryGeminiCall(apiCall, maxRetries = 5, baseDelay = 2000) {
 // AI-powered personalized prompt generation using cumulative summary
 const generatePersonalizedPrompts = async (userMood, cumulativeSummary, customPreferences = null) => {
   try {
-    console.log('🤖 ========================================');
-    console.log('🤖 GENERATING PERSONALIZED PROMPTS WITH AI');
-    console.log('🤖 User mood:', userMood);
-    console.log('🤖 Has cumulative summary:', !!cumulativeSummary);
-    if (cumulativeSummary) {
-      console.log('🤖 Cumulative summary preview:', cumulativeSummary.substring(0, 100) + '...');
-    }
-    console.log('🤖 Custom preferences:', customPreferences || 'None');
-    console.log('🤖 ========================================');
-
     if (!cumulativeSummary && !customPreferences) {
-      console.log('⚠️ SKIPPING AI GENERATION - No cumulative summary or custom preferences');
-      console.log('⚠️ Returning null to use fallback static mood-based prompts');
       return null; // Return null to trigger fallback to static prompts
     }
 
@@ -97,7 +78,6 @@ const generatePersonalizedPrompts = async (userMood, cumulativeSummary, customPr
     let contextSection = '';
     
     if (customPreferences) {
-      console.log('✨ Including CUSTOM PREFERENCES (highest priority)');
       contextSection += `USER'S CUSTOM PREFERENCES (HIGHEST PRIORITY):
 ${customPreferences}
 
@@ -107,7 +87,6 @@ ${customPreferences}
     }
     
     if (cumulativeSummary) {
-      console.log('📚 Including CUMULATIVE SUMMARY (supporting context)');
       contextSection += `USER'S THERAPEUTIC JOURNEY (Supporting Context):
 ${cumulativeSummary}
 
@@ -153,19 +132,6 @@ CRITICAL REQUIREMENTS:
 - Return ONLY the JSON object - no markdown formatting, no explanation, no code blocks
 - The response must be parseable by JSON.parse()`;
 
-    console.log('🤖 ========================================');
-    console.log('🤖 FULL PROMPT BEING SENT TO GEMINI:');
-    console.log('🤖 ========================================');
-    console.log(promptGenerationRequest);
-    console.log('🤖 ========================================');
-    console.log('🤖 REQUEST CONFIGURATION:');
-    console.log('  - Model: gemini-2.5-flash-lite');
-    console.log('  - Temperature: 0.8');
-    console.log('  - Max Output Tokens: 300');
-    console.log('  - Response Format: application/json');
-    console.log('🤖 ========================================');
-    console.log('🤖 Calling Gemini API...');
-    
     const result = await retryGeminiCall(() =>
       genAI.models.generateContent({
         model: 'gemini-2.5-flash-lite',
@@ -179,24 +145,16 @@ CRITICAL REQUIREMENTS:
     );
 
     let responseText = result.candidates[0].content.parts[0].text;
-    console.log('🤖 ========================================');
-    console.log('🤖 GEMINI API RESPONSE RECEIVED');
-    console.log('🤖 ========================================');
-    console.log('🤖 Raw response:', responseText);
-    console.log('🤖 ========================================');
     
     // Strip markdown code blocks if present (```json ... ``` or ``` ... ```)
     responseText = responseText.trim();
     if (responseText.startsWith('```json')) {
       responseText = responseText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-      console.log('🔧 Stripped ```json markdown wrapper');
     } else if (responseText.startsWith('```')) {
       responseText = responseText.replace(/^```\s*/, '').replace(/\s*```$/, '');
-      console.log('🔧 Stripped ``` markdown wrapper');
     }
     
     // Parse JSON response
-    console.log('🔄 Parsing JSON response...');
     const prompts = JSON.parse(responseText.trim());
     
     // Validate required fields
@@ -204,25 +162,9 @@ CRITICAL REQUIREMENTS:
       throw new Error('Missing required prompt fields in response');
     }
     
-    console.log('🤖 ========================================');
-    console.log('✅ PERSONALIZED PROMPTS GENERATED SUCCESSFULLY!');
-    console.log('🤖 ========================================');
-    console.log('🖼️  IMAGE PROMPT:');
-    console.log(prompts.imagePrompt);
-    console.log('─'.repeat(60));
-    console.log('🎵 MUSIC PROMPT:');
-    console.log(prompts.musicPrompt);
-    console.log('🤖 ========================================');
-    
     return prompts;
     
   } catch (error) {
-    console.error('❌ Error generating personalized prompts:', error.message);
-    if (error.message.includes('JSON')) {
-      console.error('📛 JSON Parse Error - Response was not valid JSON');
-      console.error('📄 Attempted to parse:', error.message.substring(0, 300));
-    }
-    console.log('⚠️ Will fallback to static mood-based prompts');
     return null; // Fallback to static prompts
   }
 };
@@ -241,7 +183,6 @@ const getLastSessionSummary = async (firebaseUid) => {
     
     return null;
   } catch (error) {
-    console.error('Error getting last session summary:', error);
     return null;
   }
 };
@@ -271,7 +212,6 @@ const generatePersonalizedGreeting = async (userContext, lastSessionSummary, max
 
     return greetingResult.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.log('⚠️ Greeting generation failed, using default:', error.message);
     return `Welcome to your wellness session! I'm here to support you today. ${lastSessionSummary ? 'I see we have some previous sessions to build upon.' : 'Let\'s start this journey together.'} How are you feeling right now?`;
   }
 };
@@ -297,7 +237,6 @@ const formatSessionResponse = (session, message = 'Session retrieved successfull
 
 // Helper function to handle errors consistently
 const handleError = (res, error, message = 'Internal server error') => {
-  console.error(message, error);
   res.status(500).json({ error: message });
 };
 
@@ -308,7 +247,6 @@ const getUserMoodForBackground = async (firebaseUid) => {
     const user = await User.findOne({ firebaseUid, isActive: true });
     
     if (!user || !user.moodHistory || user.moodHistory.length === 0) {
-      console.log('⚠️ No mood history found, using default: calm');
       return 'calm'; // Default mood
     }
     
@@ -323,7 +261,6 @@ const getUserMoodForBackground = async (firebaseUid) => {
     
     if (recentMoods.length > 0) {
       const latestMood = recentMoods[0].mood;
-      console.log(`✅ Using latest mood from moodHistory: ${latestMood} (from ${recentMoods[0].date})`);
       return latestMood;
     }
     
@@ -333,14 +270,11 @@ const getUserMoodForBackground = async (firebaseUid) => {
     
     if (allMoods.length > 0) {
       const latestMood = allMoods[0].mood;
-      console.log(`✅ Using latest mood (older than 7 days): ${latestMood}`);
       return latestMood;
     }
     
-    console.log('⚠️ No moods found, using default: calm');
     return 'calm';
   } catch (error) {
-    console.error('Error getting user mood:', error);
     return 'calm';
   }
 };
@@ -348,31 +282,21 @@ const getUserMoodForBackground = async (firebaseUid) => {
 // Helper function to generate personalized background using Gemini Imagen
 const generateSessionBackground = async (userContext, sessionType = 'general', firebaseUid = null, customPreferences = null) => {
   try {
-    console.log('🎨 Generating personalized session background with Gemini Imagen...');
-    
     // Get user's current mood
     const userMood = await getUserMoodForBackground(firebaseUid || userContext?.firebaseUid);
-    console.log(`📊 User mood for background: ${userMood}`);
     
     // Get user's cumulative summary for personalization
     const User = require('../models/User');
     const user = await User.findOne({ firebaseUid: firebaseUid || userContext?.firebaseUid, isActive: true });
     const cumulativeSummary = user?.userContext?.cumulativeSessionSummary || null;
     
-    console.log(`📚 Cumulative summary available: ${cumulativeSummary ? 'YES' : 'NO'}`);
-    console.log(`🎨 Custom preferences available: ${customPreferences ? 'YES' : 'NO'}`);
-    
     // Try to generate AI-powered personalized prompts first
     let imagePrompt = null;
-    console.log('🔄 Attempting to generate personalized prompts...');
     const personalizedPrompts = await generatePersonalizedPrompts(userMood, cumulativeSummary, customPreferences);
     
     if (personalizedPrompts && personalizedPrompts.imagePrompt) {
       imagePrompt = personalizedPrompts.imagePrompt;
-      console.log('🎯 ✅ Using AI-generated personalized image prompt');
-      console.log('🖼️  Selected prompt:', imagePrompt);
     } else {
-      console.log('📋 ⚠️ Personalized prompts returned null, falling back to static mood-based prompts');
       
       // Fallback: Static mood-based prompts (backward compatibility)
       // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
@@ -390,16 +314,8 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
       imagePrompt = moodImagePrompts[userMood] || moodImagePrompts['calm'];
     }
     
-    console.log(`🖼️ Generating image with prompt: ${imagePrompt.substring(0, 100)}...`);
-    
     try {
       // Use Vertex AI Imagen 3 for image generation
-      console.log('📸 ========================================');
-      console.log('📸 GENERATING BACKGROUND IMAGE WITH IMAGEN 3');
-      console.log('📸 Mood:', userMood);
-      console.log('📸 Prompt:', imagePrompt);
-      console.log('📸 ========================================');
-      
       // Get access token for authentication
       const client = await auth.getClient();
       const accessToken = await client.getAccessToken();
@@ -408,16 +324,12 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
         throw new Error('Failed to get access token');
       }
       
-      console.log('🔐 Got authentication token');
-      
       // Call Vertex AI Imagen API directly via REST
       const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
       const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
       
       // Use predict endpoint with correct instances format for Imagen 3
       const apiEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/imagen-3.0-generate-001:predict`;
-      
-      console.log('📸 Calling Imagen API at:', apiEndpoint);
       
       // Correct request format with instances for Imagen 3
       const requestBody = {
@@ -435,17 +347,12 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
         }
       };
       
-      console.log('📸 Request body:', JSON.stringify(requestBody, null, 2));
-      
       const result = await axios.post(apiEndpoint, requestBody, {
         headers: {
           'Authorization': `Bearer ${accessToken.token}`,
           'Content-Type': 'application/json'
         }
       });
-      
-      console.log('📸 Imagen API Response received');
-      console.log('📸 Response status:', result.status);
       
       // Parse Imagen 3 response - predictions format
       if (result.data && result.data.predictions && Array.isArray(result.data.predictions) && result.data.predictions.length > 0) {
@@ -456,13 +363,10 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
         // Try different field names that Imagen 3 might use
         if (prediction.bytesBase64Encoded) {
           imageBase64 = prediction.bytesBase64Encoded;
-          console.log('📸 Found image in "bytesBase64Encoded" field');
         } else if (prediction.image) {
           imageBase64 = prediction.image;
-          console.log('📸 Found image in "image" field');
         } else if (prediction.data) {
           imageBase64 = prediction.data;
-          console.log('📸 Found image in "data" field');
         } else if (typeof prediction === 'string') {
           imageBase64 = prediction;
         }
@@ -478,10 +382,6 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
         
         const imageUrl = `data:image/png;base64,${imageBase64}`;
         
-        console.log('✅ Successfully generated image with Imagen 3!');
-        console.log('📏 Image data length:', imageBase64.length, 'characters');
-        console.log('📸 ========================================');
-        
         return {
           imageUrl: imageUrl,
           prompt: imagePrompt,
@@ -494,24 +394,7 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
         throw new Error('No predictions in response or empty predictions array');
       }
     } catch (imageError) {
-      console.log('⚠️ Imagen 3 generation failed:', imageError.message);
-      
-      // Log specific error details
-      if (imageError.response) {
-        console.log('📛 API Error Status:', imageError.response.status);
-        
-        if (imageError.response.status === 429) {
-          console.log('🚨 RATE LIMIT EXCEEDED!');
-          console.log('🚨 You have hit Google Cloud\'s API quota limit.');
-          console.log('🚨 Solutions:');
-          console.log('   1. Wait a few minutes and try again');
-          console.log('   2. Check your Google Cloud quotas at: https://console.cloud.google.com/iam-admin/quotas');
-          console.log('   3. Request quota increase if needed');
-          console.log('   4. Make sure billing is enabled on your project');
-        }
-      }
-      
-      console.log('🔄 Falling back to mood-based gradient...');
+      // Fallback to gradient on error
     }
     
     // Fallback to gradient if image generation fails
@@ -524,7 +407,6 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
     };
 
   } catch (error) {
-    console.error('❌ Error generating session background:', error);
     return {
       imageUrl: null,
       prompt: 'Calming wellness session background',
@@ -538,22 +420,13 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
 // Helper function to generate therapeutic music using Lyria
 const generateSessionMusic = async (userMood, sessionType = 'general', duration = 300, firebaseUid = null, personalizedPrompts = null) => {
   try {
-    console.log('🎵 ========================================');
-    console.log('🎵 GENERATING THERAPEUTIC MUSIC WITH LYRIA');
-    console.log('🎵 Mood:', userMood);
-    console.log('🎵 Duration:', duration, 'seconds');
-    console.log('🎵 FirebaseUid:', firebaseUid || 'Not provided');
-    console.log('🎵 ========================================');
-    
     // Try to use personalized prompt if available
     let musicPrompt = null;
     
     if (personalizedPrompts && personalizedPrompts.musicPrompt) {
       // Use AI-generated personalized prompt
       musicPrompt = personalizedPrompts.musicPrompt;
-      console.log('🎯 Using AI-generated personalized music prompt');
     } else {
-      console.log('📋 Falling back to static mood-based music prompts');
       
       // Fallback: Static mood-based prompts (backward compatibility)
       // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
@@ -571,8 +444,6 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
       musicPrompt = moodMusicPrompts[userMood] || moodMusicPrompts['calm'];
     }
     
-    console.log('🎼 Music prompt:', musicPrompt);
-    
     try {
       // Get access token for authentication
       const client = await auth.getClient();
@@ -582,16 +453,12 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
         throw new Error('Failed to get access token for Lyria');
       }
       
-      console.log('🔐 Got authentication token for Lyria');
-      
       const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
       const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
       
       // Official Lyria 2 API endpoint - Model: lyria-002
       // Documentation: https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/lyria-music-generation
       const apiEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/lyria-002:predict`;
-      
-      console.log('🎵 Calling Lyria 2 API at:', apiEndpoint);
       
       // Official Lyria request format
       // NOTE: Lyria generates 30-second clips at 48kHz WAV (fixed duration, not customizable)
@@ -607,8 +474,6 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
         }
       };
       
-      console.log('🎵 Request body:', JSON.stringify(requestBody, null, 2));
-      
       const result = await axios.post(apiEndpoint, requestBody, {
         headers: {
           'Authorization': `Bearer ${accessToken.token}`,
@@ -617,48 +482,32 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
         timeout: 90000 // 90 second timeout for music generation
       });
       
-      console.log('🎵 Lyria 2 API Response received');
-      console.log('🎵 Response status:', result.status);
-      
       // Parse Lyria response per official documentation
       // Response format: { predictions: [{ audioContent: "base64...", mimeType: "audio/wav" }] }
       if (result.data && result.data.predictions && Array.isArray(result.data.predictions) && result.data.predictions.length > 0) {
         const prediction = result.data.predictions[0];
-        console.log('🎵 Prediction keys:', Object.keys(prediction));
         
         // Check for different possible field names (API may vary)
         let musicBase64 = null;
         
         if (prediction.bytesBase64Encoded) {
           musicBase64 = prediction.bytesBase64Encoded;
-          console.log('🎵 Found music in "bytesBase64Encoded" field');
         } else if (prediction.audioContent) {
           musicBase64 = prediction.audioContent;
-          console.log('🎵 Found music in "audioContent" field');
         } else if (prediction.audio) {
           musicBase64 = prediction.audio;
-          console.log('🎵 Found music in "audio" field');
         } else if (prediction.data) {
           musicBase64 = prediction.data;
-          console.log('🎵 Found music in "data" field');
         } else if (typeof prediction === 'string') {
           musicBase64 = prediction;
-          console.log('🎵 Prediction is direct base64 string');
         }
         
         if (!musicBase64) {
-          console.log('🎵 Full prediction object:', JSON.stringify(prediction, null, 2));
           throw new Error('No music data found in prediction. Keys: ' + Object.keys(prediction).join(', '));
         }
         
         // Lyria returns clean base64 WAV data
         const musicUrl = `data:audio/wav;base64,${musicBase64}`;
-        
-        console.log('✅ Successfully generated music with Lyria 2!');
-        console.log('📏 Music data length:', musicBase64.length, 'characters');
-        console.log('🎵 Duration: 30 seconds (Lyria standard)');
-        console.log('🎵 Format: WAV 48kHz');
-        console.log('🎵 ========================================');
         
         return {
           musicUrl: musicUrl,
@@ -668,40 +517,14 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
           duration: 30 // Lyria generates 30-second clips
         };
       } else {
-        console.log('🎵 Full response data:', JSON.stringify(result.data, null, 2));
         throw new Error('No predictions in Lyria response or empty predictions array');
       }
       
     } catch (musicError) {
-      console.log('⚠️ Lyria 2 music generation failed:', musicError.message);
-      
-      if (musicError.response) {
-        console.log('📛 Lyria API Error Status:', musicError.response.status);
-        console.log('📛 Lyria API Error Data:', JSON.stringify(musicError.response.data, null, 2));
-        
-        if (musicError.response.status === 429) {
-          console.log('🚨 RATE LIMIT EXCEEDED for Lyria 2!');
-          console.log('🚨 Lyria usage is priced at $0.06 per 30 seconds of output music');
-          console.log('🚨 Check your quota at: https://console.cloud.google.com/iam-admin/quotas');
-        } else if (musicError.response.status === 404) {
-          console.log('🚨 Lyria 2 model not found!');
-          console.log('🚨 Model name: lyria-002');
-          console.log('🚨 Region:', process.env.GOOGLE_CLOUD_LOCATION || 'us-central1');
-          console.log('🚨 Try checking if Lyria is available in your region');
-          console.log('🚨 See: https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/lyria-music-generation');
-        } else if (musicError.response.status === 400) {
-          console.log('🚨 BAD REQUEST - Check prompt format');
-          console.log('🚨 Lyria only supports US English (en-us) text prompts');
-        }
-      }
-      
-      console.log('🔄 Music generation failed, session will continue without background music');
-      console.log('🎵 ========================================');
       return null;
     }
     
   } catch (error) {
-    console.error('❌ Error in music generation function:', error);
     return null;
   }
 };
@@ -799,27 +622,10 @@ router.get('/schedule/:firebaseUid', async (req, res) => {
 // Start an instant session (for testing)
 router.post('/start-instant', async (req, res) => {
   try {
-    console.log('🚀 ========================================');
-    console.log('🚀 INSTANT SESSION START REQUEST');
-    console.log('🚀 ========================================');
     const { firebaseUid, userContext, customPreferences } = req.body;
-    console.log('📦 Request body keys:', Object.keys(req.body));
-    console.log('👤 firebaseUid:', firebaseUid);
-    console.log('📋 userContext:', userContext);
-    console.log('🎨 customPreferences:', customPreferences || 'None');
-    console.log('🚀 ========================================');
 
     if (!firebaseUid) {
-      console.log('❌ No Firebase UID provided');
       return res.status(400).json({ error: 'Firebase UID is required' });
-    }
-    
-    // Log custom preferences if provided
-    if (customPreferences) {
-      console.log('✅ Custom preferences detected and will be used!');
-      console.log('🎨 Custom preferences value:', customPreferences);
-    } else {
-      console.log('⚠️ No custom preferences provided');
     }
 
     // Check if there's already an active instant session for this user
@@ -830,24 +636,14 @@ router.post('/start-instant', async (req, res) => {
     });
 
     if (session) {
-      console.log('✅ Found existing active session:', session.sessionId);
-      
       // Force regeneration if user provided custom preferences
       const forceRegenerate = !!customPreferences;
-      
-      if (forceRegenerate) {
-        console.log('🔄 FORCING REGENERATION - User provided custom preferences!');
-        console.log('🎨 Custom preferences:', customPreferences);
-      }
       
       // Check if we need to generate missing content
       const needsBackground = !session.sessionData.backgroundImage || forceRegenerate;
       const needsMusic = !session.sessionData.backgroundMusic || forceRegenerate;
       
       if (needsBackground || needsMusic) {
-        console.log('🔄 Generating content...');
-        console.log('  - Background needed:', needsBackground, forceRegenerate ? '(FORCED)' : '');
-        console.log('  - Music needed:', needsMusic, forceRegenerate ? '(FORCED)' : '');
         
         // Store personalized prompts if background is generated
         let personalizedPromptsForMusic = null;
@@ -855,7 +651,6 @@ router.post('/start-instant', async (req, res) => {
         // Generate background only if missing
         if (needsBackground) {
           const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid, customPreferences);
-          console.log('🎨 Background generated:', backgroundData?.type || 'None');
           
           if (backgroundData) {
             session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
@@ -867,8 +662,6 @@ router.post('/start-instant', async (req, res) => {
             // Store personalized prompts for music generation
             personalizedPromptsForMusic = backgroundData.personalizedPrompts;
           }
-        } else {
-          console.log('✅ Background already exists, skipping generation');
         }
         
         // Generate music only if missing
@@ -880,20 +673,10 @@ router.post('/start-instant', async (req, res) => {
             session.sessionData.backgroundMusic = musicData.musicUrl;
             session.sessionData.musicPrompt = musicData.prompt;
             session.sessionData.musicGeneratedWith = musicData.generatedWith;
-            console.log('💾 Music generated for existing session');
           }
-        } else {
-          console.log('✅ Music already exists, skipping generation');
         }
         
         await session.save();
-        console.log('💾 Session updated with generated content');
-      } else {
-        console.log('⚠️ ========================================');
-        console.log('⚠️ USING CACHED CONTENT');
-        console.log('⚠️ Session already has background and music');
-        console.log('⚠️ No custom preferences provided, so reusing existing content');
-        console.log('⚠️ ========================================');
       }
       
       return res.json({
@@ -929,18 +712,7 @@ router.post('/start-instant', async (req, res) => {
     });
 
     // Generate personalized background based on user mood
-    console.log('🎨 ========================================');
-    console.log('🎨 CALLING generateSessionBackground...');
-    console.log('🎨 Parameters being passed:');
-    console.log('  - userContext:', userContext);
-    console.log('  - sessionType: instant');
-    console.log('  - firebaseUid:', firebaseUid);
-    console.log('  - customPreferences:', customPreferences || 'NONE PASSED');
-    console.log('🎨 ========================================');
     const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid, customPreferences);
-    console.log('🎨 ========================================');
-    console.log('🎨 Background generated:', backgroundData?.type, '- Generated with:', backgroundData?.generatedWith || 'Gradient');
-    console.log('🎨 ========================================');
     
     // Store personalized prompts for music generation reuse
     let personalizedPromptsForMusic = backgroundData?.personalizedPrompts || null;
@@ -954,30 +726,17 @@ router.post('/start-instant', async (req, res) => {
       if (backgroundData.generatedWith) {
         session.sessionData.generatedWith = backgroundData.generatedWith;
       }
-      
-      console.log('💾 SAVED TO SESSION:');
-      console.log('  - backgroundImage:', session.sessionData.backgroundImage ? 'Generated (' + session.sessionData.backgroundImage.substring(0, 20) + '...)' : 'None');
-      console.log('  - backgroundType:', session.sessionData.backgroundType);
-      console.log('  - generatedWith:', session.sessionData.generatedWith);
     }
 
     // Generate therapeutic music based on user mood (using personalized prompts if available)
     const userMood = await getUserMoodForBackground(firebaseUid);
-    console.log('🎵 ========================================');
-    console.log('🎵 CALLING generateSessionMusic...');
     const musicData = await generateSessionMusic(userMood, 'instant', 30, firebaseUid, personalizedPromptsForMusic);
-    console.log('🎵 MUSIC DATA RECEIVED:', musicData ? 'SUCCESS' : 'FAILED');
-    console.log('🎵 ========================================');
     
     // Update session with music
     if (musicData) {
       session.sessionData.backgroundMusic = musicData.musicUrl;
       session.sessionData.musicPrompt = musicData.prompt;
       session.sessionData.musicGeneratedWith = musicData.generatedWith;
-      
-      console.log('💾 SAVED MUSIC TO SESSION:');
-      console.log('  - backgroundMusic length:', session.sessionData.backgroundMusic?.length || 0);
-      console.log('  - musicGeneratedWith:', session.sessionData.musicGeneratedWith);
     }
 
     // Get last session summary from MongoDB
@@ -986,10 +745,8 @@ router.post('/start-instant', async (req, res) => {
     // Generate greeting with context
     const greeting = await generatePersonalizedGreeting(userContext, lastSessionSummary, 150);
     session.sessionData.greeting = greeting;
-    console.log('✅ Generated personalized greeting');
 
     await session.save();
-    console.log('✅ Session saved successfully:', session.sessionId);
 
     const responseData = {
       success: true,
@@ -1058,39 +815,25 @@ router.get('/upcoming/:firebaseUid', async (req, res) => {
 // Complete a session and generate summary
 router.post('/complete/:sessionId', async (req, res) => {
   try {
-    console.log('🔍 SESSION COMPLETION TEST - Starting');
     const { sessionId } = req.params;
     const { firebaseUid, summary, secretCode } = req.body;
-    
-    console.log(`Session ID: ${sessionId}`);
-    console.log(`Firebase UID: ${firebaseUid}`);
-    console.log(`Secret Code: ${secretCode}`);
-    console.log(`Optional summary: ${summary}`);
-    console.log('Full request body:', req.body);
     
     let finalFirebaseUid = firebaseUid;
     
     // Fallback: Try to get firebaseUid from secret code if not provided
     if (!finalFirebaseUid && secretCode) {
-      console.log('🔄 Trying fallback with secret code:', secretCode);
-      
       try {
         const User = require('../models/User');
         const user = await User.findOne({ secretCode, isActive: true });
         if (user) {
           finalFirebaseUid = user.firebaseUid;
-          console.log('✅ Retrieved firebaseUid from secret code:', finalFirebaseUid);
-        } else {
-          console.log('❌ No user found with secret code:', secretCode);
         }
       } catch (error) {
-        console.error('Error looking up user by secret code:', error);
+        // Continue with error handling below
       }
     }
     
     if (!finalFirebaseUid) {
-      console.log('❌ Firebase UID is missing from request body and secret code lookup failed');
-      console.log('❌ Available data:', { firebaseUid, secretCode, sessionId });
       return res.status(400).json({ 
         error: 'Firebase UID is required',
         receivedBody: req.body,
@@ -1106,13 +849,10 @@ router.post('/complete/:sessionId', async (req, res) => {
 
     const session = await Session.findOne({ sessionId, firebaseUid: finalFirebaseUid });
     if (!session) {
-      console.log('❌ Session not found');
       return res.status(404).json({ error: 'Session not found' });
     }
 
-    console.log(`Session status: ${session.status}`);
     if (session.status !== 'active') {
-      console.log('❌ Session is not active');
       return res.status(400).json({ error: 'Session is not active' });
     }
 
@@ -1120,10 +860,6 @@ router.post('/complete/:sessionId', async (req, res) => {
     const User = require('../models/User');
     const user = await User.findOne({ firebaseUid: finalFirebaseUid, isActive: true });
     const previousCumulativeSummary = user?.userContext?.cumulativeSessionSummary || '';
-    
-    console.log('🔍 CUMULATIVE SUMMARY TEST - Step 1: Retrieving previous summary from userContext');
-    console.log(`Previous cumulative summary length: ${previousCumulativeSummary.length} characters`);
-    console.log(`Previous cumulative summary preview: ${previousCumulativeSummary.substring(0, 100)}...`);
 
     // Generate new session summary
     let newSessionSummary = '';
@@ -1169,11 +905,7 @@ Focus only on this specific session.`;
       );
 
       newSessionSummary = sessionResult.candidates[0].content.parts[0].text;
-      console.log('🔍 CUMULATIVE SUMMARY TEST - Step 2: Generated new session summary');
-      console.log(`New session summary length: ${newSessionSummary.length} characters`);
-      console.log(`New session summary preview: ${newSessionSummary.substring(0, 100)}...`);
     } catch (summaryError) {
-      console.error('Error generating session summary:', summaryError);
       newSessionSummary = `Session completed on ${new Date().toISOString()}. Key topics discussed: ${session.sessionData?.exploration?.length || 0} conversation exchanges. Mood: ${session.sessionData?.moodCheckIn?.mood || 'Not recorded'}.`;
     }
 
@@ -1212,12 +944,7 @@ Create a professional therapeutic cumulative summary that captures the essential
       );
 
       cumulativeSummary = cumulativeResult.candidates[0].content.parts[0].text;
-      console.log('🔍 CUMULATIVE SUMMARY TEST - Step 3: Generated cumulative summary');
-      console.log(`Final cumulative summary length: ${cumulativeSummary.length} characters`);
-      console.log(`Final cumulative summary preview: ${cumulativeSummary.substring(0, 150)}...`);
-      console.log('🎯 TARGET: 150 words (~600-800 characters)');
     } catch (cumulativeError) {
-      console.error('Error generating cumulative summary:', cumulativeError);
       cumulativeSummary = newSessionSummary; // Fallback to new session summary
     }
 
@@ -1234,7 +961,6 @@ Create a professional therapeutic cumulative summary that captures the essential
     await session.save();
 
     // Update user context with new cumulative summary
-    console.log('🔍 CUMULATIVE SUMMARY TEST - Step 4: Updating user profile');
     await User.findOneAndUpdate(
       { firebaseUid: finalFirebaseUid },
       {
@@ -1250,8 +976,6 @@ Create a professional therapeutic cumulative summary that captures the essential
         }
       }
     );
-    console.log('✅ Updated user context with new cumulative summary (150 words)');
-    console.log('🔍 CUMULATIVE SUMMARY TEST - COMPLETED SUCCESSFULLY!');
 
     res.json({
       success: true,
@@ -1266,7 +990,6 @@ Create a professional therapeutic cumulative summary that captures the essential
     });
 
   } catch (error) {
-    console.error('Error completing session:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -1303,7 +1026,6 @@ router.delete('/cleanup/:firebaseUid', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error cleaning up sessions:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -1313,15 +1035,6 @@ router.post('/start/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { userContext, customPreferences } = req.body;
-
-    console.log('🚀 ========================================');
-    console.log('🚀 SCHEDULED SESSION START REQUEST');
-    console.log('🚀 SessionId:', sessionId);
-    console.log('🎨 Custom preferences:', customPreferences || 'None');
-    if (customPreferences) {
-      console.log('✅ Custom preferences detected:', customPreferences);
-    }
-    console.log('🚀 ========================================');
 
     const session = await Session.findOne({ sessionId });
     if (!session) {
@@ -1336,8 +1049,6 @@ router.post('/start/:sessionId', async (req, res) => {
         const forceRegenerate = !!customPreferences;
         
         if (hasBackground && hasMusic && !forceRegenerate) {
-          console.log('⚠️ Session already active with background and music');
-          console.log('⚠️ No custom preferences, returning existing content');
           return res.json({
             success: true,
             session: {
@@ -1352,8 +1063,6 @@ router.post('/start/:sessionId', async (req, res) => {
             },
             message: 'Session already active'
           });
-        } else if (forceRegenerate) {
-          console.log('🔄 Session is active but REGENERATING due to custom preferences');
         }
       } else {
         return res.status(400).json({ error: 'Session is not in scheduled status' });
@@ -1369,10 +1078,6 @@ router.post('/start/:sessionId', async (req, res) => {
     // Check if we need to generate content
     const needsBackground = !session.sessionData.backgroundImage || forceRegenerate;
     const needsMusic = !session.sessionData.backgroundMusic || forceRegenerate;
-    
-    console.log('🔄 Generating content for scheduled session...');
-    console.log('  - Background needed:', needsBackground, forceRegenerate ? '(FORCED)' : '');
-    console.log('  - Music needed:', needsMusic, forceRegenerate ? '(FORCED)' : '');
     
     // Store personalized prompts if background is generated
     let personalizedPromptsForMusic = null;
@@ -1392,8 +1097,6 @@ router.post('/start/:sessionId', async (req, res) => {
         // Store personalized prompts for music generation
         personalizedPromptsForMusic = backgroundData.personalizedPrompts;
       }
-    } else {
-      console.log('✅ Background already exists, skipping generation');
     }
 
     // Generate therapeutic music only if missing
@@ -1406,8 +1109,6 @@ router.post('/start/:sessionId', async (req, res) => {
         session.sessionData.musicPrompt = musicData.prompt;
         session.sessionData.musicGeneratedWith = musicData.generatedWith;
       }
-    } else {
-      console.log('✅ Music already exists, skipping generation');
     }
 
     // Get last session summary from Firestore
@@ -1435,7 +1136,6 @@ router.post('/start/:sessionId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error starting session:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -1509,7 +1209,6 @@ router.post('/update/:sessionId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error updating session:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -1583,7 +1282,6 @@ router.get('/history/:firebaseUid', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error getting session history:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -1607,7 +1305,6 @@ router.delete('/cancel/:sessionId', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error cancelling session:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -208,12 +208,10 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
     
     setIsLoading(true);
     try {
-      console.log('📝 Creating chat...');
-      // Create a new chat for this session
-      const chatResponse = await authService.createNewChat();
-      console.log('✅ Chat created:', chatResponse);
-      const newChatId = chatResponse.chatId;
-      setChatId(newChatId);
+      console.log('📝 Using session-chat for sessionId:', sessionId);
+      // Don't create a regular chat - use 'session-chat' ID
+      // The backend will create a session-linked chat automatically when first message is sent
+      setChatId('session-chat');
       
       // Generate session start message with context
       const sessionStartMessage = {
