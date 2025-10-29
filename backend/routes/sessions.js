@@ -154,28 +154,38 @@ const getUserMoodForBackground = async (firebaseUid) => {
     const User = require('../models/User');
     const user = await User.findOne({ firebaseUid, isActive: true });
     
-    if (!user || !user.reflections || user.reflections.length === 0) {
+    if (!user || !user.moodHistory || user.moodHistory.length === 0) {
+      console.log('⚠️ No mood history found, using default: calm');
       return 'calm'; // Default mood
     }
     
-    // Get today's reflections
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get the most recent mood from moodHistory (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
-    const todayReflections = user.reflections
-      .filter(r => new Date(r.date) >= today && r.mood)
+    // Filter moods from last 7 days and sort by most recent
+    const recentMoods = user.moodHistory
+      .filter(m => new Date(m.date) >= sevenDaysAgo)
       .sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    if (todayReflections.length > 0) {
-      return todayReflections[0].mood;
+    if (recentMoods.length > 0) {
+      const latestMood = recentMoods[0].mood;
+      console.log(`✅ Using latest mood from moodHistory: ${latestMood} (from ${recentMoods[0].date})`);
+      return latestMood;
     }
     
-    // Get most recent mood from any day
-    const recentReflections = user.reflections
-      .filter(r => r.mood)
+    // Fallback: Get the most recent mood from all time if no moods in last 7 days
+    const allMoods = user.moodHistory
       .sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    return recentReflections.length > 0 ? recentReflections[0].mood : 'calm';
+    if (allMoods.length > 0) {
+      const latestMood = allMoods[0].mood;
+      console.log(`✅ Using latest mood (older than 7 days): ${latestMood}`);
+      return latestMood;
+    }
+    
+    console.log('⚠️ No moods found, using default: calm');
+    return 'calm';
   } catch (error) {
     console.error('Error getting user mood:', error);
     return 'calm';
@@ -192,25 +202,16 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
     console.log(`📊 User mood for background: ${userMood}`);
     
     // Create mood-appropriate therapeutic nature prompts for image generation
+    // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
     const moodImagePrompts = {
-      '😢': 'A soft, peaceful lavender field at dawn with gentle morning mist, warm pastel colors, water droplets on flowers, serene and comforting atmosphere, professional nature photography, therapeutic calming scene, 4k quality',
-      '😔': 'A serene sunset over calm ocean waters with warm orange and pink sky, gentle waves reflecting golden light, peaceful clouds, hopeful and soothing atmosphere, beautiful nature photography, 4k quality',
-      '😐': 'A tranquil zen garden with smooth stones, gentle flowing water, minimalist bamboo, balanced composition, neutral calming earth tones, meditative peaceful atmosphere, professional nature photography, 4k quality',
-      '😊': 'A bright sunny meadow filled with colorful wildflowers, clear blue sky, soft sunlight, butterflies, uplifting positive energy, vibrant yet peaceful, beautiful nature photography, 4k quality',
-      '😄': 'A joyful spring garden in full bloom with colorful flowers, cherry blossoms, butterflies, warm sunlight filtering through, energizing yet calming, celebration of nature, professional photography, 4k quality',
+      'happy': 'A bright sunny meadow filled with colorful wildflowers, clear blue sky, soft sunlight, butterflies, uplifting positive energy, vibrant yet peaceful, beautiful nature photography, 4k quality',
+      'neutral': 'A tranquil zen garden with smooth stones, gentle flowing water, minimalist bamboo, balanced composition, neutral calming earth tones, meditative peaceful atmosphere, professional nature photography, 4k quality',
+      'sad': 'A serene sunset over calm ocean waters with warm orange and pink sky, gentle waves reflecting golden light, peaceful clouds, hopeful and soothing atmosphere, beautiful nature photography, 4k quality',
       'anxious': 'A peaceful forest path with dappled sunlight filtering through tall trees, natural green tones, moss-covered ground, grounding protective atmosphere, serene nature photography, 4k quality',
-      'stressed': 'A gentle mountain stream with crystal clear flowing water, smooth moss-covered rocks, lush greenery, water droplets, deeply calming nature sounds visualized, professional photography, 4k quality',
-      'sad': 'A cozy rainy rainforest scene with tropical plants, soft rainfall, water droplets on leaves, warm diffused lighting, nurturing safe atmosphere, beautiful nature photography, 4k quality',
-      'happy': 'A sunlit bamboo forest with golden rays of light filtering through green leaves, peaceful atmosphere, sense of growth and renewal, serene nature photography, 4k quality',
-      'calm': 'A misty morning in a Japanese garden with koi pond, lily pads, cherry blossoms, perfectly balanced composition, serene and peaceful, professional nature photography, 4k quality',
-      'angry': 'A vast open sky at dusk with slow-moving clouds, endless horizon, cool blues and purples, expansive releasing atmosphere, calming nature photography, 4k quality',
       'tired': 'A peaceful lake at golden hour with soft warm colors, gentle ripples, deeply restful atmosphere, hammock view, restorative scene, beautiful nature photography, 4k quality',
-      'excited': 'A vibrant sunrise over rolling hills with golden light, fresh morning energy, balanced excitement with tranquility, inspiring nature photography, 4k quality',
-      'shared': 'A warm community garden with blooming flowers, people connecting, natural beauty, bright welcoming atmosphere, sense of belonging and connection, beautiful nature photography, 4k quality',
-      'grateful': 'A golden autumn forest with warm amber light filtering through colorful leaves, peaceful atmosphere of appreciation and abundance, beautiful nature photography, 4k quality',
-      'lonely': 'A single majestic tree on a peaceful hill at dawn, soft morning light, gentle fog, serene solitude, comforting and grounding atmosphere, beautiful nature photography, 4k quality',
-      'hopeful': 'A vibrant sunrise breaking through morning clouds, new beginnings, warm golden light over a peaceful landscape, inspiring and uplifting, beautiful nature photography, 4k quality',
-      'overwhelmed': 'A wide open beach with gentle waves, vast sky, spacious calming atmosphere, sense of release and freedom, soothing nature photography, 4k quality'
+      'calm': 'A misty morning in a Japanese garden with koi pond, lily pads, cherry blossoms, perfectly balanced composition, serene and peaceful, professional nature photography, 4k quality',
+      'frustrated': 'A vast open sky at dusk with slow-moving clouds, endless horizon, cool blues and purples, expansive releasing atmosphere, calming nature photography, 4k quality',
+      'hopeful': 'A vibrant sunrise breaking through morning clouds, new beginnings, warm golden light over a peaceful landscape, inspiring and uplifting, beautiful nature photography, 4k quality'
     };
     
     const imagePrompt = moodImagePrompts[userMood] || moodImagePrompts['calm'];
@@ -270,12 +271,10 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
       
       console.log('📸 Imagen API Response received');
       console.log('📸 Response status:', result.status);
-      console.log('📸 Response data keys:', Object.keys(result.data || {}));
       
       // Parse Imagen 3 response - predictions format
       if (result.data && result.data.predictions && Array.isArray(result.data.predictions) && result.data.predictions.length > 0) {
         const prediction = result.data.predictions[0];
-        console.log('📸 Prediction keys:', Object.keys(prediction));
         
         let imageBase64 = null;
         
@@ -291,11 +290,9 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
           console.log('📸 Found image in "data" field');
         } else if (typeof prediction === 'string') {
           imageBase64 = prediction;
-          console.log('📸 Prediction is direct base64 string');
         }
         
         if (!imageBase64) {
-          console.log('📸 Full prediction object:', JSON.stringify(prediction, null, 2));
           throw new Error('No image data found in prediction. Keys: ' + Object.keys(prediction).join(', '));
         }
         
@@ -318,7 +315,6 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
           generatedWith: 'Imagen 3'
         };
       } else {
-        console.log('📸 Full response data:', JSON.stringify(result.data, null, 2));
         throw new Error('No predictions in response or empty predictions array');
       }
     } catch (imageError) {
@@ -327,7 +323,6 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
       // Log specific error details
       if (imageError.response) {
         console.log('📛 API Error Status:', imageError.response.status);
-        console.log('📛 API Error Data:', JSON.stringify(imageError.response.data, null, 2));
         
         if (imageError.response.status === 429) {
           console.log('🚨 RATE LIMIT EXCEEDED!');
@@ -359,6 +354,164 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
       mood: 'calm',
       type: 'gradient'
     };
+  }
+};
+
+// Helper function to generate therapeutic music using Lyria
+const generateSessionMusic = async (userMood, sessionType = 'general', duration = 300) => {
+  try {
+    console.log('🎵 ========================================');
+    console.log('🎵 GENERATING THERAPEUTIC MUSIC WITH LYRIA');
+    console.log('🎵 Mood:', userMood);
+    console.log('🎵 Duration:', duration, 'seconds');
+    console.log('🎵 ========================================');
+    
+    // Create mood-appropriate therapeutic music prompts
+    // Only 8 moods that match the website: happy, neutral, sad, anxious, tired, calm, frustrated, hopeful
+    const moodMusicPrompts = {
+      'happy': 'Light melodic patterns with natural harmonics, joy enhancement music, 95 BPM, positive mood amplification, bright and cheerful',
+      'neutral': 'Minimalist ambient soundscape, balanced and neutral, 80 BPM, meditative background music, calming nature sounds',
+      'sad': 'Tender piano with rainfall ambience, emotional support music, 55 BPM, grief processing soundscape, gentle and safe',
+      'anxious': 'Deep breathing-focused ambient music, grounding bass tones, 60 BPM, anxiety relief soundscape, slow and stable',
+      'tired': 'Restorative ambient music, gentle energy renewal, 65 BPM, rest and recovery soundscape, rejuvenating',
+      'calm': 'Zen meditation music with singing bowls, perfect peace, 50 BPM, mindfulness support, serene atmosphere',
+      'frustrated': 'Gradual release soundscape, transformative ambient tones, 70 BPM, frustration processing music, cooling and expansive',
+      'hopeful': 'Sunrise-inspired ambient progression, new beginnings music, 75 BPM, optimism and possibility, emerging light'
+    };
+    
+    const musicPrompt = moodMusicPrompts[userMood] || moodMusicPrompts['calm'];
+    console.log('🎼 Music prompt:', musicPrompt);
+    
+    try {
+      // Get access token for authentication
+      const client = await auth.getClient();
+      const accessToken = await client.getAccessToken();
+      
+      if (!accessToken || !accessToken.token) {
+        throw new Error('Failed to get access token for Lyria');
+      }
+      
+      console.log('🔐 Got authentication token for Lyria');
+      
+      const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+      const location = process.env.GOOGLE_CLOUD_LOCATION || 'us-central1';
+      
+      // Official Lyria 2 API endpoint - Model: lyria-002
+      // Documentation: https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/lyria-music-generation
+      const apiEndpoint = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/lyria-002:predict`;
+      
+      console.log('🎵 Calling Lyria 2 API at:', apiEndpoint);
+      
+      // Official Lyria request format
+      // NOTE: Lyria generates 30-second clips at 48kHz WAV (fixed duration, not customizable)
+      const requestBody = {
+        instances: [
+          {
+            prompt: musicPrompt,
+            negative_prompt: "vocals, spoken word, lyrics, singing" // Instrumental only
+          }
+        ],
+        parameters: {
+          sample_count: 1 // Generate one 30-second audio sample
+        }
+      };
+      
+      console.log('🎵 Request body:', JSON.stringify(requestBody, null, 2));
+      
+      const result = await axios.post(apiEndpoint, requestBody, {
+        headers: {
+          'Authorization': `Bearer ${accessToken.token}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 90000 // 90 second timeout for music generation
+      });
+      
+      console.log('🎵 Lyria 2 API Response received');
+      console.log('🎵 Response status:', result.status);
+      
+      // Parse Lyria response per official documentation
+      // Response format: { predictions: [{ audioContent: "base64...", mimeType: "audio/wav" }] }
+      if (result.data && result.data.predictions && Array.isArray(result.data.predictions) && result.data.predictions.length > 0) {
+        const prediction = result.data.predictions[0];
+        console.log('🎵 Prediction keys:', Object.keys(prediction));
+        
+        // Check for different possible field names (API may vary)
+        let musicBase64 = null;
+        
+        if (prediction.bytesBase64Encoded) {
+          musicBase64 = prediction.bytesBase64Encoded;
+          console.log('🎵 Found music in "bytesBase64Encoded" field');
+        } else if (prediction.audioContent) {
+          musicBase64 = prediction.audioContent;
+          console.log('🎵 Found music in "audioContent" field');
+        } else if (prediction.audio) {
+          musicBase64 = prediction.audio;
+          console.log('🎵 Found music in "audio" field');
+        } else if (prediction.data) {
+          musicBase64 = prediction.data;
+          console.log('🎵 Found music in "data" field');
+        } else if (typeof prediction === 'string') {
+          musicBase64 = prediction;
+          console.log('🎵 Prediction is direct base64 string');
+        }
+        
+        if (!musicBase64) {
+          console.log('🎵 Full prediction object:', JSON.stringify(prediction, null, 2));
+          throw new Error('No music data found in prediction. Keys: ' + Object.keys(prediction).join(', '));
+        }
+        
+        // Lyria returns clean base64 WAV data
+        const musicUrl = `data:audio/wav;base64,${musicBase64}`;
+        
+        console.log('✅ Successfully generated music with Lyria 2!');
+        console.log('📏 Music data length:', musicBase64.length, 'characters');
+        console.log('🎵 Duration: 30 seconds (Lyria standard)');
+        console.log('🎵 Format: WAV 48kHz');
+        console.log('🎵 ========================================');
+        
+        return {
+          musicUrl: musicUrl,
+          prompt: musicPrompt,
+          mood: userMood,
+          generatedWith: 'Lyria 2',
+          duration: 30 // Lyria generates 30-second clips
+        };
+      } else {
+        console.log('🎵 Full response data:', JSON.stringify(result.data, null, 2));
+        throw new Error('No predictions in Lyria response or empty predictions array');
+      }
+      
+    } catch (musicError) {
+      console.log('⚠️ Lyria 2 music generation failed:', musicError.message);
+      
+      if (musicError.response) {
+        console.log('📛 Lyria API Error Status:', musicError.response.status);
+        console.log('📛 Lyria API Error Data:', JSON.stringify(musicError.response.data, null, 2));
+        
+        if (musicError.response.status === 429) {
+          console.log('🚨 RATE LIMIT EXCEEDED for Lyria 2!');
+          console.log('🚨 Lyria usage is priced at $0.06 per 30 seconds of output music');
+          console.log('🚨 Check your quota at: https://console.cloud.google.com/iam-admin/quotas');
+        } else if (musicError.response.status === 404) {
+          console.log('🚨 Lyria 2 model not found!');
+          console.log('🚨 Model name: lyria-002');
+          console.log('🚨 Region:', process.env.GOOGLE_CLOUD_LOCATION || 'us-central1');
+          console.log('🚨 Try checking if Lyria is available in your region');
+          console.log('🚨 See: https://docs.cloud.google.com/vertex-ai/generative-ai/docs/model-reference/lyria-music-generation');
+        } else if (musicError.response.status === 400) {
+          console.log('🚨 BAD REQUEST - Check prompt format');
+          console.log('🚨 Lyria only supports US English (en-us) text prompts');
+        }
+      }
+      
+      console.log('🔄 Music generation failed, session will continue without background music');
+      console.log('🎵 ========================================');
+      return null;
+    }
+    
+  } catch (error) {
+    console.error('❌ Error in music generation function:', error);
+    return null;
   }
 };
 
@@ -473,21 +626,52 @@ router.post('/start-instant', async (req, res) => {
 
     if (session) {
       console.log('✅ Found existing active session:', session.sessionId);
-      console.log('🔄 Regenerating background for existing session...');
       
-      // Regenerate background even for existing session
-      const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
-      console.log('🎨 BACKGROUND DATA:', JSON.stringify(backgroundData, null, 2));
+      // Check if we need to generate missing content
+      const needsBackground = !session.sessionData.backgroundImage;
+      const needsMusic = !session.sessionData.backgroundMusic;
       
-      if (backgroundData) {
-        session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
-        session.sessionData.backgroundPrompt = backgroundData.prompt;
-        session.sessionData.backgroundType = backgroundData.type;
-        if (backgroundData.generatedWith) {
-          session.sessionData.generatedWith = backgroundData.generatedWith;
+      if (needsBackground || needsMusic) {
+        console.log('🔄 Generating missing content...');
+        console.log('  - Background needed:', needsBackground);
+        console.log('  - Music needed:', needsMusic);
+        
+        // Generate background only if missing
+        if (needsBackground) {
+          const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
+          console.log('🎨 Background generated:', backgroundData?.type || 'None');
+          
+          if (backgroundData) {
+            session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
+            session.sessionData.backgroundPrompt = backgroundData.prompt;
+            session.sessionData.backgroundType = backgroundData.type;
+            if (backgroundData.generatedWith) {
+              session.sessionData.generatedWith = backgroundData.generatedWith;
+            }
+          }
+        } else {
+          console.log('✅ Background already exists, skipping generation');
         }
+        
+        // Generate music only if missing
+        if (needsMusic) {
+          const userMood = await getUserMoodForBackground(firebaseUid);
+          const musicData = await generateSessionMusic(userMood, 'instant', 30);
+          
+          if (musicData) {
+            session.sessionData.backgroundMusic = musicData.musicUrl;
+            session.sessionData.musicPrompt = musicData.prompt;
+            session.sessionData.musicGeneratedWith = musicData.generatedWith;
+            console.log('💾 Music generated for existing session');
+          }
+        } else {
+          console.log('✅ Music already exists, skipping generation');
+        }
+        
         await session.save();
-        console.log('💾 Background updated for existing session');
+        console.log('💾 Session updated with generated content');
+      } else {
+        console.log('✅ Session already has background and music, returning existing content');
       }
       
       return res.json({
@@ -498,6 +682,8 @@ router.post('/start-instant', async (req, res) => {
           backgroundImage: session.sessionData.backgroundImage,
           backgroundPrompt: session.sessionData.backgroundPrompt,
           backgroundType: session.sessionData.backgroundType,
+          backgroundMusic: session.sessionData.backgroundMusic,
+          musicPrompt: session.sessionData.musicPrompt,
           greeting: session.sessionData.greeting
         },
         message: 'Using existing active session'
@@ -524,7 +710,7 @@ router.post('/start-instant', async (req, res) => {
     console.log('🎨 ========================================');
     console.log('🎨 CALLING generateSessionBackground...');
     const backgroundData = await generateSessionBackground(userContext, 'instant', firebaseUid);
-    console.log('🎨 BACKGROUND DATA RECEIVED:', JSON.stringify(backgroundData, null, 2));
+    console.log('🎨 Background generated:', backgroundData?.type, '- Generated with:', backgroundData?.generatedWith || 'Gradient');
     console.log('🎨 ========================================');
     
     // Update session with background
@@ -538,9 +724,28 @@ router.post('/start-instant', async (req, res) => {
       }
       
       console.log('💾 SAVED TO SESSION:');
-      console.log('  - backgroundImage:', session.sessionData.backgroundImage);
+      console.log('  - backgroundImage:', session.sessionData.backgroundImage ? 'Generated (' + session.sessionData.backgroundImage.substring(0, 20) + '...)' : 'None');
       console.log('  - backgroundType:', session.sessionData.backgroundType);
       console.log('  - generatedWith:', session.sessionData.generatedWith);
+    }
+
+    // Generate therapeutic music based on user mood
+    const userMood = await getUserMoodForBackground(firebaseUid);
+    console.log('🎵 ========================================');
+    console.log('🎵 CALLING generateSessionMusic...');
+    const musicData = await generateSessionMusic(userMood, 'instant', 30);
+    console.log('🎵 MUSIC DATA RECEIVED:', musicData ? 'SUCCESS' : 'FAILED');
+    console.log('🎵 ========================================');
+    
+    // Update session with music
+    if (musicData) {
+      session.sessionData.backgroundMusic = musicData.musicUrl;
+      session.sessionData.musicPrompt = musicData.prompt;
+      session.sessionData.musicGeneratedWith = musicData.generatedWith;
+      
+      console.log('💾 SAVED MUSIC TO SESSION:');
+      console.log('  - backgroundMusic length:', session.sessionData.backgroundMusic?.length || 0);
+      console.log('  - musicGeneratedWith:', session.sessionData.musicGeneratedWith);
     }
 
     // Get last session summary from MongoDB
@@ -562,16 +767,12 @@ router.post('/start-instant', async (req, res) => {
         backgroundImage: session.sessionData.backgroundImage,
         backgroundPrompt: session.sessionData.backgroundPrompt,
         backgroundType: session.sessionData.backgroundType,
+        backgroundMusic: session.sessionData.backgroundMusic,
+        musicPrompt: session.sessionData.musicPrompt,
         greeting: session.sessionData.greeting
       },
       message: 'Instant session started successfully'
     };
-    
-    console.log('📤 ========================================');
-    console.log('📤 SENDING RESPONSE TO FRONTEND:');
-    console.log('📤 backgroundImage:', responseData.session.backgroundImage);
-    console.log('📤 backgroundType:', responseData.session.backgroundType);
-    console.log('📤 ========================================');
     
     res.json(responseData);
 
@@ -902,22 +1103,73 @@ router.post('/start/:sessionId', async (req, res) => {
     }
 
     if (session.status !== 'scheduled') {
-      return res.status(400).json({ error: 'Session is not in scheduled status' });
+      // If already active, check if content exists
+      if (session.status === 'active') {
+        const hasBackground = !!session.sessionData.backgroundImage;
+        const hasMusic = !!session.sessionData.backgroundMusic;
+        
+        if (hasBackground && hasMusic) {
+          console.log('✅ Session already active with background and music, returning existing content');
+          return res.json({
+            success: true,
+            session: {
+              sessionId: session.sessionId,
+              status: session.status,
+              backgroundImage: session.sessionData.backgroundImage,
+              backgroundPrompt: session.sessionData.backgroundPrompt,
+              backgroundType: session.sessionData.backgroundType,
+              backgroundMusic: session.sessionData.backgroundMusic,
+              musicPrompt: session.sessionData.musicPrompt,
+              greeting: session.sessionData.greeting
+            },
+            message: 'Session already active'
+          });
+        }
+      } else {
+        return res.status(400).json({ error: 'Session is not in scheduled status' });
+      }
     }
 
-    // Generate personalized background based on user mood
-    const backgroundData = await generateSessionBackground(userContext, 'scheduled', session.firebaseUid);
-    
-    // Update session status and background
+    // Update session status to active
     session.status = 'active';
-    if (backgroundData) {
-      // Store the generated image URL or mood for gradient fallback
-      session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
-      session.sessionData.backgroundPrompt = backgroundData.prompt;
-      session.sessionData.backgroundType = backgroundData.type; // 'gemini-image' or 'gradient'
-      if (backgroundData.generatedWith) {
-        session.sessionData.generatedWith = backgroundData.generatedWith;
+    
+    // Check if we need to generate content
+    const needsBackground = !session.sessionData.backgroundImage;
+    const needsMusic = !session.sessionData.backgroundMusic;
+    
+    console.log('🔄 Generating content for scheduled session...');
+    console.log('  - Background needed:', needsBackground);
+    console.log('  - Music needed:', needsMusic);
+    
+    // Generate personalized background only if missing
+    if (needsBackground) {
+      const backgroundData = await generateSessionBackground(userContext, 'scheduled', session.firebaseUid);
+      
+      if (backgroundData) {
+        // Store the generated image URL or mood for gradient fallback
+        session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
+        session.sessionData.backgroundPrompt = backgroundData.prompt;
+        session.sessionData.backgroundType = backgroundData.type; // 'gemini-image' or 'gradient'
+        if (backgroundData.generatedWith) {
+          session.sessionData.generatedWith = backgroundData.generatedWith;
+        }
       }
+    } else {
+      console.log('✅ Background already exists, skipping generation');
+    }
+
+    // Generate therapeutic music only if missing
+    if (needsMusic) {
+      const userMood = await getUserMoodForBackground(session.firebaseUid);
+      const musicData = await generateSessionMusic(userMood, 'scheduled', 30);
+      
+      if (musicData) {
+        session.sessionData.backgroundMusic = musicData.musicUrl;
+        session.sessionData.musicPrompt = musicData.prompt;
+        session.sessionData.musicGeneratedWith = musicData.generatedWith;
+      }
+    } else {
+      console.log('✅ Music already exists, skipping generation');
     }
 
     // Get last session summary from Firestore
@@ -937,6 +1189,8 @@ router.post('/start/:sessionId', async (req, res) => {
         backgroundImage: session.sessionData.backgroundImage,
         backgroundPrompt: session.sessionData.backgroundPrompt,
         backgroundType: session.sessionData.backgroundType,
+        backgroundMusic: session.sessionData.backgroundMusic,
+        musicPrompt: session.sessionData.musicPrompt,
         greeting: session.sessionData.greeting
       },
       message: 'Session started successfully'

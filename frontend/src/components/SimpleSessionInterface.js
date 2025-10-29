@@ -24,9 +24,13 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   const [chatId, setChatId] = useState(null);
   const [isCompleting, setIsCompleting] = useState(false);
   const [backgroundGradient, setBackgroundGradient] = useState('linear-gradient(135deg, #4ade80 0%, #22c55e 100%)');
+  const [backgroundMusic, setBackgroundMusic] = useState(null);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const [musicVolume, setMusicVolume] = useState(0.3); // Default 30% volume
   
   const messagesEndRef = useRef(null);
   const audioRef = useRef(null);
+  const backgroundMusicRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
@@ -97,6 +101,16 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
           console.log('⚠️ No background image in session data, using default');
           setBackgroundGradient('linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)');
         }
+        
+        // Check if we have background music
+        if (response.session.backgroundMusic) {
+          console.log('🎵 Background music found, setting up audio...');
+          console.log(`🎵 Music generated with: ${response.session.musicGeneratedWith || 'Unknown'}`);
+          setBackgroundMusic(response.session.backgroundMusic);
+          // Auto-play will be handled after user interaction
+        } else {
+          console.log('⚠️ No background music in session data');
+        }
       } else {
         console.log('⚠️ No valid session in response, using fallback');
         // Fallback session data
@@ -128,6 +142,40 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Effect to set up background music
+  useEffect(() => {
+    if (backgroundMusic && backgroundMusicRef.current) {
+      backgroundMusicRef.current.volume = musicVolume;
+      backgroundMusicRef.current.loop = true; // Loop the background music
+    }
+  }, [backgroundMusic, musicVolume]);
+
+  // Toggle background music playback
+  const toggleBackgroundMusic = () => {
+    if (!backgroundMusicRef.current || !backgroundMusic) return;
+    
+    if (isMusicPlaying) {
+      backgroundMusicRef.current.pause();
+      setIsMusicPlaying(false);
+      console.log('🎵 Background music paused');
+    } else {
+      backgroundMusicRef.current.play().catch(err => {
+        console.error('❌ Error playing background music:', err);
+      });
+      setIsMusicPlaying(true);
+      console.log('🎵 Background music playing');
+    }
+  };
+
+  // Handle music volume change
+  const handleVolumeChange = (e) => {
+    const newVolume = parseFloat(e.target.value);
+    setMusicVolume(newVolume);
+    if (backgroundMusicRef.current) {
+      backgroundMusicRef.current.volume = newVolume;
+    }
+  };
 
   const handleSessionStart = async () => {
     console.log('🚀 Starting session...');
@@ -516,6 +564,45 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
             </div>
             
             <div className="flex items-center space-x-2">
+              {/* Background Music Controls */}
+              {backgroundMusic && (
+                <div className="flex items-center space-x-2 mr-2">
+                  <button
+                    onClick={toggleBackgroundMusic}
+                    className="p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      backdropFilter: 'blur(40px) saturate(200%)',
+                      WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+                      borderColor: 'rgba(255, 255, 255, 0.4)',
+                      boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
+                      color: '#1e293b'
+                    }}
+                    title={isMusicPlaying ? 'Pause Music' : 'Play Music'}
+                  >
+                    {isMusicPlaying ? (
+                      <SpeakerWaveIcon className="w-6 h-6" />
+                    ) : (
+                      <SpeakerXMarkIcon className="w-6 h-6" />
+                    )}
+                  </button>
+                  {isMusicPlaying && (
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={musicVolume}
+                      onChange={handleVolumeChange}
+                      className="w-20"
+                      style={{
+                        accentColor: '#1e293b'
+                      }}
+                      title="Adjust volume"
+                    />
+                  )}
+                </div>
+              )}
               <button
                 onClick={completeSession}
                 disabled={isCompleting}
@@ -699,7 +786,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       </div>
 
       {/* Audio Player */}
-      <audio
+      <audio 
         ref={audioRef}
         onEnded={() => {
           setIsPlaying(false);
@@ -710,6 +797,18 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         }}
         className="hidden"
       />
+      
+      {/* Background music audio element */}
+      {backgroundMusic && (
+        <audio 
+          ref={backgroundMusicRef} 
+          src={backgroundMusic}
+          className="hidden"
+          onEnded={() => setIsMusicPlaying(false)}
+          onPlay={() => setIsMusicPlaying(true)}
+          onPause={() => setIsMusicPlaying(false)}
+        />
+      )}
     </div>
   );
 };

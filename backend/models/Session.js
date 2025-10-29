@@ -52,6 +52,18 @@ const sessionSchema = new mongoose.Schema({
       type: String, // 'Imagen 3' or other generator
       default: null
     },
+    backgroundMusic: {
+      type: String, // Base64 audio data or URL to generated music
+      default: null
+    },
+    musicPrompt: {
+      type: String, // The prompt used to generate the music
+      default: null
+    },
+    musicGeneratedWith: {
+      type: String, // 'Lyria' or other music generator
+      default: null
+    },
     greeting: {
       type: String,
       default: null
