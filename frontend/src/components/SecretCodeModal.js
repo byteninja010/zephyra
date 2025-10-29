@@ -54,22 +54,22 @@ const SecretCodeModal = () => {
           
           {/* Modal Content */}
           <div className="relative z-10 w-full max-w-md animate-fade-in">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-white/20">
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/20">
               {/* Modal Header */}
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>Important: Save Your Secret Code</h2>
-                <p className="text-sm" style={{ color: '#475569' }}>Please read this carefully before proceeding</p>
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2" style={{ color: '#1E252B' }}>Important: Save Your Secret Code</h2>
+                <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>Please read this carefully before proceeding</p>
               </div>
 
               {/* Warning Content */}
-              <div className="space-y-4 mb-8">
-                <div className="p-4 rounded-xl border" style={{ background: 'rgba(245, 158, 11, 0.05)', borderColor: '#F59E0B' }}>
-                  <div className="text-sm space-y-3" style={{ color: '#475569' }}>
+              <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+                <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl border" style={{ background: 'rgba(245, 158, 11, 0.05)', borderColor: '#F59E0B' }}>
+                  <div className="text-xs sm:text-sm space-y-2 sm:space-y-3" style={{ color: '#475569' }}>
                     <div className="flex items-start">
                       <span className="text-amber-600 mr-3 mt-0.5">•</span>
                       <p>This is the <strong>only way</strong> to access your account</p>
@@ -91,10 +91,10 @@ const SecretCodeModal = () => {
               </div>
 
               {/* Modal Actions */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                   onClick={() => navigate('/auth')}
-                  className="flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform active:scale-95"
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform active:scale-95"
                   style={{ 
                     background: 'rgba(107, 114, 128, 0.1)', 
                     color: '#475569',
@@ -105,7 +105,7 @@ const SecretCodeModal = () => {
                 </button>
                 <button
                   onClick={handleAcceptWarning}
-                  className="flex-1 px-6 py-3 text-white rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] transform active:scale-95"
+                  className="flex-1 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] transform active:scale-95"
                   style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
                 >
                   Get Secret Code 
@@ -126,42 +126,42 @@ const SecretCodeModal = () => {
       </div>
 
       {!showWarningModal && (
-        <div className="relative z-10 w-full max-w-lg mb-8">
+        <div className="relative z-10 w-full max-w-lg mb-4 sm:mb-8">
           {/* Back Button */}
           <button
             onClick={handleGoBack}
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-all duration-300 mb-8 mt-8 transform hover:scale-105 hover:-translate-x-1 group"
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-all duration-300 mb-4 sm:mb-8 mt-4 sm:mt-8 transform hover:scale-105 hover:-translate-x-1 group text-sm sm:text-base"
           >
-            <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Back to Auth
           </button>
 
           {/* Main Card */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
           {/* Header */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center space-x-3 mb-2">
+          <div className="text-center mb-6 sm:mb-8">
+            <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-2">
               <img 
                 src="/logo.png" 
                 alt="Zephyra Logo" 
-                className="w-16 h-14 object-contain"
+                className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
               />
-              <h1 className="text-3xl font-bold" style={{ color: '#1E252B' }}>Zephyra</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#1E252B' }}>Zephyra</h1>
             </div>
             
             {/* Success Icon */}
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg animate-bounce-in">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg animate-bounce-in">
+              <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             
-            <h2 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>
+            <h2 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2" style={{ color: '#1E252B' }}>
               {isNewUser ? 'Welcome to Zephyra!' : 'Account Ready!'}
             </h2>
-            <p className="text-sm font-medium" style={{ color: '#475569' }}>
+            <p className="text-xs sm:text-sm font-medium px-2" style={{ color: '#475569' }}>
               {isNewUser 
                 ? 'Your anonymous account has been created successfully' 
                 : 'Your account is ready to use'
@@ -170,40 +170,40 @@ const SecretCodeModal = () => {
           </div>
 
           {/* Secret Code Display */}
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <label className="block text-sm font-medium mb-3" style={{ color: '#1E252B' }}>
+              <label className="block text-xs sm:text-sm font-medium mb-2 sm:mb-3" style={{ color: '#1E252B' }}>
                 Your Secret Code
               </label>
               <div className="relative">
-                <div className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-6 font-mono text-3xl font-bold tracking-wider text-center select-all transform transition-all duration-300 hover:scale-[1.02] focus:scale-[1.02] focus:shadow-lg" style={{ color: '#1E252B' }}>
+                <div className="bg-gray-50 border-2 border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 font-mono text-2xl sm:text-3xl font-bold tracking-wider text-center select-all transform transition-all duration-300 hover:scale-[1.02] focus:scale-[1.02] focus:shadow-lg" style={{ color: '#1E252B' }}>
                   {secretCode}
                 </div>
                 <button
                   onClick={handleCopyCode}
-                  className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 transition-all duration-300 transform hover:scale-110"
+                  className="absolute top-1 right-1 sm:top-2 sm:right-2 p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 transition-all duration-300 transform hover:scale-110"
                 >
                   {copied ? (
-                    <svg className="w-5 h-5 text-green-500 animate-bounce-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 animate-bounce-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   )}
                 </button>
               </div>
               {copied && (
-                <p className="text-green-600 text-sm mt-2 font-medium animate-slide-up">Copied to clipboard!</p>
+                <p className="text-green-600 text-xs sm:text-sm mt-2 font-medium animate-slide-up">Copied to clipboard!</p>
               )}
             </div>
 
 
             {/* Instructions */}
-            <div className="p-4 rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
-              <h3 className="font-semibold mb-3" style={{ color: '#1E252B' }}>How to use your secret code:</h3>
-              <div className="text-sm space-y-2" style={{ color: '#475569' }}>
+            <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+              <h3 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3" style={{ color: '#1E252B' }}>How to use your secret code:</h3>
+              <div className="text-xs sm:text-sm space-y-2" style={{ color: '#475569' }}>
                 <div className="flex items-start">
                   <span className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>1</span>
                   <p>Save the code somewhere safe</p>
@@ -221,10 +221,10 @@ const SecretCodeModal = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 sm:mt-8">
             <button
               onClick={handleGoBack}
-              className="flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform active:scale-95"
+              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform active:scale-95"
               style={{ 
                 background: 'rgba(107, 114, 128, 0.1)', 
                 color: '#475569',
@@ -235,7 +235,7 @@ const SecretCodeModal = () => {
             </button>
             <button
               onClick={handleContinue}
-              className="flex-1 px-6 py-3 text-white rounded-xl font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] transform active:scale-95"
+              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] transform active:scale-95"
               style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
             >
               Continue to Dashboard
@@ -243,20 +243,20 @@ const SecretCodeModal = () => {
           </div>
 
           {/* Powered by Gemini */}
-          <div className="mt-8 flex items-center justify-center space-x-2 transform transition-all duration-300 hover:scale-105 group">
+          <div className="mt-6 sm:mt-8 flex items-center justify-center space-x-1 sm:space-x-2 transform transition-all duration-300 hover:scale-105 group">
             <div className="relative overflow-hidden rounded-lg">
               <img 
                 src="/Google_Gemini_logo.png" 
                 alt="Gemini AI" 
-                className="w-6 h-6 object-contain group-hover:animate-wiggle transition-transform duration-300"
+                className="w-5 h-5 sm:w-6 sm:h-6 object-contain group-hover:animate-wiggle transition-transform duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-shimmer"></div>
             </div>
-            <span className="text-sm font-medium group-hover:text-blue-600 transition-colors duration-300" style={{ color: '#475569' }}>Powered by Gemini – AI with care</span>
+            <span className="text-xs sm:text-sm font-medium group-hover:text-blue-600 transition-colors duration-300" style={{ color: '#475569' }}>Powered by Gemini – AI with care</span>
           </div>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
+          <div className="mt-4 sm:mt-6 text-center px-2">
             <p className="text-xs" style={{ color: '#94A3B8' }}>
               Your data is encrypted and stored securely. Only you can access it with your secret code.
             </p>

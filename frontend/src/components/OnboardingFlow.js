@@ -182,45 +182,45 @@ const OnboardingFlow = () => {
 
   const renderStep1 = () => (
     <div className="text-center space-y-6">
-      <div className="w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}>
-        <span className="text-3xl">🌱</span>
+      <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 rounded-full flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}>
+        <span className="text-2xl sm:text-3xl">🌱</span>
       </div>
       
-      <h1 className="text-3xl font-bold mb-4" style={{ color: '#1E252B' }}>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
         Welcome to Your Safe Space 💙
       </h1>
       
-      <div className="p-6 rounded-xl border mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
-        <p className="leading-relaxed" style={{ color: '#475569' }}>
+      <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl border mb-4 sm:mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+        <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#475569' }}>
           Before we begin, I'd love to get to know you a little better so I can personalize your experience and support you better. 
           <strong style={{ color: '#3C91C5' }}> Everything is completely optional and confidential</strong> - you can skip any question 
           you don't want to answer and stay completely anonymous. We only use this information to help you.
         </p>
       </div>
 
-      <div className="space-y-4 text-left">
-        <div className="flex items-start space-x-3">
-          <span className="text-green-500 text-xl">✓</span>
-          <p style={{ color: '#475569' }}>Your answers are completely confidential and secure</p>
+      <div className="space-y-3 sm:space-y-4 text-left">
+        <div className="flex items-start space-x-2 sm:space-x-3">
+          <span className="text-green-500 text-lg sm:text-xl flex-shrink-0">✓</span>
+          <p className="text-sm sm:text-base" style={{ color: '#475569' }}>Your answers are completely confidential and secure</p>
         </div>
         <div className="flex items-start space-x-3">
           <span className="text-green-500 text-xl">✓</span>
-          <p style={{ color: '#475569' }}>You can change your mind anytime</p>
+          <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>You can change your mind anytime</p>
         </div>
         <div className="flex items-start space-x-3">
           <span className="text-green-500 text-xl">✓</span>
-          <p style={{ color: '#475569' }}>Skip anything you're not comfortable with</p>
+          <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>Skip anything you're not comfortable with</p>
         </div>
         <div className="flex items-start space-x-3">
           <span className="text-green-500 text-xl">✓</span>
-          <p style={{ color: '#475569' }}>We only use this data to help you better</p>
+          <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>We only use this data to help you better</p>
         </div>
       </div>
 
-      <div className="flex space-x-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <button
           onClick={skipOnboarding}
-          className="px-6 py-3 transition-colors hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base transition-colors hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
           style={{ color: '#475569' }}
           disabled={isLoading}
         >
@@ -228,7 +228,7 @@ const OnboardingFlow = () => {
         </button>
         <button
           onClick={nextStep}
-          className="px-8 py-3 text-white rounded-lg hover:opacity-90"
+          className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg hover:opacity-90"
           style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
         >
           Let's get started
@@ -239,15 +239,15 @@ const OnboardingFlow = () => {
 
   const renderStep2 = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>Tell me about yourself 💙</h2>
-        <p style={{ color: '#475569' }}>These questions help me personalize your experience. Everything is optional and completely confidential.</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2 px-2" style={{ color: '#1E252B' }}>Tell me about yourself 💙</h2>
+        <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>These questions help me personalize your experience. Everything is optional and completely confidential.</p>
       </div>
 
       <div className="space-y-8">
         {/* Nickname */}
         <div>
-          <label className="block text-lg font-medium mb-3" style={{ color: '#1E252B' }}>
+          <label className="block text-base sm:text-lg font-medium mb-2 sm:mb-3" style={{ color: '#1E252B' }}>
             What should we call you? 💙
           </label>
           <p className="text-sm mb-3" style={{ color: '#475569' }}>If you'd like, we can call you by a name or nickname. You can also stay completely anonymous.</p>
@@ -256,18 +256,18 @@ const OnboardingFlow = () => {
             value={formData.nickname}
             onChange={(e) => handleInputChange('nickname', e.target.value)}
             placeholder="Enter a nickname or leave blank to stay anonymous"
-            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             style={{ borderColor: 'rgba(107, 114, 128, 0.3)' }}
           />
         </div>
 
         {/* Age Range */}
         <div>
-          <label className="block text-lg font-medium mb-3" style={{ color: '#1E252B' }}>
+          <label className="block text-base sm:text-lg font-medium mb-2 sm:mb-3" style={{ color: '#1E252B' }}>
             If you can tell us your age, we can help better 🌟
           </label>
           <p className="text-sm mb-3" style={{ color: '#475569' }}>This helps us suggest things that feel right for you. You can skip this if you prefer.</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             {['13-17', '18-25', '26-35', '36-50', '51+'].map((range) => (
               <button
                 key={range}
@@ -291,16 +291,16 @@ const OnboardingFlow = () => {
 
         {/* Current Mood */}
         <div>
-          <label className="block text-lg font-medium mb-3" style={{ color: '#1E252B' }}>
+          <label className="block text-base sm:text-lg font-medium mb-2 sm:mb-3" style={{ color: '#1E252B' }}>
             How are you feeling as you start here today? 💭
           </label>
           <p className="text-sm mb-3" style={{ color: '#475569' }}>We'd love to know how you're feeling right now. This helps us understand where you're starting from.</p>
-          <div className="grid grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
             {moodOptions.map((mood) => (
               <button
                 key={mood.value}
                 onClick={() => handleInputChange('mood', formData.mood === mood.value ? '' : mood.value)}
-                className={`p-4 rounded-lg border-2 hover:opacity-80 ${
+                className={`p-3 sm:p-4 rounded-lg border-2 hover:opacity-80 ${
                   formData.mood === mood.value
                     ? 'text-white'
                     : 'hover:border-gray-300'
@@ -326,7 +326,7 @@ const OnboardingFlow = () => {
                   }
                 }}
                 placeholder="Want to add a note about how you're feeling? (optional, max 50 characters)"
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 style={{ borderColor: 'rgba(107, 114, 128, 0.3)' }}
                 rows="3"
                 maxLength={50}
@@ -339,18 +339,18 @@ const OnboardingFlow = () => {
         </div>
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-4 sm:pt-6">
         <button
           onClick={prevStep}
-          className="px-6 py-3 transition-colors hover:opacity-80"
+          className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base transition-colors hover:opacity-80 order-2 sm:order-1"
           style={{ color: '#475569' }}
         >
           Back
         </button>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 order-1 sm:order-2">
           <button
             onClick={skipOnboarding}
-            className="px-6 py-3 transition-colors text-sm hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 sm:px-6 py-2 sm:py-3 transition-colors text-xs sm:text-sm hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
             style={{ color: '#475569' }}
             disabled={isLoading}
           >
@@ -358,7 +358,7 @@ const OnboardingFlow = () => {
           </button>
           <button
             onClick={nextStep}
-            className="px-8 py-3 text-white rounded-lg hover:opacity-90"
+            className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg hover:opacity-90"
             style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
           >
             Continue
@@ -370,9 +370,9 @@ const OnboardingFlow = () => {
 
   const renderStep3 = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>What brings you here? 🤗</h2>
-        <p style={{ color: '#475569' }}>Select all that apply - this helps me understand how to support you. Everything is completely confidential.</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2 px-2" style={{ color: '#1E252B' }}>What brings you here? 🤗</h2>
+        <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>Select all that apply - this helps me understand how to support you. Everything is completely confidential.</p>
       </div>
 
       <div className="space-y-8">
@@ -382,7 +382,7 @@ const OnboardingFlow = () => {
             What brings you here? For example, do you want a safe space to talk, ways to manage stress, or just gentle check-ins? 💭
           </label>
           <p className="text-sm mb-4" style={{ color: '#475569' }}>You can select multiple options or skip this entirely. We're here to help however you need.</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             {goalOptions.map((goal) => (
               <button
                 key={goal}
@@ -410,7 +410,7 @@ const OnboardingFlow = () => {
             When you're having a tough time, what usually helps you most? 🤝
           </label>
           <p className="text-sm mb-4" style={{ color: '#475569' }}>This helps us know how to support you when you need it most. You can skip this if you prefer.</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
             {supportOptions.map((support) => (
               <button
                 key={support}
@@ -433,18 +433,18 @@ const OnboardingFlow = () => {
         </div>
       </div>
 
-      <div className="flex justify-between pt-6">
+      <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4 pt-4 sm:pt-6">
         <button
           onClick={prevStep}
-          className="px-6 py-3 transition-colors hover:opacity-80"
+          className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base transition-colors hover:opacity-80 order-2 sm:order-1"
           style={{ color: '#475569' }}
         >
           Back
         </button>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 order-1 sm:order-2">
           <button
             onClick={skipOnboarding}
-            className="px-6 py-3 transition-colors text-sm hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-4 sm:px-6 py-2 sm:py-3 transition-colors text-xs sm:text-sm hover:opacity-80 cursor-pointer border border-gray-300 rounded-lg hover:bg-gray-50"
             style={{ color: '#475569' }}
             disabled={isLoading}
           >
@@ -452,7 +452,7 @@ const OnboardingFlow = () => {
           </button>
           <button
             onClick={nextStep}
-            className="px-8 py-3 text-white rounded-lg hover:opacity-90"
+            className="px-6 sm:px-8 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg hover:opacity-90"
             style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
           >
             Continue
@@ -464,9 +464,9 @@ const OnboardingFlow = () => {
 
   const renderStep4 = () => (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>Emergency Contact (Optional)</h2>
-        <p style={{ color: '#475569' }}>This is completely optional and will only be used in emergency situations with your explicit consent.</p>
+      <div className="text-center mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2 px-2" style={{ color: '#1E252B' }}>Emergency Contact (Optional)</h2>
+        <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>This is completely optional and will only be used in emergency situations with your explicit consent.</p>
       </div>
 
       <div className="space-y-6">
@@ -491,7 +491,7 @@ const OnboardingFlow = () => {
 
         {/* Emergency Contact Email */}
         <div>
-          <label className="block text-lg font-medium mb-3" style={{ color: '#1E252B' }}>
+          <label className="block text-base sm:text-lg font-medium mb-2 sm:mb-3" style={{ color: '#1E252B' }}>
             Emergency Contact Email (Optional) 📧
           </label>
           <p className="text-sm mb-4" style={{ color: '#475569' }}>
@@ -503,7 +503,7 @@ const OnboardingFlow = () => {
             value={formData.emergencyContactEmail}
             onChange={(e) => handleInputChange('emergencyContactEmail', e.target.value)}
             placeholder="Enter emergency contact email (optional)"
-            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             style={{ borderColor: 'rgba(107, 114, 128, 0.3)' }}
           />
         </div>
@@ -558,7 +558,7 @@ const OnboardingFlow = () => {
       </h1>
       
       <div className="p-6 rounded-xl border mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
-        <p style={{ color: '#475569' }}>
+        <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>
           Thank you for sharing a bit about yourself. Your personalized dashboard is ready, and I'll use this 
           information to provide you with the most helpful resources and support. Everything you've shared is completely confidential.
         </p>
@@ -574,7 +574,7 @@ const OnboardingFlow = () => {
       <button
         onClick={handleSubmit}
         disabled={isLoading}
-        className="px-8 py-4 text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
         style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
       >
         {isLoading ? 'Setting up your dashboard...' : 'Go to Dashboard'}
@@ -594,12 +594,12 @@ const OnboardingFlow = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-2xl">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20">
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20">
           {/* Progress Bar */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium" style={{ color: '#475569' }}>Step {currentStep} of 5</span>
-              <span className="text-sm font-medium" style={{ color: '#475569' }}>{Math.round((currentStep / 5) * 100)}%</span>
+              <span className="text-xs sm:text-sm font-medium" style={{ color: '#475569' }}>Step {currentStep} of 5</span>
+              <span className="text-xs sm:text-sm font-medium" style={{ color: '#475569' }}>{Math.round((currentStep / 5) * 100)}%</span>
             </div>
             <div className="w-full rounded-full h-2" style={{ background: 'rgba(107, 114, 128, 0.2)' }}>
               <div 

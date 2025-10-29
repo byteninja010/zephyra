@@ -23,7 +23,18 @@ const Forum = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all'); // 'all' or 'my-posts'
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const newPostRef = useRef(null);
+
+  // Track window size for responsive comment nesting
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Show notification (needs to be defined before use in other callbacks)
   const showNotification = useCallback((message, type = 'info') => {
@@ -308,15 +319,21 @@ const Forum = () => {
     const isAuthor = comment.firebaseUid === firebaseUid;
     const hasReplies = comment.replies && comment.replies.length > 0;
 
+    // Responsive padding: smaller on mobile, larger on desktop
+    // Cap depth at 5 to prevent excessive nesting on mobile
+    const effectiveDepth = Math.min(depth, 5);
+    const mobilePadding = effectiveDepth * 12; // 12px per level on mobile
+    const desktopPadding = effectiveDepth * 48; // 48px per level on desktop
+
     return (
       <div key={comment.commentId}>
         {/* Comment Container */}
-        <div className={`flex space-x-3 py-3 ${depth === 0 ? 'border-b' : ''}`} style={{ 
+        <div className={`flex space-x-2 sm:space-x-3 py-2 sm:py-3 ${depth === 0 ? 'border-b' : ''}`} style={{ 
           borderColor: '#f1f5f9',
-          paddingLeft: `${depth * 48}px`
+          paddingLeft: isMobile ? `${mobilePadding}px` : `${desktopPadding}px`
         }}>
           {/* Threading Line for nested comments */}
-          {depth > 0 && (
+          {depth > 0 && !isMobile && (
             <div 
               className="absolute w-0.5" 
               style={{ 
@@ -330,7 +347,7 @@ const Forum = () => {
           )}
           
           {/* Avatar - with solid background to cover threading lines */}
-          <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs relative" style={{ 
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs relative" style={{ 
             background: getAvatarGradient(comment.pseudonym),
             zIndex: 1
           }}>
@@ -338,12 +355,12 @@ const Forum = () => {
           </div>
           
           {/* Comment Content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 overflow-hidden">
             <div className="flex items-start justify-between mb-1">
-              <div className="flex items-center space-x-2 flex-1 min-w-0">
-                <p className="font-bold text-sm" style={{ color: '#0f172a' }}>{comment.pseudonym}</p>
-                <span style={{ color: '#cbd5e1' }}>·</span>
-                <p className="text-xs" style={{ color: '#64748b' }}>{formatTime(comment.createdAt)}</p>
+              <div className="flex items-center space-x-1 sm:space-x-2 flex-1 min-w-0">
+                <p className="font-bold text-xs sm:text-sm truncate" style={{ color: '#0f172a' }}>{comment.pseudonym}</p>
+                <span className="text-xs" style={{ color: '#cbd5e1' }}>·</span>
+                <p className="text-xs flex-shrink-0" style={{ color: '#64748b' }}>{formatTime(comment.createdAt)}</p>
               </div>
               
               {/* Delete button */}
@@ -353,19 +370,19 @@ const Forum = () => {
                   className="flex-shrink-0 p-1 rounded-full hover:bg-red-50 transition-colors group"
                   title="Delete comment"
                 >
-                  <svg className="w-4 h-4 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
               )}
             </div>
             
-            <p className="text-sm leading-relaxed whitespace-pre-wrap mb-2" style={{ color: '#0f172a' }}>{comment.content}</p>
+            <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap break-words mb-2" style={{ color: '#0f172a', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{comment.content}</p>
             
             {/* Reply button */}
             <button
               onClick={() => handleReplyToComment(postId, comment.commentId, comment.pseudonym)}
-              className="flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium transition-colors"
+              className="flex items-center space-x-1 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium transition-colors"
               style={{ color: '#64748b' }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#E8F4FD';
@@ -376,12 +393,12 @@ const Forum = () => {
                 e.currentTarget.style.color = '#64748b';
               }}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
               </svg>
-              <span>Reply</span>
+              <span className="hidden sm:inline">Reply</span>
               {hasReplies && (
-                <span className="px-1.5 py-0.5 rounded-full text-xs" style={{ backgroundColor: '#E8F4FD', color: '#3C91C5' }}>
+                <span className="px-1 sm:px-1.5 py-0.5 rounded-full text-xs" style={{ backgroundColor: '#E8F4FD', color: '#3C91C5' }}>
                   {comment.replies.length}
                 </span>
               )}
@@ -690,20 +707,20 @@ const Forum = () => {
       {/* Header - Twitter Style */}
       <div className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50" style={{ borderColor: '#e5e7eb' }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3">
             {/* Left: Logo & Back */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-blue-50 transition-colors"
+                className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full hover:bg-blue-50 transition-colors"
                 style={{ color: '#3C91C5' }}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
               </button>
                 <div className="flex items-center space-x-2">
-                  <h1 className="text-xl font-bold" style={{ color: '#1e293b' }}>Support Forum</h1>
+                  <h1 className="text-base sm:text-lg md:text-xl font-bold" style={{ color: '#1e293b' }}>Support Forum</h1>
                   <div className="relative mt-1">
                     <div
                       onMouseEnter={() => setShowInfoTooltip(true)}
@@ -755,14 +772,14 @@ const Forum = () => {
       )}
 
       {/* Main Container - Twitter Layout */}
-      <div className="relative z-10 max-w-6xl mx-auto flex gap-6 pt-6 px-4 pb-20">
+      <div className="relative z-10 max-w-6xl mx-auto flex gap-4 sm:gap-6 pt-4 sm:pt-6 px-2 sm:px-4 pb-20">
         {/* Main Feed Column */}
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Compose Post Card - Twitter Style */}
-          <div ref={newPostRef} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
-            <div className="p-4">
-              <div className="flex space-x-3">
-                <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold" style={{ background: getAvatarGradient(pseudonym) }}>
+          <div ref={newPostRef} className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm mb-3 sm:mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
+            <div className="p-3 sm:p-4">
+              <div className="flex space-x-2 sm:space-x-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm sm:text-base" style={{ background: getAvatarGradient(pseudonym) }}>
                   {pseudonym?.[0] || '?'}
                 </div>
                 <div className="flex-1">
@@ -770,8 +787,8 @@ const Forum = () => {
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
                     placeholder="What's on your mind?"
-                    className="w-full text-lg border-0 focus:outline-none resize-none placeholder-gray-400"
-                    style={{ color: '#1e293b', minHeight: '60px' }}
+                    className="w-full text-sm sm:text-base md:text-lg border-0 focus:outline-none resize-none placeholder-gray-400"
+                    style={{ color: '#1e293b', minHeight: '50px' }}
                     maxLength={2000}
                     disabled={submittingPost}
                   />
@@ -895,19 +912,19 @@ const Forum = () => {
               </div>
             ) : (
               filteredPosts.map((post) => (
-                <div key={post.postId} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm border border-white/40 transition-all hover:shadow-md" style={{ borderColor: '#e5e7eb' }}>
-                  <div className="p-5">
+                <div key={post.postId} className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40 transition-all hover:shadow-md" style={{ borderColor: '#e5e7eb' }}>
+                  <div className="p-3 sm:p-4 md:p-5">
                     {/* Post Header */}
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-start space-x-3 flex-1">
-                        <div className="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm" style={{ background: getAvatarGradient(post.pseudonym) }}>
+                    <div className="flex items-start justify-between mb-2 sm:mb-3">
+                      <div className="flex items-start space-x-2 sm:space-x-3 flex-1">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs sm:text-sm" style={{ background: getAvatarGradient(post.pseudonym) }}>
                           {post.pseudonym?.[0] || '?'}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <p className="font-bold text-base" style={{ color: '#0f172a' }}>{post.pseudonym}</p>
-                            <span style={{ color: '#cbd5e1' }}>·</span>
-                            <p className="text-sm" style={{ color: '#64748b' }}>{formatTime(post.createdAt)}</p>
+                          <div className="flex items-center space-x-1 sm:space-x-2">
+                            <p className="font-bold text-sm sm:text-base" style={{ color: '#0f172a' }}>{post.pseudonym}</p>
+                            <span className="hidden sm:inline" style={{ color: '#cbd5e1' }}>·</span>
+                            <p className="text-xs sm:text-sm" style={{ color: '#64748b' }}>{formatTime(post.createdAt)}</p>
                           </div>
                         </div>
                       </div>
@@ -927,23 +944,23 @@ const Forum = () => {
                     </div>
 
                     {/* Post Content */}
-                    <div className="mb-4 ml-15">
-                      <p className="text-base leading-relaxed whitespace-pre-wrap" style={{ color: '#0f172a' }}>{post.content}</p>
+                    <div className="mb-3 sm:mb-4 ml-0 sm:ml-15">
+                      <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap break-words" style={{ color: '#0f172a' }}>{post.content}</p>
                     </div>
 
                     {/* Post Actions */}
-                    <div className="flex items-center space-x-1 ml-15 pt-3 border-t" style={{ borderColor: '#f1f5f9' }}>
+                    <div className="flex items-center space-x-1 ml-0 sm:ml-15 pt-2 sm:pt-3 border-t" style={{ borderColor: '#f1f5f9' }}>
                       <button
                         onClick={() => togglePost(post.postId)}
-                        className="flex items-center space-x-2 px-3 py-2 rounded-full transition-colors group"
+                        className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full transition-colors group"
                         style={{ color: expandedPostId === post.postId ? '#3C91C5' : '#64748b' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E8F4FD'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        <span className="text-sm font-medium">{post.commentCount || 0}</span>
+                        <span className="text-xs sm:text-sm font-medium">{post.commentCount || 0}</span>
                       </button>
                     </div>
 
@@ -951,7 +968,7 @@ const Forum = () => {
                     {expandedPostId === post.postId && (
                       <div className="mt-4 pt-4 border-t space-y-4" style={{ borderColor: '#f1f5f9' }}>
                         {/* Comment Input */}
-                        <div className="flex space-x-3 ml-15">
+                        <div className="flex space-x-2 sm:space-x-3 ml-0 sm:ml-12 md:ml-15">
                           <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs" style={{ background: getAvatarGradient(pseudonym) }}>
                             {pseudonym?.[0] || '?'}
                           </div>
@@ -1006,7 +1023,7 @@ const Forum = () => {
                         </div>
 
                         {/* Comments List - Hierarchical/Threaded */}
-                        <div className="ml-15">
+                        <div className="ml-0 sm:ml-12 md:ml-15">
                           {post.comments && post.comments.length > 0 ? (
                             <div className="space-y-0">
                               {organizeCommentsHierarchy(post.comments).map((comment) => 

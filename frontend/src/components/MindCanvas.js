@@ -232,35 +232,35 @@ const MindCanvas = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="px-8 py-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
+        <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
           <div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
               Mind Canvas
             </h2>
-            <p className="text-gray-600 mt-1 text-sm">
+            <p className="text-gray-600 mt-1 text-xs sm:text-sm hidden sm:block">
               No words. Just colors — and AI feels what you draw.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0 ml-2"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-h-[600px]">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
             {/* Drawing Area */}
-            <div className="flex flex-col space-y-4 h-full">
+            <div className="flex flex-col space-y-3 sm:space-y-4 h-full">
               {/* Instructions Banner */}
-              <div className={`border rounded-lg p-3 text-sm ${
+              <div className={`border rounded-lg p-2 sm:p-3 text-xs sm:text-sm ${
                 isEraser 
                   ? 'bg-pink-50 border-pink-200 text-pink-800'
                   : 'bg-blue-50 border-blue-200 text-blue-800'
@@ -271,7 +271,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
                 }
               </div>
               
-              <div className="flex-1 min-h-[400px] relative bg-white rounded-2xl shadow-lg overflow-hidden border-4 border-blue-200">
+              <div className="flex-1 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] relative bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 sm:border-4 border-blue-200">
                 <canvas
                   ref={canvasRef}
                   className={`absolute inset-0 w-full h-full ${isEraser ? 'cursor-not-allowed' : 'cursor-crosshair'}`}
@@ -293,12 +293,12 @@ const MindCanvas = ({ isOpen, onClose }) => {
               </div>
 
               {/* Drawing Controls */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {/* Drawing Mode Toggle */}
                 <div className="flex gap-2">
                   <button
                     onClick={() => setIsEraser(false)}
-                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-2 ${
+                    className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
                       !isEraser
                         ? 'text-white shadow-lg scale-105'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -307,20 +307,20 @@ const MindCanvas = ({ isOpen, onClose }) => {
                       background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
                     } : {}}
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                     Draw
                   </button>
                   <button
                     onClick={() => setIsEraser(true)}
-                    className={`flex-1 px-4 py-3 rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-2 ${
+                    className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
                       isEraser
                         ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg scale-105'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                     Erase
@@ -330,15 +330,15 @@ const MindCanvas = ({ isOpen, onClose }) => {
                 {/* Color Palette - Only show when not erasing */}
                 {!isEraser && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Choose Your Colors
                     </label>
-                    <div className="grid grid-cols-6 gap-2.5">
+                    <div className="grid grid-cols-6 gap-1.5 sm:gap-2 md:gap-2.5">
                       {colorPalette.map((colorObj) => (
                         <button
                           key={colorObj.color}
                           onClick={() => setBrushColor(colorObj.color)}
-                          className={`w-full aspect-square rounded-md transition-all ${
+                          className={`w-full aspect-square rounded-sm sm:rounded-md transition-all ${
                             brushColor === colorObj.color
                               ? 'ring-2 ring-blue-500'
                               : 'hover:ring-2 hover:ring-gray-300'

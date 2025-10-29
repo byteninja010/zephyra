@@ -126,16 +126,16 @@ const ReflectionChart = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold" style={{ color: '#1E252B' }}>
+      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>
             Reflection Chart
           </h2>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="flex bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('write')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
                   viewMode === 'write'
                     ? 'text-white'
                     : 'text-gray-600 hover:text-gray-800'
@@ -150,7 +150,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
               </button>
               <button
                 onClick={() => setViewMode('view')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                className={`px-2 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium transition-all ${
                   viewMode === 'view'
                     ? 'text-white'
                     : 'text-gray-600 hover:text-gray-800'
@@ -168,7 +168,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 transition-colors"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -176,33 +176,33 @@ const ReflectionChart = ({ isOpen, onClose }) => {
         </div>
 
         {viewMode === 'write' ? (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Writing Form */}
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>
+                <label className="block text-xs sm:text-sm font-medium mb-2" style={{ color: '#475569' }}>
                   What are you reflecting on today?
                 </label>
                 <textarea
                   value={currentReflection}
                   onChange={(e) => setCurrentReflection(e.target.value)}
                   placeholder="Write about something positive, a lesson learned, or a moment of gratitude..."
-                  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   rows={4}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>
+                  <label className="block text-xs sm:text-sm font-medium mb-2" style={{ color: '#475569' }}>
                     How does this make you feel?
                   </label>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {moodOptions.map((mood) => (
                       <button
                         key={mood.value}
                         onClick={() => setSelectedMood(mood.value)}
-                        className={`p-3 rounded-lg text-sm font-medium transition-all ${
+                        className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                           selectedMood === mood.value
                             ? 'text-white'
                             : 'text-gray-700 hover:bg-gray-100'
@@ -213,21 +213,21 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                             : 'rgba(229, 231, 235, 0.5)'
                         }}
                       >
-                        <div className="text-lg mb-1">{mood.emoji}</div>
-                        <div>{mood.label}</div>
+                        <div className="text-base sm:text-lg mb-1">{mood.emoji}</div>
+                        <div className="text-xs sm:text-sm">{mood.label}</div>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#475569' }}>
+                  <label className="block text-xs sm:text-sm font-medium mb-2" style={{ color: '#475569' }}>
                     Category
                   </label>
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select a category</option>
                     {categories.map((category) => (
@@ -241,7 +241,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
 
               <button
                 onClick={saveReflection}
-                className="w-full px-6 py-3 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg"
+                className="w-full px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base text-white font-medium transition-all duration-300 hover:shadow-lg"
                 style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
               >
                 Save Reflection
@@ -249,73 +249,73 @@ const ReflectionChart = ({ isOpen, onClose }) => {
             </div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* View Mode */}
             {reflections.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
-                  <svg className="w-8 h-8" fill="none" stroke="#3C91C5" viewBox="0 0 24 24">
+              <div className="text-center py-8 sm:py-12">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="#3C91C5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium mb-2" style={{ color: '#1E252B' }}>No reflections yet</h3>
-                <p className="text-sm" style={{ color: '#475569' }}>Start writing to see your reflections here</p>
+                <h3 className="text-base sm:text-lg font-medium mb-2" style={{ color: '#1E252B' }}>No reflections yet</h3>
+                <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>Start writing to see your reflections here</p>
               </div>
             ) : (
               <>
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
-                    <div className="text-2xl font-bold" style={{ color: '#3C91C5' }}>
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+                    <div className="text-xl sm:text-2xl font-bold" style={{ color: '#3C91C5' }}>
                       {reflections.length}
                     </div>
-                    <div className="text-sm" style={{ color: '#475569' }}>Total Reflections</div>
+                    <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Total Reflections</div>
                   </div>
-                  <div className="p-4 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
-                    <div className="text-2xl font-bold" style={{ color: '#10B981' }}>
+                  <div className="p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                    <div className="text-xl sm:text-2xl font-bold" style={{ color: '#10B981' }}>
                       {new Set(reflections.map(r => r.category)).size}
                     </div>
-                    <div className="text-sm" style={{ color: '#475569' }}>Categories</div>
+                    <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Categories</div>
                   </div>
-                  <div className="p-4 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
-                    <div className="text-2xl font-bold" style={{ color: '#F59E0B' }}>
+                  <div className="p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+                    <div className="text-xl sm:text-2xl font-bold" style={{ color: '#F59E0B' }}>
                       {new Set(reflections.map(r => r.mood)).size}
                     </div>
-                    <div className="text-sm" style={{ color: '#475569' }}>Moods</div>
+                    <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Moods</div>
                   </div>
                 </div>
 
                 {/* Reflections List */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {reflections.map((reflection, index) => {
                     const moodData = getMoodData(reflection.mood);
                     return (
                       <div
                         key={reflection.id || reflection._id || index}
-                        className="p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
+                        className="p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <div className="flex items-center space-x-3">
-                            <span className="text-2xl">{moodData.emoji}</span>
+                          <div className="flex items-center space-x-2 sm:space-x-3">
+                            <span className="text-xl sm:text-2xl">{moodData.emoji}</span>
                             <div>
-                              <div className="font-medium" style={{ color: '#1E252B' }}>
+                              <div className="text-sm sm:text-base font-medium" style={{ color: '#1E252B' }}>
                                 {moodData.label}
                               </div>
-                              <div className="text-sm" style={{ color: '#475569' }}>
+                              <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>
                                 {reflection.category} • {reflection.timestamp}
                               </div>
                             </div>
                           </div>
                           <button
                             onClick={() => deleteReflection(reflection.id)}
-                            className="text-gray-400 hover:text-red-500 transition-colors"
+                            className="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
                         </div>
-                        <p className="text-sm" style={{ color: '#475569' }}>
+                        <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>
                           {reflection.text}
                         </p>
                       </div>

@@ -316,26 +316,26 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
     switch (currentStep) {
       case 'greeting':
         return (
-          <div className="text-center space-y-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
-              <span className="text-4xl">🌱</span>
+          <div className="text-center space-y-4 sm:space-y-6">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
+              <span className="text-2xl sm:text-3xl md:text-4xl">🌱</span>
             </div>
             <div>
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
                 Welcome to Your Session
               </h3>
-              <p className="text-lg" style={{ color: '#475569' }}>
+              <p className="text-sm sm:text-base md:text-lg px-2" style={{ color: '#475569' }}>
                 {session?.greeting || "I'm here to support you today. Let's begin with a gentle check-in."}
               </p>
             </div>
             <button
               onClick={handleNextStep}
-              className="px-8 py-4 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
             >
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center justify-center space-x-2">
                 <span>Let's Begin</span>
-                <ArrowRightIcon className="w-5 h-5" />
+                <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
             </button>
           </div>
@@ -343,24 +343,24 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
       case 'moodCheckIn':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
                 How are you feeling right now?
               </h3>
-              <p className="text-lg" style={{ color: '#475569' }}>
+              <p className="text-sm sm:text-base md:text-lg px-2" style={{ color: '#475569' }}>
                 Take a moment to check in with yourself
               </p>
             </div>
             
             <div className="space-y-4">
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-5 gap-2 sm:gap-3">
                 {['😢', '😔', '😐', '😊', '😄'].map((emoji, index) => (
                   <button
                     key={index}
                     onClick={() => setMood(emoji)}
-                    className={`p-4 rounded-xl text-3xl transition-all ${
-                      mood === emoji ? 'ring-4 ring-blue-500 bg-blue-50' : 'hover:bg-gray-100'
+                    className={`p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl text-2xl sm:text-3xl transition-all ${
+                      mood === emoji ? 'ring-2 sm:ring-4 ring-blue-500 bg-blue-50' : 'hover:bg-gray-100'
                     }`}
                   >
                     {emoji}
@@ -376,7 +376,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
                   value={moodNote}
                   onChange={(e) => setMoodNote(e.target.value)}
                   placeholder="Share what's on your mind..."
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   rows={3}
                 />
               </div>
@@ -384,7 +384,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
               <button
                 onClick={handleMoodSubmit}
                 disabled={!mood || isLoading}
-                className="w-full px-6 py-4 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
               >
                 {isLoading ? 'Processing...' : 'Continue'}
@@ -395,31 +395,31 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
       case 'exploration':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
                 Let's talk about what's on your mind
               </h3>
-              <p className="text-lg" style={{ color: '#475569' }}>
+              <p className="text-sm sm:text-base md:text-lg px-2" style={{ color: '#475569' }}>
                 Share whatever feels right to you
               </p>
             </div>
             
             <div className="space-y-4">
-              <div className="max-h-96 overflow-y-auto space-y-4">
+              <div className="max-h-96 overflow-y-auto space-y-3 sm:space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-xs px-4 py-3 rounded-2xl ${
+                      className={`max-w-[85%] sm:max-w-xs px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl ${
                         message.sender === 'user'
                           ? 'bg-blue-500 text-white'
                           : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      <p className="text-sm">{message.text}</p>
+                      <p className="text-xs sm:text-sm break-words">{message.text}</p>
                       {message.audioUrl && (
                         <button
                           onClick={() => toggleAudioPlayback(message.audioUrl)}
@@ -437,7 +437,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
                 ))}
                 {isLoading && (
                   <div className="flex justify-start">
-                    <div className="bg-gray-100 px-4 py-3 rounded-2xl">
+                    <div className="bg-gray-100 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl">
                       <div className="flex space-x-1">
                         <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
                         <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -449,19 +449,19 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
                 <div ref={messagesEndRef} />
               </div>
               
-              <div className="flex space-x-3">
+              <div className="flex space-x-2 sm:space-x-3">
                 <input
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   placeholder="Share your thoughts..."
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={!inputMessage.trim() || isLoading}
-                  className="px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
                 >
                   Send
@@ -471,18 +471,18 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
               <div className="flex justify-between">
                 <button
                   onClick={handlePrevStep}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 text-gray-600 hover:text-gray-800 transition-colors"
                 >
-                  <ArrowLeftIcon className="w-5 h-5" />
+                  <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
                 <button
                   onClick={handleNextStep}
-                  className="px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300"
+                  className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300"
                   style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
                 >
                   <div className="flex items-center space-x-2">
                     <span>Continue</span>
-                    <ArrowRightIcon className="w-5 h-5" />
+                    <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
                 </button>
               </div>
@@ -492,12 +492,12 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
       case 'copingTool':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
                 Let's try a coping exercise
               </h3>
-              <p className="text-lg" style={{ color: '#475569' }}>
+              <p className="text-sm sm:text-base md:text-lg px-2" style={{ color: '#475569' }}>
                 I'll suggest a technique that might help you feel better
               </p>
             </div>
@@ -506,7 +506,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
               <button
                 onClick={generateCopingTool}
                 disabled={isLoading}
-                className="px-8 py-4 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
               >
                 {isLoading ? 'Generating...' : 'Get Coping Exercise'}
@@ -516,18 +516,18 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
             <div className="flex justify-between">
               <button
                 onClick={handlePrevStep}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5" />
+                <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={handleNextStep}
-                className="px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300"
+                className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300"
                 style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
               >
                 <div className="flex items-center space-x-2">
                   <span>Continue</span>
-                  <ArrowRightIcon className="w-5 h-5" />
+                  <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </button>
             </div>
@@ -536,12 +536,12 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
       case 'reflection':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
                 Let's reflect on our session
               </h3>
-              <p className="text-lg" style={{ color: '#475569' }}>
+              <p className="text-sm sm:text-base md:text-lg px-2" style={{ color: '#475569' }}>
                 I'll help you process what we've discussed
               </p>
             </div>
@@ -550,7 +550,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
               <button
                 onClick={generateReflection}
                 disabled={isLoading}
-                className="px-8 py-4 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
               >
                 {isLoading ? 'Generating...' : 'Generate Reflection'}
@@ -560,18 +560,18 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
             <div className="flex justify-between">
               <button
                 onClick={handlePrevStep}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 text-gray-600 hover:text-gray-800 transition-colors"
               >
-                <ArrowLeftIcon className="w-5 h-5" />
+                <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={handleNextStep}
-                className="px-6 py-3 text-white rounded-xl hover:shadow-xl transition-all duration-300"
+                className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300"
                 style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
               >
                 <div className="flex items-center space-x-2">
                   <span>Continue</span>
-                  <ArrowRightIcon className="w-5 h-5" />
+                  <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
               </button>
             </div>
@@ -580,12 +580,12 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
       case 'closure':
         return (
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2" style={{ color: '#1E252B' }}>
                 Session Complete
               </h3>
-              <p className="text-lg" style={{ color: '#475569' }}>
+              <p className="text-sm sm:text-base md:text-lg px-2" style={{ color: '#475569' }}>
                 Thank you for taking the time for this session
               </p>
             </div>
@@ -594,7 +594,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
               <button
                 onClick={completeSession}
                 disabled={isLoading}
-                className="px-8 py-4 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
               >
                 {isLoading ? 'Completing...' : 'Complete Session'}
@@ -610,11 +610,11 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
   if (!session) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-8">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-lg">Making Your Session Personalized...</p>
+            <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-base sm:text-lg">Making Your Session Personalized...</p>
           </div>
         </div>
       </div>
@@ -631,17 +631,17 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
       }}
     >
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-white/20 p-4">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-white/20 p-3 sm:p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h2 className="text-xl font-bold" style={{ color: '#1E252B' }}>
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <h2 className="text-base sm:text-lg md:text-xl font-bold" style={{ color: '#1E252B' }}>
               {getStepTitle(currentStep)}
             </h2>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               {sessionSteps.map((step, index) => (
                 <div
                   key={step}
-                  className={`w-3 h-3 rounded-full ${
+                  className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${
                     sessionSteps.indexOf(currentStep) >= index
                       ? 'bg-blue-500'
                       : 'bg-gray-300'
@@ -651,31 +651,31 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <button
               onClick={() => setShowBackground(!showBackground)}
-              className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg hover:bg-white/50 transition-colors"
               title={showBackground ? 'Hide background' : 'Show background'}
             >
               {showBackground ? (
-                <EyeSlashIcon className="w-5 h-5" style={{ color: '#475569' }} />
+                <EyeSlashIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#475569' }} />
               ) : (
-                <EyeIcon className="w-5 h-5" style={{ color: '#475569' }} />
+                <EyeIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#475569' }} />
               )}
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg hover:bg-white/50 transition-colors"
             >
-              <XMarkIcon className="w-5 h-5" style={{ color: '#475569' }} />
+              <XMarkIcon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: '#475569' }} />
             </button>
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center p-3 sm:p-6 md:p-8">
+        <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
           {renderStepContent()}
         </div>
       </div>

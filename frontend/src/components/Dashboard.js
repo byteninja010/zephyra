@@ -283,21 +283,21 @@ const Dashboard = () => {
 
       {/* Header */}
       <header className="relative z-10 bg-white/80 backdrop-blur-sm border-b border-white/20">
-        <div className="max-w-8xl px-0.5 sm:px-8 lg:px-10">
+        <div className="max-w-8xl px-2 sm:px-4 md:px-8 lg:px-10">
           <div className="flex justify-between items-center py-2">
             <div className="flex items-center space-x-1">
               <img
                 src="/logo.png"
                 alt="Zephyra Logo"
-                className="w-16 h-14 object-contain"
+                className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
               />
-              <h1 className="text-2xl font-bold" style={{ color: "#1E252B" }}>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold" style={{ color: "#1E252B" }}>
                 Zephyra
               </h1>
             </div>
-            <div className="flex items-center space-x-5 mr-4">
-              <div className="text-right">
-                <p className="text-sm font-medium" style={{ color: "#1E252B" }}>
+            <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-5 mr-2 sm:mr-4">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs sm:text-sm font-medium" style={{ color: "#1E252B" }}>
                   {user.nickname ? `Hello, ${user.nickname}` : "Welcome back"}
                 </p>
                 <p className="text-xs" style={{ color: "#475569" }}>
@@ -306,7 +306,7 @@ const Dashboard = () => {
               </div>
               <button
                 onClick={handleSignOut}
-                className="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-lg"
+                className="px-3 sm:px-4 md:px-5 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
                 style={{
                   background:
                     "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
@@ -321,34 +321,34 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
         {/* Welcome Section */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           {/* Personalized Quote */}
-          <div className="mt-8 max-w-4xl mx-auto">
+          <div className="mt-4 sm:mt-8 max-w-4xl mx-auto">
             {quoteLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <div
-                  className="w-4 h-4 rounded-full animate-pulse"
+                  className="w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-pulse"
                   style={{ background: "#3C91C5" }}
                 ></div>
                 <div
-                  className="w-4 h-4 rounded-full animate-pulse"
+                  className="w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-pulse"
                   style={{ background: "#5A7D95" }}
                 ></div>
                 <div
-                  className="w-4 h-4 rounded-full animate-pulse"
+                  className="w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-pulse"
                   style={{ background: "#3C91C5" }}
                 ></div>
               </div>
             ) : (
               <div
-                className="p-6 rounded-2xl backdrop-blur-sm border border-white/40"
+                className="p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40"
                 style={{ background: "rgba(255, 255, 255, 0.8)" }}
               >
-                <div className="flex items-center justify-center mb-4">
+                <div className="flex items-center justify-center mb-3 sm:mb-4">
                   <svg
-                    className="w-6 h-6 mr-2"
+                    className="w-5 h-5 sm:w-6 sm:h-6 mr-2"
                     fill="none"
                     stroke="#3C91C5"
                     viewBox="0 0 24 24"
@@ -361,14 +361,14 @@ const Dashboard = () => {
                     />
                   </svg>
                   <span
-                    className="text-sm font-medium"
+                    className="text-xs sm:text-sm font-medium"
                     style={{ color: "#3C91C5" }}
                   >
                     Thought of the Day
                   </span>
                 </div>
                 <p
-                  className="text-lg md:text-xl font-medium leading-relaxed"
+                  className="text-sm sm:text-base md:text-lg lg:text-xl font-medium leading-relaxed"
                   style={{ color: "#1E252B" }}
                 >
                   "{personalizedQuote}"
@@ -379,21 +379,21 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* AI Companion */}
           <div
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -407,20 +407,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               AI Companion
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
               Your supportive AI friend, always here to listen
             </p>
             <button
               onClick={() => navigate("/chat")}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -432,17 +432,17 @@ const Dashboard = () => {
 
           {/* Sessions */}
           <div
-            className=" group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="white"
                 viewBox="0 0 24 24"
@@ -456,20 +456,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               Sessions
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
               Schedule and manage your wellness sessions
             </p>
             <button
               onClick={() => navigate("/sessions")}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -491,22 +491,22 @@ const Dashboard = () => {
           >
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
-                ✨ NEW FEATURE
+              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+                ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
               </span>
-              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
               ✨ MODERATED BY GEMINI
               </span>
             </div>
             
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="white"
                 viewBox="0 0 24 24"
@@ -520,20 +520,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               AI-Moderated Forum
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
               Safe anonymous community with AI content moderation
             </p>
             <button
               onClick={() => navigate("/forum")}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -555,22 +555,22 @@ const Dashboard = () => {
           >
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
-                ✨ NEW FEATURE
+              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+                ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
               </span>
-              <span className="inline-block px-3 py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
               ✨ POWERED BY VISION AI
               </span>
             </div>
             
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
               }}
             >
               <svg
-                className="w-8 h-8 text-white"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -584,20 +584,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               Mind Canvas
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
               Draw your emotions, AI understands
             </p>
             <button
               onClick={() => setShowMindCanvas(true)}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -611,7 +611,7 @@ const Dashboard = () => {
 
 
          {/* Wellness Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
           {/* Mood Graph */}
           <div className="lg:col-span-1">
             <MoodGraph moodHistory={moodHistory} />
@@ -619,13 +619,13 @@ const Dashboard = () => {
 
           {/* Scheduled Sessions */}
           <div
-            className="p-8 rounded-2xl backdrop-blur-sm border border-white/40"
+            className="p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center">
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mr-4"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mr-2 sm:mr-4"
                   style={{
                     background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                   }}
@@ -645,7 +645,7 @@ const Dashboard = () => {
                   </svg>
                 </div>
                 <h3
-                  className="text-2xl font-semibold"
+                  className="text-lg sm:text-xl md:text-2xl font-semibold"
                   style={{ color: "#1E252B" }}
                 >
                   Scheduled Sessions
@@ -653,7 +653,7 @@ const Dashboard = () => {
               </div>
               <button
                 onClick={() => navigate("/sessions")}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-lg"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
                 style={{
                   background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                   color: "white",
@@ -668,12 +668,12 @@ const Dashboard = () => {
                 {scheduledSessions.slice(0, 4).map((session, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300"
+                    className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300"
                     style={{ background: "rgba(60, 145, 197, 0.05)" }}
                   >
-                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
                       <div
-                        className="w-3 h-3 rounded-full"
+                        className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
                         style={{
                           background: session.status === 'active' 
                             ? "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)"
@@ -716,7 +716,7 @@ const Dashboard = () => {
                   }}
                 >
                   <svg
-                    className="w-8 h-8"
+                    className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                     fill="none"
                     stroke="#3C91C5"
                     viewBox="0 0 24 24"
@@ -750,20 +750,20 @@ const Dashboard = () => {
         </div>
 
         {/* Additional Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-12">
           {/* Mood Check-in */}
           <div
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%)",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="#E65100"
                 viewBox="0 0 24 24"
@@ -777,7 +777,7 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-1 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               Mood Check-in
@@ -819,7 +819,7 @@ const Dashboard = () => {
             )}
             <button
               onClick={handleMoodCheckIn}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -833,17 +833,17 @@ const Dashboard = () => {
 
           {/* Breathing Exercise */}
           <div
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="#00695C"
                 viewBox="0 0 24 24"
@@ -857,20 +857,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               Breathing Exercise
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Guided breathing for calm
+              Guided breathing for calm & relaxation
             </p>
             <button
               onClick={() => setShowBreathingExercise(true)}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -882,17 +882,17 @@ const Dashboard = () => {
 
           {/* Chat with AI */}
           <div
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 100%)",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="#2E7D32"
                 viewBox="0 0 24 24"
@@ -906,20 +906,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               Reflection Chart
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
               Track your thoughts & growth
             </p>
             <button
               onClick={() => setShowReflectionChart(true)}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -931,17 +931,17 @@ const Dashboard = () => {
 
           {/* Streak Tracker */}
           <div
-            className="group p-6 rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4 mx-auto"
+              className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto"
               style={{
                 background: "linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)",
               }}
             >
               <svg
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
                 fill="none"
                 stroke="#F57C00"
                 viewBox="0 0 24 24"
@@ -955,20 +955,20 @@ const Dashboard = () => {
               </svg>
             </div>
             <h3
-              className="text-xl font-semibold mb-3 text-center"
+              className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
               Streak Tracker
             </h3>
             <p
-              className="text-sm font-light text-center mb-4"
+              className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Build healthy habits
+              Build healthy habits & Streaks
             </p>
             <button
               onClick={() => setShowStreakTracker(true)}
-              className="w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+              className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                 color: "white",
@@ -1017,7 +1017,7 @@ const Dashboard = () => {
 
       {/* Support Forum Toast Notification - Fixed Top Center */}
       {showSupportForumToast && (
-        <div className="fixed top-8 left-[41.5%] -translate-x-1/2 z-40 animate-bounce">
+        <div className="hidden lg:block fixed top-8 left-[41.5%] -translate-x-1/2 z-40 animate-bounce">
           <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
             style={{
               background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
@@ -1059,7 +1059,7 @@ const Dashboard = () => {
 
       {/* Mind Canvas Toast Notification - Fixed Top Center */}
       {showMindCanvasToast && (
-        <div className="fixed top-20 left-[42%] -translate-x-1/2 z-40 animate-bounce">
+        <div className="hidden lg:block fixed top-20 left-[42%] -translate-x-1/2 z-40 animate-bounce">
           <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
             style={{
               background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",

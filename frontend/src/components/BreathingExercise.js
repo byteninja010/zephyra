@@ -111,25 +111,25 @@ const BreathingExercise = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
-        <div className="overflow-y-auto max-h-[90vh] p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold" style={{ color: '#1E252B' }}>
+      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
+        <div className="overflow-y-auto max-h-[90vh] p-4 sm:p-6 md:p-8">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>
             Breathing Exercise
           </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Pattern Selection */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-3" style={{ color: '#475569' }}>
+        <div className="mb-4 sm:mb-6">
+          <label className="block text-xs sm:text-sm font-medium mb-2 sm:mb-3" style={{ color: '#475569' }}>
             Choose Breathing Pattern:
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -137,7 +137,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
               <button
                 key={key}
                 onClick={() => setBreathPattern(key)}
-                className={`p-3 rounded-lg text-sm font-medium transition-all ${
+                className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                   breathPattern === key
                     ? 'text-white'
                     : 'text-gray-700 hover:bg-gray-100'
@@ -155,22 +155,22 @@ const BreathingExercise = ({ isOpen, onClose }) => {
         </div>
 
         {/* Breathing Circle */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="relative mb-6">
+        <div className="flex flex-col items-center mb-4 sm:mb-6">
+          <div className="relative mb-4 sm:mb-6">
             <div
               className="rounded-full border-4 transition-all duration-1000 ease-in-out flex items-center justify-center"
               style={{
-                width: getCircleSize(),
-                height: getCircleSize(),
+                width: Math.min(getCircleSize(), window.innerWidth > 640 ? getCircleSize() : getCircleSize() * 0.7),
+                height: Math.min(getCircleSize(), window.innerWidth > 640 ? getCircleSize() : getCircleSize() * 0.7),
                 borderColor: phaseColors[currentPhase],
                 background: `linear-gradient(135deg, ${phaseColors[currentPhase]}20, ${phaseColors[currentPhase]}10)`
               }}
             >
               <div className="text-center">
-                <div className="text-4xl font-bold mb-2" style={{ color: phaseColors[currentPhase] }}>
+                <div className="text-3xl sm:text-4xl font-bold mb-1 sm:mb-2" style={{ color: phaseColors[currentPhase] }}>
                   {timeLeft}
                 </div>
-                <div className="text-lg font-medium" style={{ color: '#475569' }}>
+                <div className="text-base sm:text-lg font-medium" style={{ color: '#475569' }}>
                   {phaseLabels[currentPhase]}
                 </div>
               </div>
@@ -179,10 +179,10 @@ const BreathingExercise = ({ isOpen, onClose }) => {
 
           {/* Progress */}
           <div className="text-center">
-            <div className="text-sm" style={{ color: '#475569' }}>
+            <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>
               Cycle {cycle + 1} of {totalCycles}
             </div>
-            <div className="w-32 h-2 bg-gray-200 rounded-full mt-2">
+            <div className="w-24 sm:w-32 h-2 bg-gray-200 rounded-full mt-2">
               <div
                 className="h-2 rounded-full transition-all duration-300"
                 style={{
@@ -195,11 +195,11 @@ const BreathingExercise = ({ isOpen, onClose }) => {
         </div>
 
         {/* Controls */}
-        <div className="flex space-x-3">
+        <div className="flex space-x-2 sm:space-x-3">
           {!isActive && cycle === 0 ? (
             <button
               onClick={startExercise}
-              className="flex-1 px-6 py-3 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg"
+              className="flex-1 px-3 sm:px-6 py-2 sm:py-3 rounded-xl text-white text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg"
               style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
             >
               Start Exercise
@@ -207,7 +207,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
           ) : !isActive && cycle > 0 ? (
             <button
               onClick={resumeExercise}
-              className="flex-1 px-6 py-3 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg"
+              className="flex-1 px-3 sm:px-6 py-2 sm:py-3 rounded-xl text-white text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg"
               style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
             >
               Resume
@@ -215,7 +215,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
           ) : (
             <button
               onClick={pauseExercise}
-              className="flex-1 px-6 py-3 rounded-xl text-white font-medium transition-all duration-300 hover:shadow-lg"
+              className="flex-1 px-3 sm:px-6 py-2 sm:py-3 rounded-xl text-white text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg"
               style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' }}
             >
               Pause
@@ -223,7 +223,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
           )}
           <button
             onClick={resetExercise}
-            className="px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:shadow-lg"
+            className="px-3 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg"
             style={{ 
               background: 'rgba(229, 231, 235, 0.5)',
               color: '#475569'
@@ -234,9 +234,9 @@ const BreathingExercise = ({ isOpen, onClose }) => {
         </div>
 
         {/* Instructions */}
-        <div className="mt-6 p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
-          <h3 className="font-medium mb-2" style={{ color: '#1E252B' }}>Instructions:</h3>
-          <ul className="text-sm space-y-1" style={{ color: '#475569' }}>
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+          <h3 className="text-sm sm:text-base font-medium mb-2" style={{ color: '#1E252B' }}>Instructions:</h3>
+          <ul className="text-xs sm:text-sm space-y-1" style={{ color: '#475569' }}>
             <li>• Find a comfortable position</li>
             <li>• Close your eyes or focus on the circle</li>
             <li>• Follow the breathing pattern</li>

@@ -678,9 +678,9 @@ const ChatInterface = () => {
                 <img
                   src="/logo.png"
                   alt="Zephyra Logo"
-                  className="w-16 h-14 object-contain"
+                  className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
                 />
-                <h1 className="text-xl font-bold " style={{ color: "#1E252B" }}>
+                <h1 className="text-lg sm:text-xl font-bold" style={{ color: "#1E252B" }}>
                   Zephyra
                 </h1>
               </div>
@@ -690,14 +690,15 @@ const ChatInterface = () => {
               {!currentChatId && (
                 <button
                   onClick={startNewChat}
-                  className="px-6 py-2 text-white rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                  className="px-4 sm:px-6 py-2 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   style={{
                     background:
                       "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                   }}
                 >
-                  <PlusIcon className="w-5 h-5 inline mr-2" />
-                  New Chat
+                  <PlusIcon className="w-4 h-4 sm:w-5 sm:h-5 inline mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">New Chat</span>
+                  <span className="sm:hidden">New</span>
                 </button>
               )}
             </div>
@@ -713,10 +714,10 @@ const ChatInterface = () => {
           } bg-white/60 backdrop-blur-sm border-r border-white/20 flex-shrink-0 transition-all duration-300 relative`}
           style={{ width: `${sidebarWidth}px` }}
         >
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
+          <div className="p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
               <h2
-                className="text-lg font-semibold"
+                className="text-base sm:text-lg font-semibold"
                 style={{ color: "#1E252B" }}
               >
                 Chat History
@@ -904,13 +905,13 @@ const ChatInterface = () => {
                     className="w-24 h-24 object-contain"
                   />
                 </div>
-                <h2
-                  className="text-3xl font-bold mb-4"
-                  style={{ color: "#1E252B" }}
-                >
-                  Welcome to Zephyra
-                </h2>
-                <p className="mb-8 text-lg" style={{ color: "#2C363E" }}>
+                    <h2
+                      className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4 px-2"
+                      style={{ color: "#1E252B" }}
+                    >
+                      Welcome to Zephyra
+                    </h2>
+                    <p className="mb-6 sm:mb-8 text-sm sm:text-base md:text-lg px-2" style={{ color: "#2C363E" }}>
                   Your supportive AI friend for mental wellness. Start a
                   conversation and let's work together on your journey to better
                   mental health.
@@ -926,38 +927,38 @@ const ChatInterface = () => {
                       <ChevronRightIcon className="w-6 h-6" />
                     </button>
                   )}
-                  <button
-                    onClick={startNewChat}
-                    className="px-8 py-4 text-white rounded-2xl hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-lg font-semibold"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                    }}
-                  >
-                    <PlusIcon className="w-6 h-6 inline mr-2" />
-                    Start New Chat
-                  </button>
+                    <button
+                      onClick={startNewChat}
+                      className="px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base md:text-lg text-white rounded-xl sm:rounded-2xl hover:shadow-xl transition-all duration-300 hover:-translate-y-2 font-semibold"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                      }}
+                    >
+                      <PlusIcon className="w-5 h-5 sm:w-6 sm:h-6 inline mr-1 sm:mr-2" />
+                      Start New Chat
+                    </button>
                 </div>
               </div>
             </div>
           ) : (
             <>
               {/* Chat Header */}
-              <div className="bg-white/60 backdrop-blur-sm border-b border-white/20 p-4 relative z-10">
+              <div className="bg-white/60 backdrop-blur-sm border-b border-white/20 p-3 sm:p-4 relative z-10">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
                     {isChatHistoryCollapsed && (
                       <button
                         onClick={() => setIsChatHistoryCollapsed(false)}
-                        className="p-2 rounded-lg hover:bg-white/50 transition-colors"
+                        className="p-1.5 sm:p-2 rounded-lg hover:bg-white/50 transition-colors flex-shrink-0"
                         style={{ color: "#475569" }}
                         title="Show Chat History"
                       >
-                        <ChevronRightIcon className="w-5 h-5" />
+                        <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                       </button>
                     )}
                     <h2
-                      className="text-lg font-semibold"
+                      className="text-sm sm:text-base md:text-lg font-semibold truncate"
                       style={{ color: "#1E252B" }}
                     >
                       {chatHistory.find((chat) => chat._id === currentChatId)
@@ -965,24 +966,24 @@ const ChatInterface = () => {
                     </h2>
                   </div>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 sm:space-x-2">
                     <button
                       onClick={() => speakSpecificText("Hello! I'm Zephyra, your mental wellness companion. How are you feeling today?")}
-                      className="p-3 rounded-xl transition-all duration-300 hover:shadow-lg group relative"
+                      className="p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-lg group relative hidden sm:block"
                       style={{ color: "#10B981" }}
                       title="Test Audio"
                     >
-                      <SpeakerWaveIcon className="w-6 h-6" />
+                      <SpeakerWaveIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                       <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
                         Test Audio
                       </span>
                     </button>
                     <button
                       onClick={startNewChat}
-                      className="p-3 rounded-xl transition-all duration-300 hover:shadow-lg group relative"
+                      className="p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-lg group relative"
                       style={{ color: "#3C91C5" }}
                     >
-                      <PlusIcon className="w-6 h-6" />
+                      <PlusIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                       <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
                         New Chat
                       </span>
@@ -992,7 +993,7 @@ const ChatInterface = () => {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
                 {messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center relative z-10">
                     <div className="w-28 h-28 rounded-3xl flex items-center justify-center mb-6 glass backdrop-blur-lg border border-white/20 shadow-2xl">

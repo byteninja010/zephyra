@@ -418,11 +418,11 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
     >
       {/* Completion Loading Overlay */}
       {isCompleting && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Completing Session</h3>
-            <p className="text-gray-600 mb-4">Generating your session summary and saving progress...</p>
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl">
+            <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-3 sm:mb-4"></div>
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">Completing Session</h3>
+            <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Generating your session summary and saving progress...</p>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '80%' }}></div>
             </div>
@@ -432,28 +432,28 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
 
       {/* Session Start Modal */}
       {showMoodCheckIn && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-          <div className="bg-white rounded-2xl p-8 max-w-lg w-full mx-4">
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
-                <span className="text-2xl">🎯</span>
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4">
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <span className="text-xl sm:text-2xl">🎯</span>
               </div>
-              <h3 className="text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>
+              <h3 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>
                 Welcome to Your Session
               </h3>
-              <p className="text-gray-600">Let's begin your personalized wellness session</p>
+              <p className="text-sm sm:text-base text-gray-600">Let's begin your personalized wellness session</p>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-2 text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
                   Is there anything from our previous sessions you'd like to continue working on?
                 </label>
                 <textarea
                   value={moodNote}
                   onChange={(e) => setMoodNote(e.target.value)}
                   placeholder="Share what's on your mind, any concerns, or things you'd like to work on today..."
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   rows={4}
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -464,7 +464,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               <button
                 onClick={handleSessionStart}
                 disabled={isLoading}
-                className="w-full px-6 py-4 text-white rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
               >
                 {isLoading ? 'Starting Session...' : 'Start Session'}
@@ -477,20 +477,20 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       {/* AI Image Attribution */}
       {(session?.backgroundType === 'gemini-image' || session?.backgroundType === 'generated-image') && (
         <div 
-          className="absolute bottom-4 left-4 z-40 px-3 py-2 rounded-lg text-xs"
+          className="hidden lg:block absolute bottom-2 sm:bottom-4 left-2 sm:left-4 z-40 px-2 sm:px-3 py-1 sm:py-2 rounded-lg text-xs"
           style={{
             background: 'rgba(0, 0, 0, 0.5)',
             backdropFilter: 'blur(10px)',
             color: 'white'
           }}
         >
-          🎨 Background by {session?.backgroundType === 'gemini-image' ? 'Gemini Imagen 3' : 'AI'}
+          🎨 Background by {session?.backgroundType === 'gemini-imagen' ? 'Gemini Imagen 3' : 'Gemini Imagen 3'}
         </div>
       )}
 
-      {/* Centered Chat Interface Container - 50% width with glass effect */}
+      {/* Centered Chat Interface Container - responsive width with glass effect */}
       <div 
-        className="w-1/2 h-[calc(100%-4rem)] my-8 flex flex-col rounded-[2.5rem] overflow-hidden border-2"
+        className="w-full sm:w-11/12 md:w-5/6 lg:w-3/4 xl:w-2/3 2xl:w-1/2 h-[calc(100%-2rem)] sm:h-[calc(100%-4rem)] my-4 sm:my-8 mx-2 sm:mx-auto flex flex-col rounded-2xl sm:rounded-[2.5rem] overflow-hidden border-2"
         style={{ 
           background: 'rgba(255, 255, 255, 0.1)',
           backdropFilter: 'blur(50px) saturate(200%)',
@@ -501,7 +501,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       >
         {/* Header */}
         <div 
-          className="p-4 border-b"
+          className="p-3 sm:p-4 border-b"
           style={{ 
             background: 'rgba(147, 197, 253, 0.15)',
             backdropFilter: 'blur(40px) saturate(200%)',
@@ -511,11 +511,11 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
           }}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               
               <div>
                 <h2 
-                  className="text-xl font-bold" 
+                  className="text-base sm:text-lg md:text-xl font-bold" 
                   style={{ 
                     color: '#1e293b',
                     textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)'
@@ -524,7 +524,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                   Wellness Session
                 </h2>
                 <p 
-                  className="text-sm" 
+                  className="text-xs sm:text-sm hidden sm:block" 
                   style={{ 
                     color: '#334155',
                     textShadow: '0 1px 1px rgba(255, 255, 255, 0.3)'
@@ -535,13 +535,13 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2">
               {/* Background Music Controls */}
               {backgroundMusic && (
-                <div className="flex items-center space-x-2 mr-2">
+                <div className="flex items-center space-x-1 sm:space-x-2 mr-1 sm:mr-2">
                   <button
                     onClick={toggleBackgroundMusic}
-                    className="p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
+                    className="p-1.5 sm:p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
                     style={{
                       background: 'rgba(255, 255, 255, 0.2)',
                       backdropFilter: 'blur(40px) saturate(200%)',
@@ -553,9 +553,9 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                     title={isMusicPlaying ? 'Pause Music' : 'Play Music'}
                   >
                     {isMusicPlaying ? (
-                      <SpeakerWaveIcon className="w-6 h-6" />
+                      <SpeakerWaveIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                     ) : (
-                      <SpeakerXMarkIcon className="w-6 h-6" />
+                      <SpeakerXMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                     )}
                   </button>
                   {isMusicPlaying && (
@@ -566,7 +566,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                       step="0.1"
                       value={musicVolume}
                       onChange={handleVolumeChange}
-                      className="w-20"
+                      className="w-12 sm:w-16 md:w-20 hidden sm:block"
                       style={{
                         accentColor: '#1e293b'
                       }}
@@ -578,7 +578,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               <button
                 onClick={completeSession}
                 disabled={isCompleting}
-                className={`px-4 py-2 rounded-lg transition-all duration-300 text-sm border-2 font-medium ${
+                className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-xs sm:text-sm border-2 font-medium ${
                   isCompleting 
                     ? 'cursor-not-allowed' 
                     : 'hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]'
@@ -593,11 +593,12 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                   textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)'
                 }}
               >
-                {isCompleting ? 'Completing...' : 'Complete Session'}
+                <span className="hidden sm:inline">{isCompleting ? 'Completing...' : 'Complete Session'}</span>
+                <span className="sm:hidden">{isCompleting ? 'Completing...' : 'Complete'}</span>
               </button>
               <button
                 onClick={onClose}
-                className="p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
                 style={{
                   background: 'rgba(255, 255, 255, 0.2)',
                   backdropFilter: 'blur(40px) saturate(200%)',
@@ -607,7 +608,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                   color: '#1e293b'
                 }}
               >
-                <XMarkIcon className="w-6 h-6" />
+                <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
             </div>
           </div>
@@ -615,7 +616,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
 
         {/* Chat Messages */}
         <div 
-          className="flex-1 overflow-y-auto p-4 space-y-4"
+          className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4"
           style={{ 
             background: 'rgba(255, 255, 255, 0.05)',
             backdropFilter: 'blur(40px) saturate(200%)',
@@ -628,7 +629,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
             <div
-              className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl border-2 ${
+              className={`max-w-[85%] sm:max-w-xs md:max-w-sm lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2 ${
                 message.sender === 'user'
                   ? 'text-white'
                   : 'text-gray-800'
@@ -647,7 +648,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                 boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
               }}
             >
-                <p className="text-sm">{message.text}</p>
+                <p className="text-xs sm:text-sm break-words">{message.text}</p>
                 {message.audioUrl && (
                   <button
                     onClick={() => toggleAudioPlayback(message.audioUrl)}
@@ -667,7 +668,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         {isLoading && (
           <div className="flex justify-start">
             <div 
-              className="px-4 py-3 rounded-2xl border-2"
+              className="px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2"
               style={{
                 background: 'rgba(255, 255, 255, 0.25)',
                 backdropFilter: 'blur(40px) saturate(200%)',
@@ -689,7 +690,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
 
         {/* Input Area */}
         <div 
-          className="border-t p-4"
+          className="border-t p-2 sm:p-3 md:p-4"
           style={{ 
             background: 'rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(40px) saturate(200%)',
@@ -698,10 +699,10 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
             boxShadow: '0 -4px 16px 0 rgba(255, 255, 255, 0.1)'
           }}
         >
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={handleSendAudioMessage}
-              className={`p-3 rounded-xl transition-all duration-300 border-2 ${
+              className={`p-2 sm:p-2.5 md:p-3 rounded-lg sm:rounded-xl transition-all duration-300 border-2 flex-shrink-0 ${
                 isRecording 
                   ? 'text-white' 
                   : 'text-gray-700 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]'
@@ -720,7 +721,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                 boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
               }}
             >
-              <MicrophoneIcon className="w-5 h-5" />
+              <MicrophoneIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             
             <input
@@ -728,7 +729,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-white/30 focus:outline-none placeholder-gray-500 text-gray-800"
+              className="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 md:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl border-2 focus:ring-2 focus:ring-white/30 focus:outline-none placeholder-gray-500 text-gray-800"
               style={{
                 background: 'rgba(255, 255, 255, 0.3)',
                 backdropFilter: 'blur(40px) saturate(200%)',
@@ -742,7 +743,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
             <button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
-              className="p-3 text-white rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 hover:shadow-[0_8px_32px_0_rgba(147,197,253,0.3)]"
+              className="p-2 sm:p-2.5 md:p-3 text-white rounded-lg sm:rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 hover:shadow-[0_8px_32px_0_rgba(147,197,253,0.3)] flex-shrink-0"
               style={{
                 background: 'rgba(147, 197, 253, 0.3)',
                 backdropFilter: 'blur(40px) saturate(200%)',
@@ -751,7 +752,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                 boxShadow: '0 8px 32px 0 rgba(147, 197, 253, 0.2), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)'
               }}
             >
-              <PaperAirplaneIcon className="w-5 h-5" />
+              <PaperAirplaneIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
