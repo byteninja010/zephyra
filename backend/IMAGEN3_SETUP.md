@@ -43,42 +43,43 @@
    - Click "Add Key" → "Create new key"
    - Select "JSON"
    - Click "Create"
-   - **Save the downloaded JSON file as `google-credentials.json` in your `backend` folder**
+   - **Download and open the JSON file** - you'll need to copy values from it
 
 ### Step 3: Configure Environment Variables
 
 1. **Open `backend/.env` file**
 
-2. **Add these lines** (replace with your values):
+2. **Add these lines** (copy values from your downloaded JSON file):
 
 ```env
 # Google Cloud / Vertex AI Configuration
 GOOGLE_CLOUD_PROJECT_ID=your-project-id-here
 GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_APPLICATION_CREDENTIALS=./google-credentials.json
+
+# Google Service Account Credentials (from JSON file)
+GOOGLE_CLOUD_PRIVATE_KEY_ID=your-private-key-id
+GOOGLE_CLOUD_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-private-key-here\n-----END PRIVATE KEY-----\n"
+GOOGLE_CLOUD_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+GOOGLE_CLOUD_CLIENT_ID=your-client-id
 ```
 
-**Example**:
+**Example** (copy these values from your JSON file):
 ```env
 GOOGLE_CLOUD_PROJECT_ID=zephyra-therapy-12345
 GOOGLE_CLOUD_LOCATION=us-central1
-GOOGLE_APPLICATION_CREDENTIALS=./google-credentials.json
+GOOGLE_CLOUD_PRIVATE_KEY_ID=d2a4bbe3748eaedfaee48aa4057209854345
+GOOGLE_CLOUD_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg...\n-----END PRIVATE KEY-----\n"
+GOOGLE_CLOUD_CLIENT_EMAIL=imagen-service-account@zephyra-therapy-12345.iam.gserviceaccount.com
+GOOGLE_CLOUD_CLIENT_ID=110451012295463545345
 ```
 
-### Step 4: Place Credentials File
+**⚠️ Important Notes:**
+- The `GOOGLE_CLOUD_PRIVATE_KEY` must be in double quotes `"..."`
+- Keep the `\n` characters in the private key (don't replace with actual newlines)
+- Copy the entire private key including the BEGIN and END lines
+- After copying, you can safely **delete the JSON file** - it's no longer needed!
 
-1. **Move the downloaded JSON file** to `backend/google-credentials.json`
-
-2. **Verify the file location**:
-   ```
-   backend/
-   ├── google-credentials.json  ← Should be here
-   ├── .env
-   ├── server.js
-   └── ...
-   ```
-
-### Step 5: Restart Backend Server
+### Step 4: Restart Backend Server
 
 1. **Stop the current server** (Ctrl + C in terminal)
 
@@ -124,7 +125,8 @@ Imagen 3 is available in these regions:
 
 ### Error: "Permission denied"
 - Verify service account has `Vertex AI User` role
-- Check credentials file path is correct
+- Check that all credentials in `.env` are correct
+- Make sure `GOOGLE_CLOUD_PRIVATE_KEY` is in double quotes
 
 ### Error: "Quota exceeded"
 - You may have hit the free trial limit
@@ -136,10 +138,12 @@ Imagen 3 is available in these regions:
 
 ## 📝 Notes
 
-- The credentials file (`google-credentials.json`) should **NEVER** be committed to Git
+- Credentials are stored securely in environment variables (`.env` file)
+- The `.env` file should **NEVER** be committed to Git
 - It's already in `.gitignore` for security
-- Keep your service account key secure
+- Keep your service account credentials secure
 - Images are generated fresh for each session and embedded as base64
+- The downloaded JSON file can be deleted after copying values to `.env`
 
 ## ✅ Verification Checklist
 
@@ -147,8 +151,9 @@ Imagen 3 is available in these regions:
 - [ ] Billing enabled
 - [ ] Vertex AI API enabled
 - [ ] Service account created with Vertex AI User role
-- [ ] JSON key downloaded and saved as `google-credentials.json`
-- [ ] `.env` file updated with project ID
+- [ ] JSON key downloaded
+- [ ] All credentials copied from JSON to `.env` file
+- [ ] JSON file deleted (no longer needed)
 - [ ] Backend server restarted
 - [ ] Test session shows Imagen 3 background
 
