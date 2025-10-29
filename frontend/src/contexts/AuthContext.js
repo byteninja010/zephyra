@@ -23,11 +23,6 @@ export const AuthProvider = ({ children }) => {
         const secretCode = localStorage.getItem('userSecretCode');
         const userId = localStorage.getItem('userId');
 
-        console.log('🔍 AuthContext - Initializing from localStorage:');
-        console.log('🔍 AuthContext - firebaseUid:', firebaseUid);
-        console.log('🔍 AuthContext - secretCode:', secretCode);
-        console.log('🔍 AuthContext - userId:', userId);
-
         if (firebaseUid && secretCode && userId) {
           // Verify the user still exists and is valid
           try {
@@ -39,20 +34,14 @@ export const AuthProvider = ({ children }) => {
                 secretCode: secretCode,
                 ...response.user
               });
-              console.log('🔍 AuthContext - User authenticated from localStorage');
             } else {
-              console.log('🔍 AuthContext - User not found, clearing localStorage');
               clearAuthData();
             }
           } catch (error) {
-            console.error('🔍 AuthContext - Error verifying user:', error);
             clearAuthData();
           }
-        } else {
-          console.log('🔍 AuthContext - No valid auth data in localStorage');
         }
       } catch (error) {
-        console.error('🔍 AuthContext - Error initializing auth:', error);
         clearAuthData();
       } finally {
         setLoading(false);
@@ -90,13 +79,11 @@ export const AuthProvider = ({ children }) => {
         // Store in context
         setUser(userData);
 
-        console.log('🔍 AuthContext - Login successful:', userData);
         return { success: true, user: userData };
       } else {
         return { success: false, error: 'Invalid secret code' };
       }
     } catch (error) {
-      console.error('🔍 AuthContext - Login error:', error);
       return { success: false, error: error.message };
     }
   };
@@ -127,13 +114,11 @@ export const AuthProvider = ({ children }) => {
         // Store in context
         setUser(userData);
 
-        console.log('🔍 AuthContext - Signup successful:', userData);
         return { success: true, user: userData };
       } else {
         return { success: false, error: 'Failed to create account' };
       }
     } catch (error) {
-      console.error('🔍 AuthContext - Signup error:', error);
       return { success: false, error: error.message };
     }
   };

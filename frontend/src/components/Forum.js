@@ -58,10 +58,8 @@ const Forum = () => {
       const response = await axios.get(`${API_BASE_URL}/api/forum/pseudonym/${uid}`);
       if (response.data.success) {
         setPseudonym(response.data.pseudonym);
-        console.log('✅ Loaded pseudonym:', response.data.pseudonym);
       }
     } catch (error) {
-      console.error('Error loading pseudonym:', error);
       showNotification('Failed to load your identity', 'error');
     }
   }, [showNotification]);
@@ -80,10 +78,8 @@ const Forum = () => {
         }
         
         setHasMore(response.data.pagination.page < response.data.pagination.totalPages);
-        console.log(`✅ Loaded ${response.data.posts.length} posts`);
       }
     } catch (error) {
-      console.error('Error loading posts:', error);
       showNotification('Failed to load posts', 'error');
     } finally {
       setLoading(false);
@@ -94,13 +90,11 @@ const Forum = () => {
   const setupSocketListeners = useCallback(() => {
     // Listen for new posts from other users
     socketService.onNewPost((data) => {
-      console.log('📡 Received new post:', data);
       setPosts(prev => [data, ...prev]);
     });
 
     // Listen for new comments from other users
     socketService.onNewComment((data) => {
-      console.log('📡 Received new comment:', data);
       setPosts(prev => prev.map(post => {
         if (post.postId === data.postId) {
           return {
@@ -115,7 +109,6 @@ const Forum = () => {
 
     // Listen for own post acceptance
     socketService.onPostAccepted((data) => {
-      console.log('✅ Post accepted:', data);
       showNotification('Your post has been published!', 'success');
       setSubmittingPost(false);
       setNewPostContent('');
@@ -123,15 +116,13 @@ const Forum = () => {
 
     // Listen for own post rejection
     socketService.onPostRejected((data) => {
-      console.log('❌ Post rejected:', data);
       showNotification(`Post not published: ${data.reason}`, 'error');
       setSubmittingPost(false);
-      setNewPostContent(''); // Clear the text box
+      setNewPostContent('');
     });
 
     // Listen for own comment acceptance
     socketService.onCommentAccepted((data) => {
-      console.log('✅ Comment accepted:', data);
       showNotification('Your comment has been published!', 'success');
       const postId = data.comment.postId;
       setCommentInputs(prev => ({ ...prev, [postId]: '' }));
@@ -146,10 +137,9 @@ const Forum = () => {
 
     // Listen for own comment rejection
     socketService.onCommentRejected((data) => {
-      console.log('❌ Comment rejected:', data);
       showNotification(`Comment not published: ${data.reason}`, 'error');
       setSubmittingComments(prev => ({ ...prev, [data.postId]: false }));
-      setCommentInputs(prev => ({ ...prev, [data.postId]: '' })); // Clear the text box
+      setCommentInputs(prev => ({ ...prev, [data.postId]: '' }));
       // Clear reply state
       setReplyingTo(prev => {
         const newState = { ...prev };
@@ -160,19 +150,17 @@ const Forum = () => {
 
     // Listen for errors
     socketService.onPostError((data) => {
-      console.error('❌ Post error:', data);
       showNotification('Failed to submit post: ' + data.error, 'error');
       setSubmittingPost(false);
-      setNewPostContent(''); // Clear the text box
+      setNewPostContent('');
     });
 
     socketService.onCommentError((data) => {
-      console.error('❌ Comment error:', data);
       showNotification('Failed to submit comment: ' + data.error, 'error');
       // Clear submitting state for the specific post
       if (data.postId) {
         setSubmittingComments(prev => ({ ...prev, [data.postId]: false }));
-        setCommentInputs(prev => ({ ...prev, [data.postId]: '' })); // Clear the text box
+        setCommentInputs(prev => ({ ...prev, [data.postId]: '' }));
       }
     });
   }, [showNotification]);
@@ -219,7 +207,7 @@ const Forum = () => {
         ));
       }
     } catch (error) {
-      console.error('Error loading comments:', error);
+      // Error loading comments
     }
   };
 
@@ -428,7 +416,6 @@ const Forum = () => {
         showNotification('Post deleted successfully', 'success');
       }
     } catch (error) {
-      console.error('Error deleting post:', error);
       showNotification(error.response?.data?.error || 'Failed to delete post', 'error');
     }
   };
@@ -451,8 +438,6 @@ const Forum = () => {
         const deletedCount = response.data.deletedCount || 1;
         const deletedIds = response.data.deletedIds || [commentId];
         
-        console.log(`Removing ${deletedCount} comment(s) from UI:`, deletedIds);
-        
         // Remove all deleted comments from local state using the deletedIds array
         setPosts(prev => prev.map(post => {
           if (post.postId === postId) {
@@ -474,7 +459,6 @@ const Forum = () => {
         showNotification(message, 'success');
       }
     } catch (error) {
-      console.error('Error deleting comment:', error);
       showNotification(error.response?.data?.error || 'Failed to delete comment', 'error');
     }
   };

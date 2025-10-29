@@ -252,12 +252,6 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
       const firebaseUid = authData.firebaseUid || propUserContext?.firebaseUid || userContext?.firebaseUid || localStorage.getItem('firebaseUid');
       const secretCode = authData.secretCode || propUserContext?.secretCode || localStorage.getItem('userSecretCode');
       
-      console.log('🔍 SessionInterface completeSession - authData:', authData);
-      console.log('🔍 SessionInterface completeSession - firebaseUid:', firebaseUid);
-      console.log('🔍 SessionInterface completeSession - secretCode:', secretCode);
-      console.log('🔍 SessionInterface completeSession - propUserContext:', propUserContext);
-      console.log('🔍 SessionInterface completeSession - userContext:', userContext);
-      
       if (!firebaseUid && !secretCode) {
         throw new Error('User authentication not found. Please login again.');
       }

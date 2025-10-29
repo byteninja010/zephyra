@@ -1,8 +1,6 @@
 import axios from 'axios';
 import API_URL from '../config/api';
 
-console.log('🔧 sessionService.js loaded - this should appear when the page loads');
-
 const sessionService = {
   // Create a new session schedule
   createSessionSchedule: async (schedule) => {
@@ -56,50 +54,30 @@ const sessionService = {
   },
 
   completeSession: async (sessionId, summary = null, firebaseUid = null, secretCode = null) => {
-    console.log('🚨 sessionService.completeSession FUNCTION CALLED!');
     try {
-      console.log('🔍 sessionService.completeSession RECEIVED parameters:');
-      console.log('🔍 sessionId:', sessionId);
-      console.log('🔍 summary:', summary);
-      console.log('🔍 firebaseUid (parameter):', firebaseUid);
-      console.log('🔍 secretCode (parameter):', secretCode);
-      
       // Use provided parameters or fall back to localStorage
       const finalFirebaseUid = firebaseUid || localStorage.getItem('firebaseUid');
       const finalSecretCode = secretCode || localStorage.getItem('userSecretCode');
-      
-      console.log('🔍 Frontend completeSession - firebaseUid:', finalFirebaseUid);
-      console.log('🔍 Frontend completeSession - secretCode:', finalSecretCode);
-      console.log('🔍 Frontend completeSession - sessionId:', sessionId);
-      console.log('🔍 Frontend completeSession - localStorage firebaseUid:', localStorage.getItem('firebaseUid'));
-      console.log('🔍 Frontend completeSession - localStorage secretCode:', localStorage.getItem('userSecretCode'));
       
       const requestBody = {};
       
       // Send BOTH firebaseUid and secretCode if available
       if (finalFirebaseUid) {
         requestBody.firebaseUid = finalFirebaseUid;
-        console.log('✅ Including firebaseUid in request');
       }
       
       if (finalSecretCode) {
         requestBody.secretCode = finalSecretCode;
-        console.log('✅ Including secretCode in request');
       }
       
       // Check if we have at least one authentication method
       if (!finalFirebaseUid && !finalSecretCode) {
-        console.error('❌ No authentication data available');
-        console.error('❌ firebaseUid:', finalFirebaseUid);
-        console.error('❌ secretCode:', finalSecretCode);
         throw new Error('Neither Firebase UID nor secret code found. Please login again.');
       }
       
       if (summary) {
         requestBody.summary = summary;
       }
-      
-      console.log('🔍 Frontend completeSession - request body:', requestBody);
       
       const response = await axios.post(`${API_URL}/api/sessions/complete/${sessionId}`, requestBody);
       return response.data;
@@ -138,9 +116,6 @@ const sessionService = {
       const cleanUserContext = { ...userContext };
       delete cleanUserContext.customPreferences;
       
-      console.log('🔗 Making API request to:', `${API_URL}/api/sessions/start-instant`);
-      console.log('📤 Request data:', { firebaseUid, userContext: cleanUserContext, customPreferences });
-      
       const requestBody = {
         firebaseUid,
         userContext: cleanUserContext
@@ -149,19 +124,13 @@ const sessionService = {
       // Add customPreferences as separate field if provided
       if (customPreferences) {
         requestBody.customPreferences = customPreferences;
-        console.log('🎨 Including custom preferences:', customPreferences);
       }
       
       const response = await axios.post(`${API_URL}/api/sessions/start-instant`, requestBody);
       
-      console.log('📥 API response:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ Error starting instant session:', error);
-      if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
-      }
+      console.error('Error starting instant session:', error);
       throw error;
     }
   },
@@ -176,9 +145,6 @@ const sessionService = {
       const cleanUserContext = { ...userContext };
       delete cleanUserContext.customPreferences;
       
-      console.log('🔗 Making API request to start scheduled session:', sessionId);
-      console.log('📤 Request data:', { userContext: cleanUserContext, customPreferences });
-      
       const requestBody = {
         userContext: cleanUserContext
       };
@@ -186,7 +152,6 @@ const sessionService = {
       // Add customPreferences as separate field if provided
       if (customPreferences) {
         requestBody.customPreferences = customPreferences;
-        console.log('🎨 Including custom preferences for scheduled session:', customPreferences);
       }
       
       const response = await axios.post(`${API_URL}/api/sessions/start/${sessionId}`, requestBody);

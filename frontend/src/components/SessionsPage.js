@@ -30,7 +30,6 @@ const SessionsPage = () => {
   const [pendingSessionType, setPendingSessionType] = useState(null); // 'instant' or sessionId
 
   useEffect(() => {
-    console.log('🎯 SessionsPage component mounted');
     loadUpcomingSessions();
     loadUserContext();
   }, []);
@@ -68,9 +67,6 @@ const SessionsPage = () => {
       const firebaseUid = localStorage.getItem('firebaseUid');
       const secretCode = localStorage.getItem('userSecretCode');
       
-      console.log('🔍 SessionsPage loadUserContext - firebaseUid:', firebaseUid);
-      console.log('🔍 SessionsPage loadUserContext - secretCode:', secretCode);
-      
       const response = await sessionService.getSessionSchedule();
       if (response.success && response.session) {
         const context = {
@@ -78,7 +74,6 @@ const SessionsPage = () => {
           secretCode,
           lastSessionSummary: response.session.lastSessionSummary
         };
-        console.log('🔍 SessionsPage loadUserContext - setting context:', context);
         setUserContext(context);
       } else {
         // Even if no session, set basic context
@@ -87,11 +82,9 @@ const SessionsPage = () => {
           secretCode,
           lastSessionSummary: null
         };
-        console.log('🔍 SessionsPage loadUserContext - setting basic context:', context);
         setUserContext(context);
       }
     } catch (error) {
-      console.error('Error loading user context:', error);
       // Set basic context even on error
       const firebaseUid = localStorage.getItem('firebaseUid');
       const secretCode = localStorage.getItem('userSecretCode');
@@ -112,8 +105,6 @@ const SessionsPage = () => {
 
   const proceedWithInstantSession = async (customPreferences = '') => {
     try {
-      console.log('🚀 Starting instant session...');
-      console.log('🎨 Custom preferences:', customPreferences || 'None');
       setSessionLoading(true);
       setSessionLoadingMessage('Initializing your wellness session...');
       
@@ -128,14 +119,10 @@ const SessionsPage = () => {
         contextToSend.customPreferences = customPreferences;
       }
       
-      console.log('Context to send:', contextToSend);
-      
       setSessionLoadingMessage('Creating your personalized session...');
       const response = await sessionService.startInstantSession(contextToSend);
-      console.log('Session response:', response);
       
       if (response.success) {
-        console.log('✅ Session started successfully:', response.session.sessionId);
         setSessionLoadingMessage('Session ready! Loading interface...');
         
         // Small delay to show loading message
@@ -145,12 +132,10 @@ const SessionsPage = () => {
         setIsSessionActive(true);
         setSessionLoading(false);
       } else {
-        console.error('❌ Session start failed:', response);
         setSessionLoading(false);
         alert('Failed to start session. Please try again.');
       }
     } catch (error) {
-      console.error('❌ Error starting instant session:', error);
       setSessionLoading(false);
       alert('Error starting session. Please try again.');
     }
@@ -165,8 +150,6 @@ const SessionsPage = () => {
 
   const proceedWithScheduledSession = async (sessionId, customPreferences = '') => {
     try {
-      console.log('🚀 Starting scheduled session:', sessionId);
-      console.log('🎨 Custom preferences:', customPreferences || 'None');
       setSessionLoading(true);
       setSessionLoadingMessage('Starting your scheduled session...');
       
@@ -189,7 +172,6 @@ const SessionsPage = () => {
         alert('Failed to start scheduled session. Please try again.');
       }
     } catch (error) {
-      console.error('Error starting scheduled session:', error);
       setSessionLoading(false);
       alert('Error starting scheduled session. Please try again.');
     }
@@ -238,7 +220,6 @@ const SessionsPage = () => {
       setSessionLoadingMessage('Completing your session and generating summary...');
       
       // This will be called from SimpleSessionInterface
-      console.log('Session completed:', sessionId);
       
       // Reset session state
       setActiveSession(null);
@@ -248,7 +229,6 @@ const SessionsPage = () => {
       // Reload sessions to show updated data
       loadUpcomingSessions();
     } catch (error) {
-      console.error('Error completing session:', error);
       setSessionLoading(false);
     }
   };

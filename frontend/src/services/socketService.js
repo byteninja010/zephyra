@@ -12,11 +12,8 @@ class SocketService {
    */
   connect() {
     if (this.socket?.connected) {
-      console.log('🔌 Already connected to Socket.IO');
       return;
     }
-
-    console.log('🔌 Connecting to Socket.IO server...');
     
     this.socket = io(API_BASE_URL, {
       transports: ['websocket', 'polling'],
@@ -26,15 +23,15 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('✅ Connected to Socket.IO server');
+      // Connected to Socket.IO server
     });
 
     this.socket.on('disconnect', () => {
-      console.log('❌ Disconnected from Socket.IO server');
+      // Disconnected from Socket.IO server
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('🔌 Connection error:', error);
+      // Connection error
     });
   }
 
@@ -43,7 +40,6 @@ class SocketService {
    */
   disconnect() {
     if (this.socket) {
-      console.log('🔌 Disconnecting from Socket.IO server...');
       this.socket.disconnect();
       this.socket = null;
       this.listeners.clear();
@@ -57,11 +53,9 @@ class SocketService {
    */
   submitPost(firebaseUid, content) {
     if (!this.socket?.connected) {
-      console.error('❌ Socket not connected');
       return;
     }
     
-    console.log('📝 Submitting post via Socket.IO...');
     this.socket.emit('submit_post', { firebaseUid, content });
   }
 
@@ -73,11 +67,9 @@ class SocketService {
    */
   submitComment(firebaseUid, postId, content, parentCommentId = null) {
     if (!this.socket?.connected) {
-      console.error('❌ Socket not connected');
       return;
     }
     
-    console.log(`💬 Submitting ${parentCommentId ? 'reply' : 'comment'} via Socket.IO...`);
     this.socket.emit('submit_comment', { firebaseUid, postId, content, parentCommentId });
   }
 
@@ -87,12 +79,10 @@ class SocketService {
    */
   onNewPost(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
     this.socket.on('new_post', callback);
-    console.log('👂 Listening for new posts');
   }
 
   /**
@@ -101,12 +91,10 @@ class SocketService {
    */
   onNewComment(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
     this.socket.on('new_comment', callback);
-    console.log('👂 Listening for new comments');
   }
 
   /**
@@ -115,7 +103,6 @@ class SocketService {
    */
   onPostAccepted(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
@@ -128,7 +115,6 @@ class SocketService {
    */
   onPostRejected(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
@@ -141,7 +127,6 @@ class SocketService {
    */
   onCommentAccepted(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
@@ -154,7 +139,6 @@ class SocketService {
    */
   onCommentRejected(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
@@ -167,7 +151,6 @@ class SocketService {
    */
   onPostError(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
@@ -180,7 +163,6 @@ class SocketService {
    */
   onCommentError(callback) {
     if (!this.socket) {
-      console.error('❌ Socket not initialized');
       return;
     }
     
@@ -193,7 +175,6 @@ class SocketService {
   removeAllListeners() {
     if (this.socket) {
       this.socket.removeAllListeners();
-      console.log('🧹 Removed all Socket.IO listeners');
     }
   }
 

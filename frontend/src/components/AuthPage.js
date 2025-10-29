@@ -25,7 +25,6 @@ const AuthPage = ({ initialMode = 'login' }) => {
       const result = await login(secretCode);
       
       if (result.success) {
-        console.log('🔍 AuthPage - Login successful via AuthContext');
         navigate('/dashboard');
       } else {
         setError(result.error || 'Invalid secret code. Please check and try again.');
@@ -46,7 +45,6 @@ const AuthPage = ({ initialMode = 'login' }) => {
       const result = await signup();
       
       if (result.success) {
-        console.log('🔍 AuthPage - Signup successful via AuthContext');
         navigate('/secret-code', {
           state: {
             secretCode: result.user.secretCode,

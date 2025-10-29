@@ -526,8 +526,6 @@ const ChatInterface = () => {
       if (lastAIMessage) {
         speakSpecificText(lastAIMessage.text);
       }
-    } else {
-      console.log("Speech synthesis not supported");
     }
   };
 
@@ -554,33 +552,26 @@ const ChatInterface = () => {
       
       if (preferredVoice) {
         utterance.voice = preferredVoice;
-        console.log('🎵 Using voice:', preferredVoice.name);
       }
       
       utterance.onstart = () => {
-        console.log('🎵 Speech started');
         setIsPlaying(true);
         setIsAudioPlaying(true);
       };
       
       utterance.onend = () => {
-        console.log('🎵 Speech ended');
         setIsPlaying(false);
         setIsAudioPlaying(false);
         setCurrentPlayingAudio(null);
       };
       
       utterance.onerror = (error) => {
-        console.error("Speech synthesis error:", error);
         setIsPlaying(false);
         setIsAudioPlaying(false);
         setCurrentPlayingAudio(null);
       };
       
-      console.log('🎵 Starting speech synthesis for:', text.substring(0, 50) + '...');
       window.speechSynthesis.speak(utterance);
-    } else {
-      console.log("Speech synthesis not supported");
     }
   };
 

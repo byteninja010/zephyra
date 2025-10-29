@@ -62,19 +62,14 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
 
   const loadSession = useCallback(async () => {
     try {
-      console.log('🔄 Loading session data...');
       // Load actual session data from backend
       const response = await sessionService.getSession(sessionId);
-      console.log('📦 Session response:', response);
       
       if (response.success && response.session) {
         setSession(response.session);
-        console.log('✅ Session loaded:', response.session);
         
         // Check if we have an AI-generated image or mood-based gradient
         if (response.session.backgroundImage) {
-          console.log(`🎨 Background data - Type: ${response.session.backgroundType}, Image: ${response.session.backgroundImage?.substring(0, 50)}...`);
-          
           // Check if it's a generated image (data URL or regular URL)
           if (response.session.backgroundType === 'gemini-image' || response.session.backgroundType === 'generated-image') {
             const imageUrl = response.session.backgroundImage;
@@ -83,36 +78,26 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               // Use AI-generated image as background
               const bgUrl = `url("${imageUrl}")`;
               setBackgroundGradient(bgUrl);
-              console.log(`🖼️ Applied AI-generated background image from: ${response.session.backgroundType}`);
             } else {
               // Fallback to gradient if image URL is invalid
               const gradient = getMoodGradient(response.session.backgroundImage);
               setBackgroundGradient(gradient);
-              console.log(`🎨 Invalid image URL, using mood-based gradient for: "${response.session.backgroundImage}"`);
             }
           } else {
             // Fallback to mood-based gradient
             const gradient = getMoodGradient(response.session.backgroundImage);
             setBackgroundGradient(gradient);
-            console.log(`🎨 Applied mood-based gradient for mood: "${response.session.backgroundImage}"`);
-            console.log(`🎨 Gradient: ${gradient}`);
           }
         } else {
-          console.log('⚠️ No background image in session data, using default');
           setBackgroundGradient('linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)');
         }
         
         // Check if we have background music
         if (response.session.backgroundMusic) {
-          console.log('🎵 Background music found, setting up audio...');
-          console.log(`🎵 Music generated with: ${response.session.musicGeneratedWith || 'Unknown'}`);
           setBackgroundMusic(response.session.backgroundMusic);
           // Auto-play will be handled after user interaction
-        } else {
-          console.log('⚠️ No background music in session data');
         }
       } else {
-        console.log('⚠️ No valid session in response, using fallback');
         // Fallback session data
         setSession({
           sessionId,
@@ -123,7 +108,6 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         setBackgroundGradient('linear-gradient(135deg, #c3e6cb 0%, #a5d8d8 50%, #b8e6e0 100%)');
       }
     } catch (error) {
-      console.error('❌ Error loading session:', error);
       // Fallback session data
       setSession({
         sessionId,
@@ -153,10 +137,8 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       backgroundMusicRef.current.play()
         .then(() => {
           setIsMusicPlaying(true);
-          console.log('🎵 Background music auto-playing');
         })
         .catch(err => {
-          console.log('⚠️ Auto-play blocked by browser, user needs to click play:', err.message);
           // Music will remain paused, user can manually play it
         });
     }
@@ -177,13 +159,11 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
     if (isMusicPlaying) {
       backgroundMusicRef.current.pause();
       setIsMusicPlaying(false);
-      console.log('🎵 Background music paused');
     } else {
       backgroundMusicRef.current.play().catch(err => {
-        console.error('❌ Error playing background music:', err);
+        // Error playing background music
       });
       setIsMusicPlaying(true);
-      console.log('🎵 Background music playing');
     }
   };
 
@@ -197,18 +177,8 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   };
 
   const handleSessionStart = async () => {
-    console.log('🚀 Starting session...');
-    
-    // DEBUG: Check authentication data immediately
-    const authData = getAuthData();
-    console.log('🔍 Session Start - authData:', authData);
-    console.log('🔍 Session Start - userContext:', userContext);
-    console.log('🔍 Session Start - localStorage firebaseUid:', localStorage.getItem('firebaseUid'));
-    console.log('🔍 Session Start - localStorage secretCode:', localStorage.getItem('userSecretCode'));
-    
     setIsLoading(true);
     try {
-      console.log('📝 Using session-chat for sessionId:', sessionId);
       // Don't create a regular chat - use 'session-chat' ID
       // The backend will create a session-linked chat automatically when first message is sent
       setChatId('session-chat');
@@ -231,9 +201,8 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
           note: moodNote
         });
       }
-      console.log('✅ Session started successfully');
     } catch (error) {
-      console.error('❌ Error starting session:', error);
+      // Error starting session
     } finally {
       setIsLoading(false);
     }
@@ -324,9 +293,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
 
         mediaRecorder.start();
         setIsRecording(true);
-        console.log('🎤 Recording started...');
       } catch (error) {
-        console.error('Error accessing microphone:', error);
         alert('Error accessing microphone. Please check permissions.');
       }
     }
@@ -336,11 +303,8 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
     setIsLoading(true);
     try {
       if (!chatId) {
-        console.error('No chat ID available for session');
         return;
       }
-
-      console.log('🎤 Sending audio message to Gemini...');
       
       const response = await authService.sendAudioMessage(
         chatId,
@@ -371,11 +335,9 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         if (response.audioUrl) {
           playAudio(response.audioUrl);
         }
-        
-        console.log('✅ Audio message sent successfully');
       }
     } catch (error) {
-      console.error('Error sending audio message:', error);
+      // Error sending audio message
       alert('Failed to send audio message. Please try again.');
     } finally {
       setIsLoading(false);
@@ -416,29 +378,11 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       const firebaseUid = authData.firebaseUid || userContext?.firebaseUid || localStorage.getItem('firebaseUid');
       const secretCode = authData.secretCode || userContext?.secretCode || localStorage.getItem('userSecretCode');
       
-      console.log('🔍 SimpleSessionInterface completeSession - authData:', authData);
-      console.log('🔍 SimpleSessionInterface completeSession - firebaseUid:', firebaseUid);
-      console.log('🔍 SimpleSessionInterface completeSession - secretCode:', secretCode);
-      console.log('🔍 SimpleSessionInterface completeSession - userContext:', userContext);
-      console.log('🔍 SimpleSessionInterface completeSession - localStorage firebaseUid:', localStorage.getItem('firebaseUid'));
-      console.log('🔍 SimpleSessionInterface completeSession - localStorage secretCode:', localStorage.getItem('userSecretCode'));
-      
       if (!firebaseUid && !secretCode) {
-        console.error('❌ No authentication data available!');
-        console.error('❌ authData:', authData);
-        console.error('❌ userContext:', userContext);
-        console.error('❌ localStorage firebaseUid:', localStorage.getItem('firebaseUid'));
-        console.error('❌ localStorage secretCode:', localStorage.getItem('userSecretCode'));
         alert('Authentication error: No user data found. Please login again.');
         setIsCompleting(false);
         return;
       }
-      
-      console.log('🔍 About to call sessionService.completeSession with:');
-      console.log('🔍 sessionId:', sessionId);
-      console.log('🔍 summary:', summary);
-      console.log('🔍 firebaseUid:', firebaseUid);
-      console.log('🔍 secretCode:', secretCode);
       
       await sessionService.completeSession(sessionId, summary, firebaseUid, secretCode);
       onComplete(sessionId);

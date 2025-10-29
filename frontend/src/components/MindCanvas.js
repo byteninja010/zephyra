@@ -46,8 +46,6 @@ const MindCanvas = ({ isOpen, onClose }) => {
         // Set white background
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        console.log('Canvas initialized:', canvas.width, 'x', canvas.height);
       }, 100);
     }
   }, [isOpen]);
@@ -89,8 +87,6 @@ const MindCanvas = ({ isOpen, onClose }) => {
     // Start new path
     ctx.beginPath();
     ctx.moveTo(coords.x, coords.y);
-    
-    console.log(`Started ${isEraser ? 'erasing' : 'drawing'} at:`, coords.x, coords.y);
   };
 
   const draw = (e) => {
@@ -131,7 +127,6 @@ const MindCanvas = ({ isOpen, onClose }) => {
         ctx.closePath();
       }
       setIsDrawing(false);
-      console.log('Stopped drawing');
     }
   };
 
@@ -144,7 +139,6 @@ const MindCanvas = ({ isOpen, onClose }) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     setAnalysis(null);
     setShowResult(false);
-    console.log('Canvas cleared');
   };
 
 
