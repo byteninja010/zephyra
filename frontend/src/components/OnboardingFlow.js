@@ -190,7 +190,7 @@ const OnboardingFlow = () => {
         Welcome to Your Safe Space 💙
       </h1>
       
-      <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl border mb-4 sm:mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+      <div className="dashboard-card p-4 sm:p-6 rounded-lg sm:rounded-xl border mb-4 sm:mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
         <p className="text-sm sm:text-base leading-relaxed" style={{ color: '#475569' }}>
           Before we begin, I'd love to get to know you a little better so I can personalize your experience and support you better. 
           <strong style={{ color: '#3C91C5' }}> Everything is completely optional and confidential</strong> - you can skip any question 
@@ -272,7 +272,7 @@ const OnboardingFlow = () => {
               <button
                 key={range}
                 onClick={() => handleInputChange('ageRange', formData.ageRange === range ? '' : range)}
-                className={`p-3 rounded-lg border-2 hover:opacity-80 ${
+                className={`dashboard-card p-3 rounded-lg border-2 hover:opacity-80 ${
                   formData.ageRange === range
                     ? 'text-white'
                     : 'hover:border-gray-300'
@@ -300,7 +300,7 @@ const OnboardingFlow = () => {
               <button
                 key={mood.value}
                 onClick={() => handleInputChange('mood', formData.mood === mood.value ? '' : mood.value)}
-                className={`p-3 sm:p-4 rounded-lg border-2 hover:opacity-80 ${
+                className={`dashboard-card p-3 sm:p-4 rounded-lg border-2 hover:opacity-80 ${
                   formData.mood === mood.value
                     ? 'text-white'
                     : 'hover:border-gray-300'
@@ -387,7 +387,7 @@ const OnboardingFlow = () => {
               <button
                 key={goal}
                 onClick={() => handleMultiSelect('goals', goal)}
-                className={`p-3 rounded-lg border-2 text-left hover:opacity-80 ${
+                className={`dashboard-card p-3 rounded-lg border-2 text-left hover:opacity-80 ${
                   formData.goals.includes(goal)
                     ? 'text-white'
                     : 'hover:border-gray-300'
@@ -415,7 +415,7 @@ const OnboardingFlow = () => {
               <button
                 key={support}
                 onClick={() => handleMultiSelect('preferredSupport', support)}
-                className={`p-3 rounded-lg border-2 text-left hover:opacity-80 ${
+                className={`dashboard-card p-3 rounded-lg border-2 text-left hover:opacity-80 ${
                   formData.preferredSupport.includes(support)
                     ? 'text-white'
                     : 'hover:border-gray-300'
@@ -471,7 +471,7 @@ const OnboardingFlow = () => {
 
       <div className="space-y-6">
         {/* Warning Box */}
-        <div className="p-6 rounded-xl border" style={{ background: 'rgba(239, 68, 68, 0.05)', borderColor: '#EF4444' }}>
+        <div className="dashboard-card p-6 rounded-xl border" style={{ background: 'rgba(239, 68, 68, 0.05)', borderColor: '#EF4444' }}>
           <div className="flex items-center justify-center space-x-3">
             <div>
               <h3 className="font-semibold mb-2 flex items-center justify-center" style={{ color: '#DC2626' }}>
@@ -509,7 +509,7 @@ const OnboardingFlow = () => {
         </div>
 
         {/* Additional Info */}
-        <div className="p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.05)' }}>
+        <div className="dashboard-card p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.05)' }}>
           <p className="text-sm" style={{ color: '#475569' }}>
             <strong>How this works:</strong> If our AI ever detects that you might be in immediate danger 
             or having thoughts of self-harm, we may ask if you'd like us to reach out to this person. 
@@ -557,14 +557,14 @@ const OnboardingFlow = () => {
         You're all set! 💙
       </h1>
       
-      <div className="p-6 rounded-xl border mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+      <div className="dashboard-card p-6 rounded-xl border mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
         <p className="text-sm sm:text-base px-2" style={{ color: '#475569' }}>
           Thank you for sharing a bit about yourself. Your personalized dashboard is ready, and I'll use this 
           information to provide you with the most helpful resources and support. Everything you've shared is completely confidential.
         </p>
       </div>
 
-      <div className="p-6 rounded-xl border mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+      <div className="dashboard-card p-6 rounded-xl border mb-6" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
         <p className="text-sm" style={{ color: '#475569' }}>
           Remember: Your recovery code from when you signed up is the only way to access your account if you lose access. 
           Keep it safe and confidential.
@@ -594,7 +594,7 @@ const OnboardingFlow = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-2xl">
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20">
+        <div className="dashboard-card bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20">
           {/* Progress Bar */}
           <div className="mb-6 sm:mb-8">
             <div className="flex items-center justify-between mb-2">

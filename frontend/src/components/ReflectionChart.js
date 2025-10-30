@@ -250,7 +250,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                       <button
                         key={mood.value}
                         onClick={() => setSelectedMood(mood.value)}
-                        className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                        className={`dashboard-card p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                           selectedMood === mood.value
                             ? 'text-white'
                             : 'text-gray-700 hover:bg-gray-100'
@@ -312,9 +312,9 @@ const ReflectionChart = ({ isOpen, onClose }) => {
         ) : (
           <div className="space-y-4 sm:space-y-6">
             {/* View Mode */}
-            {reflections.length === 0 ? (
-              <div className="text-center py-8 sm:py-12">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+          {reflections.length === 0 ? (
+            <div className="text-center py-8 sm:py-12">
+              <div className="dashboard-card w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
                   <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="#3C91C5" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
@@ -326,19 +326,19 @@ const ReflectionChart = ({ isOpen, onClose }) => {
               <>
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6">
-                  <div className="p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+                  <div className="dashboard-card p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
                     <div className="text-xl sm:text-2xl font-bold" style={{ color: '#3C91C5' }}>
                       {reflections.length}
                     </div>
                     <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Total Reflections</div>
                   </div>
-                  <div className="p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+                  <div className="dashboard-card p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
                     <div className="text-xl sm:text-2xl font-bold" style={{ color: '#10B981' }}>
                       {new Set(reflections.map(r => r.category)).size}
                     </div>
                     <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Categories</div>
                   </div>
-                  <div className="p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+                  <div className="dashboard-card p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
                     <div className="text-xl sm:text-2xl font-bold" style={{ color: '#F59E0B' }}>
                       {new Set(reflections.map(r => r.mood)).size}
                     </div>
@@ -354,7 +354,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                     return (
                       <div
                         key={reflectionId || index}
-                        className="p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
+                        className="dashboard-card p-3 sm:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all"
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center space-x-2 sm:space-x-3">
@@ -400,7 +400,7 @@ const ReflectionChart = ({ isOpen, onClose }) => {
                         
                         {/* Gemini Appreciation Comment */}
                         {reflection.geminiComment && (
-                          <div className="mt-3 p-3 rounded-lg border-l-4" style={{ 
+                          <div className="dashboard-card mt-3 p-3 rounded-lg border-l-4" style={{ 
                             background: 'linear-gradient(to right, rgba(60, 145, 197, 0.05), rgba(60, 145, 197, 0.02))',
                             borderColor: '#3C91C5'
                           }}>

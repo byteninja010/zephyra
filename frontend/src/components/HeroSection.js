@@ -29,7 +29,7 @@ const HeroSection = () => {
       </div>
 
       {/* Navigation Bar */}
-      <nav className="relative z-10 bg-white/80 backdrop-blur-sm border-b border-white/20">
+      <nav className="dashboard-card relative z-10 bg-white/80 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-2 sm:py-3">
             {/* Logo */}
@@ -99,7 +99,7 @@ const HeroSection = () => {
                 
                 {/* Powered by Gemini */}
                 <div className="mt-3 sm:mt-4 flex justify-center sm:justify-start">
-                  <div className="flex items-center space-x-1 sm:space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-3 sm:px-6 py-1.5 sm:py-2 shadow-lg border border-white/20">                 
+                  <div className="dashboard-card flex items-center space-x-1 sm:space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-3 sm:px-6 py-1.5 sm:py-2 shadow-lg border border-white/20">                 
                     <span className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
                       Powered by
                     </span>
@@ -117,7 +117,7 @@ const HeroSection = () => {
 
               {/* Quick Assurance Icons */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-4 sm:pt-8">
-                <div className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
+                <div className="dashboard-card flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%)' }}>
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="#E65100" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -125,23 +125,23 @@ const HeroSection = () => {
                   </div>
                   <span className="text-xs font-medium text-center leading-tight" style={{ color: '#475569' }}>Simple Mood Check-ins</span>
                 </div>
-                <div className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
+                <div className="dashboard-card flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #E1BEE7 0%, #CE93D8 100%)' }}>
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="#7B1FA2" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 13.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
                     </svg>
                   </div>
-                  <span className="text-xs font-medium text-center leading-tight" style={{ color: '#475569' }}>Chat Anytime</span>
+                  <span className="text-xs font-medium text-center leading-tight" style={{ color: '#475569' }}>Chat Anytime with Gemini</span>
                 </div>
-                <div className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
+                <div className="dashboard-card flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #C8E6C9 0%, #A5D6A7 100%)' }}>
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="#2E7D32" viewBox="0 0 24 24" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
                     </svg>
                   </div>
-                  <span className="text-xs font-medium text-center leading-tight" style={{ color: '#475569' }}>Track Your Well-Being</span>
+                  <span className="text-xs font-medium text-center leading-tight" style={{ color: '#475569' }}>Mobile Compatible</span>
                 </div>
-                <div className="flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
+                <div className="dashboard-card flex flex-col items-center space-y-1 sm:space-y-2 p-3 sm:p-4 rounded-xl backdrop-blur-sm border border-white/30" style={{ background: 'rgba(255, 255, 255, 0.6)' }}>
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%)' }}>
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="#C62828" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
@@ -195,7 +195,7 @@ const HeroSection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {/* Feature Cards */}
-            <div className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#1976D2" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5" />
@@ -205,7 +205,7 @@ const HeroSection = () => {
               <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Experience uniquely personalized therapy sessions based on your preferences & mood with calming soundscapes by <strong>Google Lyria</strong> and stunning backgrounds from <strong>Gemini Imagen-3</strong>.</p>
             </div>
 
-            <div className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#F57C00" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
@@ -215,7 +215,7 @@ const HeroSection = () => {
               <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}> Quick Chat with <strong>Gemini</strong> anytime, journal your reflections and receive thoughtful AI insights and practice breathing exercises — all personalized for your wellness journey.</p>
             </div>
 
-            <div className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#2E7D32" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
@@ -225,7 +225,7 @@ const HeroSection = () => {
               <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Express yourself freely on a creative canvas. <strong>Gemini's</strong> advanced <strong>vision</strong> capabilities analyze your artwork and provide gentle, empathetic insights on your drawn patterns.</p>
             </div>
 
-            <div className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#E65100" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -235,7 +235,7 @@ const HeroSection = () => {
               <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Share without fear. Connect with real people who understand, heal together — completely anonymously. <strong>Gemini</strong> acts as a <strong>moderator</strong> & keeps every conversation safe and judgment-free.</p>
             </div>
 
-            <div className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)' }}>
                 <img 
                   src="/Google_Gemini_logo.png" 
@@ -247,7 +247,7 @@ const HeroSection = () => {
               <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Every feature enhanced by <strong>Google's</strong> most advanced <strong>AI</strong> technologies — <strong>Gemini</strong> for intelligent <strong>conversations</strong> and insights, <strong>Imagen-3</strong> for stunning <strong>visuals</strong>, <strong>Lyria</strong> for personalized therapeutic <strong>music</strong>.</p>
             </div>
 
-            <div className="group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
+            <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#00695C" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
@@ -282,8 +282,8 @@ const HeroSection = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-6">
             
             {/* Team Member 1 - AI/ML Engineer */}
-            <div className="group relative flex">
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col w-full min-h-[360px] sm:min-h-[380px]">
+            <div className="group relative flex justify-center items-center">
+              <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
                 {/* Avatar */}
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
@@ -323,8 +323,8 @@ const HeroSection = () => {
             </div>
 
             {/* Team Member 2 - Full Stack Developer */}
-            <div className="group relative flex">
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col w-full min-h-[360px] sm:min-h-[380px]">
+            <div className="group relative flex justify-center items-center">
+              <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-pink-500/30">
@@ -357,8 +357,8 @@ const HeroSection = () => {
             </div>
 
             {/* Team Member 3 - Full Stack Developer */}
-            <div className="group relative flex">
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col w-full min-h-[360px] sm:min-h-[380px]">
+            <div className="group relative flex justify-center items-center">
+              <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-blue-500/30">
@@ -391,8 +391,8 @@ const HeroSection = () => {
             </div>
 
             {/* Team Member 4 - Full Stack Developer */}
-            <div className="group relative flex">
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col w-full min-h-[360px] sm:min-h-[380px]">
+            <div className="group relative flex justify-center items-center">
+              <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-green-500/30">
@@ -425,8 +425,8 @@ const HeroSection = () => {
             </div>
 
             {/* Team Member 5 - AI/ML Engineer */}
-            <div className="group relative flex">
-              <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col w-full min-h-[360px] sm:min-h-[380px]">
+            <div className="group relative flex justify-center items-center">
+              <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-orange-500/30">

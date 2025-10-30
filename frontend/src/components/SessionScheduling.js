@@ -121,7 +121,7 @@ const SessionScheduling = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>
             Schedule Your Sessions
@@ -137,7 +137,7 @@ const SessionScheduling = ({ isOpen, onClose }) => {
         {currentSchedule ? (
           // Show current schedule
           <div className="space-y-4 sm:space-y-6">
-            <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-green-200 bg-green-50">
+            <div className="dashboard-card p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-green-200 bg-green-50">
               <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
                 <CheckCircleIcon className="w-6 h-6 sm:w-8 sm:h-8 text-green-600 flex-shrink-0" />
                 <h3 className="text-base sm:text-lg md:text-xl font-semibold text-green-800">

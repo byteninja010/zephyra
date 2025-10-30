@@ -611,7 +611,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
   if (!session) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8">
+        <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-6 sm:p-8">
           <div className="text-center">
             <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-base sm:text-lg">Making Your Session Personalized...</p>
@@ -675,7 +675,7 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
 
       {/* Content */}
       <div className="flex-1 flex items-center justify-center p-3 sm:p-6 md:p-8">
-        <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
           {renderStepContent()}
         </div>
       </div>

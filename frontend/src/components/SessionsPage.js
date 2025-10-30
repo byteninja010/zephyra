@@ -290,7 +290,7 @@ const SessionsPage = () => {
       {/* Personalization Modal */}
       {showPersonalizationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4 shadow-2xl transform transition-all">
+          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4 shadow-2xl transform transition-all">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
               ✨ Personalize Your Session
             </h3>
@@ -337,7 +337,7 @@ const SessionsPage = () => {
       {/* Loading Overlay */}
       {sessionLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl">
+          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl">
             <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-3 sm:mb-4"></div>
             <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">Loading Session</h3>
             <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">{sessionLoadingMessage}</p>
@@ -466,7 +466,7 @@ const SessionsPage = () => {
               {upcomingSessions.map((session, index) => (
                 <div
                   key={session.sessionId}
-                  className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+                  className="dashboard-card bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
                 >
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
                     <div className="flex items-center space-x-2 sm:space-x-3">

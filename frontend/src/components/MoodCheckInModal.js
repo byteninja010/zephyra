@@ -54,7 +54,7 @@ const MoodCheckInModal = ({ isOpen, onClose, onMoodSubmitted }) => {
       
       {/* Modal Content */}
       <div className="relative z-10 w-full max-w-md animate-fade-in">
-        <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/20">
+        <div className="dashboard-card bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/20">
           {/* Modal Header */}
           <div className="text-center mb-4 sm:mb-6">
             <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
@@ -73,7 +73,7 @@ const MoodCheckInModal = ({ isOpen, onClose, onMoodSubmitted }) => {
                 <button
                   key={mood.value}
                   onClick={() => setSelectedMood(selectedMood === mood.value ? '' : mood.value)}
-                  className={`p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl border-2 hover:opacity-80 transition-all duration-300 transform hover:scale-105 ${
+                  className={`dashboard-card p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl border-2 hover:opacity-80 transition-all duration-300 transform hover:scale-105 ${
                     selectedMood === mood.value
                       ? 'text-white shadow-lg scale-105'
                       : 'hover:border-gray-300'
@@ -138,7 +138,7 @@ const MoodCheckInModal = ({ isOpen, onClose, onMoodSubmitted }) => {
           </div>
 
           {/* Encouraging Message */}
-          <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg sm:rounded-xl text-center" style={{ background: 'rgba(60, 145, 197, 0.05)' }}>
+          <div className="dashboard-card mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg sm:rounded-xl text-center" style={{ background: 'rgba(60, 145, 197, 0.05)' }}>
             <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>
               💙 Taking a moment to check in with yourself is a beautiful act of self-care
             </p>
