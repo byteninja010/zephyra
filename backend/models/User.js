@@ -69,7 +69,7 @@ const userSchema = new mongoose.Schema({
     type: {
       type: String,
       required: true,
-      enum: ['moodCheckIn', 'therapyVisit', 'breathingExercise', 'reflection']
+      enum: ['moodCheckIn', 'therapyVisit', 'breathingExercise', 'reflection', 'mindCanvas', 'forumPost', 'chatSession']
     },
     date: {
       type: Date,

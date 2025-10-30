@@ -160,9 +160,6 @@ ${customPreferences ? '- IMAGE PROMPT MUST BE GENERATED PRIMARILY FROM USER PREF
     if (!prompts.imagePrompt || !prompts.musicPrompt) {
       throw new Error('Missing required prompt fields in response');
     }
-    
-    console.log(prompts.imagePrompt);
-    console.log(prompts.musicPrompt);
 
     return prompts;
     

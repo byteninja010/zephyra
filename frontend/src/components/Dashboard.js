@@ -29,7 +29,15 @@ const Dashboard = () => {
   const [highlightedCard, setHighlightedCard] = useState(null);
   const [showCompanionTooltip, setShowCompanionTooltip] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(0);
-  const [companionActive, setCompanionActive] = useState(true);
+  const [companionActive, setCompanionActive] = useState(() => {
+    const saved = localStorage.getItem('companionActive');
+    return saved !== null ? saved === 'true' : true;
+  });
+
+  // Persist companion active state
+  useEffect(() => {
+    localStorage.setItem('companionActive', companionActive);
+  }, [companionActive]);
 
   // Activity suggestions for the companion robot
   const activitySuggestions = [
@@ -426,7 +434,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* AI Companion */}
           <div
             className="group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"

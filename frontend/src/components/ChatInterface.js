@@ -302,6 +302,32 @@ const ChatInterface = () => {
 
         setMessages((prev) => [...prev, aiMessage]);
 
+        // Log chat session activity (once per session per day for balanced tracking)
+        const logChatActivity = async () => {
+          try {
+            const firebaseUid = localStorage.getItem('firebaseUid');
+            if (!firebaseUid) return;
+
+            const today = new Date().toDateString();
+            const lastLogKey = `lastChatLog_${currentChatId}`;
+            const lastChatLogDate = localStorage.getItem(lastLogKey);
+            
+            // Only log if we haven't logged this chat session today
+            if (lastChatLogDate !== today) {
+              const result = await authService.logActivity(firebaseUid, 'chatSession');
+              
+              if (result.success) {
+                localStorage.setItem(lastLogKey, today);
+              }
+            }
+          } catch (error) {
+            // Silent fail - activity logging is non-critical
+          }
+        };
+
+        // Call the logging function (non-blocking)
+        logChatActivity();
+
         // Play audio response if available, or use Web Speech API
         if (response.audioUrl) {
           playAudio(response.audioUrl);
@@ -462,6 +488,32 @@ const ChatInterface = () => {
         };
 
         setMessages((prev) => [...prev, aiMessage]);
+
+        // Log chat session activity (once per session per day for balanced tracking)
+        const logChatActivity = async () => {
+          try {
+            const firebaseUid = localStorage.getItem('firebaseUid');
+            if (!firebaseUid) return;
+
+            const today = new Date().toDateString();
+            const lastLogKey = `lastChatLog_${currentChatId}`;
+            const lastChatLogDate = localStorage.getItem(lastLogKey);
+            
+            // Only log if we haven't logged this chat session today
+            if (lastChatLogDate !== today) {
+              const result = await authService.logActivity(firebaseUid, 'chatSession');
+              
+              if (result.success) {
+                localStorage.setItem(lastLogKey, today);
+              }
+            }
+          } catch (error) {
+            // Silent fail - activity logging is non-critical
+          }
+        };
+
+        // Call the logging function (non-blocking)
+        logChatActivity();
 
         // Play audio response or use Web Speech API
         if (response.audioUrl) {

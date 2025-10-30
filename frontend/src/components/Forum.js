@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import socketService from '../services/socketService';
+import authService from '../services/authService';
 
 const Forum = () => {
   const navigate = useNavigate();
@@ -119,10 +120,25 @@ const Forum = () => {
     });
 
     // Listen for own post acceptance
-    socketService.onPostAccepted((data) => {
+    socketService.onPostAccepted(async (data) => {
       showNotification('Your post has been published!', 'success');
       setSubmittingPost(false);
       setNewPostContent('');
+      
+      // Log forum post activity
+      const logForumActivity = async () => {
+        try {
+          const uid = firebaseUid || localStorage.getItem('firebaseUid');
+          if (!uid) return;
+
+          await authService.logActivity(uid, 'forumPost');
+        } catch (error) {
+          // Silent fail - activity logging is non-critical
+        }
+      };
+
+      // Call the logging function (non-blocking)
+      logForumActivity();
     });
 
     // Listen for own post rejection

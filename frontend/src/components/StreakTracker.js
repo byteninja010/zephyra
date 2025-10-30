@@ -1,12 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../services/authService';
 
+/**
+ * StreakTracker Component
+ * 
+ * Tracks and displays user wellness activities across the entire app.
+ * 
+ * Activity Types:
+ * - moodCheckIn: Logged when user submits a mood check-in
+ * - therapyVisit: Logged when user completes a therapy session
+ * - breathingExercise: Logged when user completes a breathing exercise
+ * - reflection: Logged when user creates a reflection entry
+ * - mindCanvas: Logged when user creates and analyzes a drawing
+ * - forumPost: Logged when user successfully posts in the support forum
+ * - chatSession: Logged once per chat session per day (prevents multiple message spam)
+ * 
+ * Logging Strategy:
+ * - Most activities: Log once per occurrence
+ * - Chat sessions: Log once per session per day (balanced with other activities)
+ * - All logging is non-blocking and won't interrupt user experience
+ * 
+ * To add a new activity type:
+ * 1. Add it to the streaks state below
+ * 2. Add it to activityCounts in calculateStreaksFromHistory()
+ * 3. Add it to stats in getWeeklyStats()
+ * 4. Add icon, name, and color in the helper functions below
+ * 5. Ensure the activity is logged via authService.logActivity() in the respective component
+ * 6. Consider if it should be logged once per day or per occurrence
+ */
 const StreakTracker = ({ isOpen, onClose }) => {
+  // Complete list of all trackable activities in the app
   const [streaks, setStreaks] = useState({
     moodCheckIn: 0,
     therapyVisit: 0,
     breathingExercise: 0,
-    reflection: 0
+    reflection: 0,
+    mindCanvas: 0,
+    forumPost: 0,
+    chatSession: 0
   });
   const [history, setHistory] = useState([]);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -120,17 +151,25 @@ const StreakTracker = ({ isOpen, onClose }) => {
     setCurrentStreak(currentStreak);
     setLongestStreak(longestStreak);
 
-    // Also update the activity type counts
+    // Count all activity types - handles both known and unknown activities
     const activityCounts = {
       moodCheckIn: 0,
       therapyVisit: 0,
       breathingExercise: 0,
-      reflection: 0
+      reflection: 0,
+      mindCanvas: 0,
+      forumPost: 0,
+      chatSession: 0
     };
 
+    // Count activities, safely handling any activity type
     activityHistory.forEach(entry => {
-      if (activityCounts.hasOwnProperty(entry.type)) {
+      if (entry.type && activityCounts.hasOwnProperty(entry.type)) {
         activityCounts[entry.type]++;
+      }
+      // Log unrecognized activity types for debugging (helps identify missing activities)
+      else if (entry.type) {
+        console.info(`Unrecognized activity type: ${entry.type}`);
       }
     });
 
@@ -160,32 +199,44 @@ const StreakTracker = ({ isOpen, onClose }) => {
     }
   };
 
+  // Get icon for each activity type with fallback
   const getActivityIcon = (type) => {
     const icons = {
       moodCheckIn: '😊',
       therapyVisit: '💬',
       breathingExercise: '🫁',
-      reflection: '📝'
+      reflection: '📝',
+      mindCanvas: '🎨',
+      forumPost: '💭',
+      chatSession: '🤖'
     };
     return icons[type] || '⭐';
   };
 
+  // Get user-friendly name for each activity type with fallback
   const getActivityName = (type) => {
     const names = {
       moodCheckIn: 'Mood Check-ins',
       therapyVisit: 'Therapy Visits',
       breathingExercise: 'Breathing Exercises',
-      reflection: 'Reflections'
+      reflection: 'Reflections',
+      mindCanvas: 'Mind Canvas',
+      forumPost: 'Forum Posts',
+      chatSession: 'Chat Sessions'
     };
-    return names[type] || type;
+    return names[type] || type.replace(/([A-Z])/g, ' $1').trim();
   };
 
+  // Get color for each activity type with fallback
   const getActivityColor = (type) => {
     const colors = {
-      moodCheckIn: '#3B82F6',
-      therapyVisit: '#8B5CF6',
-      breathingExercise: '#10B981',
-      reflection: '#F59E0B'
+      moodCheckIn: '#3B82F6',      // Blue
+      therapyVisit: '#8B5CF6',     // Purple
+      breathingExercise: '#10B981', // Green
+      reflection: '#F59E0B',       // Amber
+      mindCanvas: '#EC4899',       // Pink
+      forumPost: '#06B6D4',        // Cyan
+      chatSession: '#6366F1'       // Indigo
     };
     return colors[type] || '#6B7280';
   };
@@ -201,6 +252,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
       .slice(0, 5);
   };
 
+  // Calculate weekly statistics for all activity types
   const getWeeklyStats = () => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -213,11 +265,15 @@ const StreakTracker = ({ isOpen, onClose }) => {
       moodCheckIn: 0,
       therapyVisit: 0,
       breathingExercise: 0,
-      reflection: 0
+      reflection: 0,
+      mindCanvas: 0,
+      forumPost: 0,
+      chatSession: 0
     };
 
+    // Count activities for the week
     weekHistory.forEach(entry => {
-      if (stats.hasOwnProperty(entry.type)) {
+      if (entry.type && stats.hasOwnProperty(entry.type)) {
         stats[entry.type]++;
       }
     });
@@ -272,7 +328,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
           <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1E252B' }}>
             Log Activity
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {Object.keys(streaks).map((activity) => (
               <button
                 key={activity}
@@ -300,7 +356,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
           <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1E252B' }}>
             This Week
           </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4">
             {Object.keys(weeklyStats).map((activity) => (
               <div
                 key={activity}

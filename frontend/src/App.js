@@ -9,12 +9,16 @@ import OnboardingFlow from './components/OnboardingFlow';
 import ChatInterface from './components/ChatInterface';
 import SessionsPage from './components/SessionsPage';
 import Forum from './components/Forum';
+import InstallPrompt from './components/InstallPrompt';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <div className="App">
+          {/* PWA Install Prompt - Shows on mobile/tablet */}
+          <InstallPrompt />
+          
           <Routes>
           {/* Home Route */}
           <Route path="/" element={<HeroSection />} />

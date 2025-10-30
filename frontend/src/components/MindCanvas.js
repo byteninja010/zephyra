@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import API_BASE_URL from '../config/api';
+import authService from '../services/authService';
 
 const MindCanvas = ({ isOpen, onClose }) => {
   const { user } = useAuth();
@@ -170,6 +171,21 @@ const MindCanvas = ({ isOpen, onClose }) => {
       if (data.success) {
         setAnalysis(data.analysis);
         setShowResult(true);
+        
+        // Log Mind Canvas activity
+        const logMindCanvasActivity = async () => {
+          try {
+            const firebaseUid = user?.firebaseUid;
+            if (!firebaseUid) return;
+
+            await authService.logActivity(firebaseUid, 'mindCanvas');
+          } catch (error) {
+            // Silent fail - activity logging is non-critical
+          }
+        };
+
+        // Call the logging function (non-blocking)
+        logMindCanvasActivity();
       } else {
         alert('Failed to analyze drawing: ' + (data.error || 'Unknown error'));
       }
