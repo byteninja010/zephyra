@@ -968,17 +968,6 @@ const ChatInterface = () => {
 
                   <div className="flex items-center space-x-1 sm:space-x-2">
                     <button
-                      onClick={() => speakSpecificText("Hello! I'm Zephyra, your mental wellness companion. How are you feeling today?")}
-                      className="p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-lg group relative hidden sm:block"
-                      style={{ color: "#10B981" }}
-                      title="Test Audio"
-                    >
-                      <SpeakerWaveIcon className="w-5 h-5 sm:w-6 sm:h-6" />
-                      <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50">
-                        Test Audio
-                      </span>
-                    </button>
-                    <button
                       onClick={startNewChat}
                       className="p-2 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-300 hover:shadow-lg group relative"
                       style={{ color: "#3C91C5" }}
@@ -1117,12 +1106,14 @@ const ChatInterface = () => {
                               <div className="flex items-center space-x-2">
                                 <MicrophoneIcon className="w-4 h-4 text-blue-500 animate-pulse" />
                                 <div className="flex space-x-1">
-                                  <div className="w-1 h-4 bg-blue-500 rounded-full animate-pulse"></div>
+                                  <div key="audio-pulse-1" className="w-1 h-4 bg-blue-500 rounded-full animate-pulse"></div>
                                   <div 
+                                    key="audio-pulse-2"
                                     className="w-1 h-3 bg-blue-500 rounded-full animate-pulse"
                                     style={{ animationDelay: "0.1s" }}
                                   ></div>
                                   <div 
+                                    key="audio-pulse-3"
                                     className="w-1 h-5 bg-blue-500 rounded-full animate-pulse"
                                     style={{ animationDelay: "0.2s" }}
                                   ></div>
@@ -1130,12 +1121,14 @@ const ChatInterface = () => {
                               </div>
                             ) : (
                               <div className="flex space-x-1">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                                <div key="text-bounce-1" className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
                                 <div 
+                                  key="text-bounce-2"
                                   className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
                                   style={{ animationDelay: "0.1s" }}
                                 ></div>
                                 <div 
+                                  key="text-bounce-3"
                                   className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
                                   style={{ animationDelay: "0.2s" }}
                                 ></div>
@@ -1279,12 +1272,14 @@ const ChatInterface = () => {
             </div>
             <div className="mt-4 flex items-center justify-center">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-bounce"></div>
+                <div key="rec-bounce-1" className="w-2 h-2 bg-red-500 rounded-full animate-bounce"></div>
                 <div
+                  key="rec-bounce-2"
                   className="w-2 h-2 bg-red-500 rounded-full animate-bounce"
                   style={{ animationDelay: "0.1s" }}
                 ></div>
                 <div
+                  key="rec-bounce-3"
                   className="w-2 h-2 bg-red-500 rounded-full animate-bounce"
                   style={{ animationDelay: "0.2s" }}
                 ></div>
