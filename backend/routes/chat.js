@@ -106,7 +106,13 @@ SAFETY: If someone mentions self-harm, encourage emergency services. Stay focuse
 
 RESPOND: Be thorough and supportive. Ask follow-up questions when appropriate. Provide actionable advice and emotional support.
 
-CRITICAL: Always follow user's language preferences and instructions. If user asks to speak in a specific language, continue using that language throughout the conversation. Maintain consistency in language choice unless explicitly asked to change.`;
+CRITICAL: ALWAYS prioritize the USER'S MOST RECENT instructions and preferences from the conversation history. 
+- If user requests a specific language (Hindi, Spanish, etc.), immediately switch to that language and continue using it
+- If user later changes their language preference in the same conversation, IMMEDIATELY adapt to the NEW language preference
+- Give TOP PRIORITY to the latest user messages and context - the most recent user instruction ALWAYS overrides previous ones
+- Continuously adapt based on user's evolving needs throughout the conversation
+- Pay close attention to the entire conversation history to provide personalized, context-aware responses
+- Language preference, tone, and style should dynamically adjust based on what the user wants RIGHT NOW in the conversation`;
 
   if (isSessionChat) {
     return basePrompt + `
@@ -247,7 +253,8 @@ const transcribeAudio = async (audioBuffer, mimeType = 'audio/wav') => {
 
 // Helper function to detect language preference from recent messages
 const detectLanguagePreference = (recentMessages) => {
-  // Look for explicit language instructions in the last 10 messages
+  // Look for explicit language instructions - checking from MOST RECENT to oldest
+  // This ensures we catch the LATEST language preference instruction
   for (let i = recentMessages.length - 1; i >= 0; i--) {
     const message = recentMessages[i];
     const text = message.text.toLowerCase();
@@ -255,22 +262,33 @@ const detectLanguagePreference = (recentMessages) => {
     // Check for Hindi language requests
     if (text.includes('hindi mein') || text.includes('hindi me') || 
         text.includes('talk in hindi') || text.includes('speak hindi') ||
-        text.includes('hindi में') || text.includes('हिंदी में')) {
-      return 'IMPORTANT: User has requested to speak in Hindi. You MUST respond in Hindi and continue using Hindi throughout the conversation unless explicitly asked to change.';
+        text.includes('hindi में') || text.includes('हिंदी में') ||
+        text.includes('talk to me in hindi') || text.includes('speak to me in hindi')) {
+      return '🚨 CRITICAL - MOST RECENT USER INSTRUCTION: User has JUST requested to speak in Hindi. You MUST IMMEDIATELY switch to Hindi and respond ONLY in Hindi from this point forward. This is the user\'s LATEST preference and overrides any previous language instructions.';
+    }
+    
+    // Check for Spanish language requests
+    if (text.includes('spanish mein') || text.includes('spanish me') || 
+        text.includes('talk in spanish') || text.includes('speak spanish') ||
+        text.includes('talk to me in spanish') || text.includes('speak to me in spanish') ||
+        text.includes('español') || text.includes('habla español')) {
+      return '🚨 CRITICAL - MOST RECENT USER INSTRUCTION: User has JUST requested to speak in Spanish. You MUST IMMEDIATELY switch to Spanish and respond ONLY in Spanish from this point forward. This is the user\'s LATEST preference and overrides any previous language instructions.';
     }
     
     // Check for English language requests
     if (text.includes('english mein') || text.includes('english me') || 
-        text.includes('talk in english') || text.includes('speak english')) {
-      return 'IMPORTANT: User has requested to speak in English. You MUST respond in English and continue using English throughout the conversation unless explicitly asked to change.';
+        text.includes('talk in english') || text.includes('speak english') ||
+        text.includes('talk to me in english') || text.includes('speak to me in english')) {
+      return '🚨 CRITICAL - MOST RECENT USER INSTRUCTION: User has JUST requested to speak in English. You MUST IMMEDIATELY switch to English and respond ONLY in English from this point forward. This is the user\'s LATEST preference and overrides any previous language instructions.';
     }
     
-    // Check for other language requests
-    if (text.includes('talk in') || text.includes('speak in')) {
-      const language = text.match(/talk in (\w+)|speak in (\w+)/);
+    // Check for other language requests (French, German, etc.)
+    if (text.includes('talk in') || text.includes('speak in') || 
+        text.includes('talk to me in') || text.includes('speak to me in')) {
+      const language = text.match(/(?:talk|speak)(?:\s+to\s+me)?\s+in\s+(\w+)/i);
       if (language) {
-        const lang = language[1] || language[2];
-        return `IMPORTANT: User has requested to speak in ${lang}. You MUST respond in ${lang} and continue using ${lang} throughout the conversation unless explicitly asked to change.`;
+        const lang = language[1].charAt(0).toUpperCase() + language[1].slice(1);
+        return `🚨 CRITICAL - MOST RECENT USER INSTRUCTION: User has JUST requested to speak in ${lang}. You MUST IMMEDIATELY switch to ${lang} and respond ONLY in ${lang} from this point forward. This is the user's LATEST preference and overrides any previous language instructions.`;
       }
     }
   }
@@ -282,10 +300,10 @@ const detectLanguagePreference = (recentMessages) => {
   ).length;
   
   if (hindiCount >= 2) {
-    return 'IMPORTANT: Recent messages are in Hindi. You MUST respond in Hindi and continue using Hindi throughout the conversation.';
+    return 'NOTE: Recent conversation has been in Hindi. Continue responding in Hindi while staying alert for any language change requests from the user.';
   }
   
-  return 'Respond in the same language as the user\'s most recent message.';
+  return 'Respond in the same language as the user\'s most recent message. Stay alert for any language preference changes from the user.';
 };
 
 // Helper function to convert PCM audio to WAV format
@@ -736,15 +754,42 @@ router.post('/:chatId/message', async (req, res) => {
       audioResponse = await generateAudioWithGemini(aiResponse, null);
       
       if (audioResponse) {
-        // Save the native audio response
-        const audioFileName = 'ai-response.wav';
+        // Use unique filename with timestamp to prevent browser caching issues
+        const timestamp = Date.now();
+        const audioFileName = `ai-response-${timestamp}.wav`;
         const audioDir = 'uploads/audio';
         if (!fs.existsSync(audioDir)) {
           fs.mkdirSync(audioDir, { recursive: true });
         }
         const audioFilePath = path.join(audioDir, audioFileName);
         fs.writeFileSync(audioFilePath, audioResponse);
-        audioResponseUrl = `${getBaseUrl()}/uploads/audio/${audioFileName}`;
+        
+        // Add cache-busting query parameter AND use unique filename
+        audioResponseUrl = `${getBaseUrl()}/uploads/audio/${audioFileName}?t=${timestamp}`;
+        
+        // Clean up old audio files (keep only last 10 files to save disk space)
+        try {
+          const files = fs.readdirSync(audioDir)
+            .filter(file => file.startsWith('ai-response-') && file.endsWith('.wav'))
+            .map(file => ({
+              name: file,
+              time: fs.statSync(path.join(audioDir, file)).mtime.getTime()
+            }))
+            .sort((a, b) => b.time - a.time);
+          
+          // Delete files older than the 10 most recent
+          if (files.length > 10) {
+            files.slice(10).forEach(file => {
+              try {
+                fs.unlinkSync(path.join(audioDir, file.name));
+              } catch (e) {
+                // Ignore cleanup errors
+              }
+            });
+          }
+        } catch (cleanupError) {
+          // Ignore cleanup errors
+        }
       } else {
       }
     } catch (ttsError) {
@@ -954,15 +999,42 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
       audioResponse = await generateAudioWithGemini(aiResponse, null);
 
       if (audioResponse) {
-        // Save the native audio response
-        const audioFileName = 'ai-response.wav';
+        // Use unique filename with timestamp to prevent browser caching issues
+        const timestamp = Date.now();
+        const audioFileName = `ai-response-${timestamp}.wav`;
         const audioDir = 'uploads/audio';
         if (!fs.existsSync(audioDir)) {
           fs.mkdirSync(audioDir, { recursive: true });
         }
         const audioFilePath = path.join(audioDir, audioFileName);
         fs.writeFileSync(audioFilePath, audioResponse);
-        audioResponseUrl = `${getBaseUrl()}/uploads/audio/${audioFileName}`;
+        
+        // Add cache-busting query parameter AND use unique filename
+        audioResponseUrl = `${getBaseUrl()}/uploads/audio/${audioFileName}?t=${timestamp}`;
+        
+        // Clean up old audio files (keep only last 10 files to save disk space)
+        try {
+          const files = fs.readdirSync(audioDir)
+            .filter(file => file.startsWith('ai-response-') && file.endsWith('.wav'))
+            .map(file => ({
+              name: file,
+              time: fs.statSync(path.join(audioDir, file)).mtime.getTime()
+            }))
+            .sort((a, b) => b.time - a.time);
+          
+          // Delete files older than the 10 most recent
+          if (files.length > 10) {
+            files.slice(10).forEach(file => {
+              try {
+                fs.unlinkSync(path.join(audioDir, file.name));
+              } catch (e) {
+                // Ignore cleanup errors
+              }
+            });
+          }
+        } catch (cleanupError) {
+          // Ignore cleanup errors
+        }
       } else {
       }
     } catch (ttsError) {
