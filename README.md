@@ -21,7 +21,7 @@ A comprehensive mental health and wellness platform built with the MERN stack, f
 ## 🌟 Features
 
 ### 🤖 AI-Powered Chat System
-- **Intelligent Conversations**: Powered by Google Gemini 2.5 Flash AI
+- **Intelligent Conversations**: Powered by Google Gemini AI (2.5 Flash, 2.5 Flash Lite, and 2.0 Flash Exp models)
 - **Voice & Text Support**: Audio-to-audio and text-to-text conversations
 - **Language Support**: Multi-language support including Hindi and English
 - **Contextual Responses**: Personalized based on user profile and conversation history
@@ -73,6 +73,13 @@ A comprehensive mental health and wellness platform built with the MERN stack, f
 - **Heroicons**: Beautiful icon system
 - **Gradient Backgrounds**: Personalized session backgrounds
 
+### 📱 Progressive Web App (PWA)
+- **Offline Support**: Service worker with intelligent caching strategies for assets, API calls, and images
+- **Installable**: Install Zephyra as a standalone app on any device (iOS, Android, Desktop)
+- **Install Prompts**: Smart installation prompts with platform-specific instructions
+- **App-like Experience**: Standalone display mode with custom theme colors
+- **Resilient Performance**: Network-first and cache-first strategies for optimal performance
+
 ### Friendly Companion Bot (Dashboard)
 - **Activity Suggestion Bot**: Interactive, friendly robot companion on Dashboard periodically suggests personalized wellness activities to users (NEW, minor feature).
 
@@ -106,12 +113,10 @@ A comprehensive mental health and wellness platform built with the MERN stack, f
    ```
 
 4. **Configure Environment Variables:**
-   ```bash
-   # Copy environment template
-   cp backend/env.example backend/.env
-   ```
+   
+   Create a `backend/.env` file with the following configuration:
 
-5. **Update `backend/.env` with your credentials:**
+5. **Add your credentials to `backend/.env`:**
    ```env
    # MongoDB Connection
    MONGO_URI=mongodb://localhost:27017/zephyra
@@ -138,7 +143,16 @@ A comprehensive mental health and wellness platform built with the MERN stack, f
 6. **Configure Firebase:**
    - Create a Firebase project at [Firebase Console](https://console.firebase.google.com)
    - Enable Anonymous Authentication
-   - Copy your Firebase config to `frontend/src/firebase.js`
+   - Create a `frontend/.env` file with your Firebase credentials:
+     ```env
+     REACT_APP_FIREBASE_API_KEY=your_api_key
+     REACT_APP_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+     REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+     REACT_APP_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+     REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+     REACT_APP_FIREBASE_APP_ID=your_app_id
+     REACT_APP_API_URL=http://localhost:5000
+     ```
 
 7. **Setup Google Cloud APIs:**
    - Enable Cloud Speech-to-Text API
@@ -227,7 +241,7 @@ Backend (Node.js/Express)
 ## 📁 Project Structure
 
 ```
-Zephyra/
+zephyra/
 ├─ backend/
 │  ├─ models/              # MongoDB models (User, Chat, Session, ForumPost)
 │  ├─ routes/              # API routes
@@ -263,9 +277,6 @@ Zephyra/
 │  ├─ public/              # Static assets
 │  ├─ tailwind.config.js   # TailwindCSS config
 │  └─ package.json
-├─ test-mind-canvas.js     # Mind Canvas testing script (NEW!)
-├─ CHAT_SETUP.md           # Detailed chat setup guide
-├─ MIND_CANVAS_README.md   # Mind Canvas documentation (NEW!)
 └─ README.md
 ```
 
@@ -275,10 +286,13 @@ MongoDB Collections:
 ├── users
 │   ├── firebaseUid (String, Unique, Indexed)
 │   ├── secretCode (String, Unique, Indexed)
+│   ├── pseudonym (String, Unique, Sparse Index - Anonymous forum display name)
 │   ├── nickname (String)
 │   ├── ageRange (String, Enum: 13-17, 18-25, 26-35, 36-50, 51+)
 │   ├── goals (Array of Strings)
 │   ├── preferredSupport (Array of Strings)
+│   ├── emergencyContactEmail (String, Optional)
+│   ├── onboardingCompleted (Boolean, Default: false)
 │   ├── moodHistory (Array of Objects)
 │   │   ├── mood (String, Required)
 │   │   ├── note (String)
@@ -287,10 +301,14 @@ MongoDB Collections:
 │   │   ├── text (String, Required)
 │   │   ├── mood (String, Required)
 │   │   ├── category (String, Required)
-│   │   └── date (Date, Default: Date.now)
+│   │   ├── date (Date, Default: Date.now)
+│   │   └── geminiComment (String, Optional - AI-generated appreciation)
 │   ├── activityHistory (Array of Objects)
-│   │   ├── type (String, Required)
+│   │   ├── type (String, Required, Enum: moodCheckIn, therapyVisit, breathingExercise, reflection, mindCanvas, forumPost, chatSession)
 │   │   └── date (Date, Default: Date.now)
+│   ├── userContext (Object - AI session context)
+│   │   ├── cumulativeSessionSummary (String, Optional)
+│   │   └── lastUpdated (Date, Optional)
 │   ├── lastLogin (Date)
 │   ├── isActive (Boolean, Default: true)
 │   └── createdAt (Date, Default: Date.now)
@@ -308,28 +326,50 @@ MongoDB Collections:
 │   ├── isActive (Boolean, Default: true)
 │   ├── createdAt (Date, Default: Date.now)
 │   └── updatedAt (Date, Default: Date.now)
-└── sessions
+├── sessions
+│   ├── firebaseUid (String, Required, Indexed)
+│   ├── sessionId (String, Required, Unique)
+│   ├── schedule (Object)
+│   │   ├── frequency (String, Enum: daily, weekly, monthly)
+│   │   ├── time (String, Required, Format: HH:MM)
+│   │   ├── days (Array of Strings, Enum: monday-sunday)
+│   │   └── timezone (String, Default: UTC)
+│   ├── status (String, Enum: scheduled, active, completed, cancelled, missed)
+│   ├── sessionData (Object)
+│   │   ├── backgroundImage (String, Optional)
+│   │   ├── backgroundPrompt (String, Optional)
+│   │   ├── backgroundMusic (String, Optional)
+│   │   ├── musicPrompt (String, Optional)
+│   │   ├── generatedWith (String, Optional - "Imagen 3" for images)
+│   │   ├── musicGeneratedWith (String, Optional - "Lyria 2")
+│   │   ├── greeting (String, Optional)
+│   │   ├── moodCheckIn (Object, Optional)
+│   │   ├── exploration (Array of Objects)
+│   │   ├── copingTool (Object, Optional)
+│   │   ├── reflection (Object, Optional)
+│   │   └── closure (Object, Optional)
+│   ├── nextSessionDate (Date, Required)
+│   ├── lastSessionSummary (String, Optional)
+│   ├── completedAt (Date, Optional)
+│   ├── createdAt (Date, Default: Date.now)
+│   └── updatedAt (Date, Default: Date.now)
+└── forumposts
+    ├── postId (String, Required, Unique, Indexed)
     ├── firebaseUid (String, Required, Indexed)
-    ├── sessionId (String, Required, Unique)
-    ├── schedule (Object)
-    │   ├── frequency (String, Enum: daily, weekly, monthly)
-    │   ├── time (String, Required, Format: HH:MM)
-    │   ├── days (Array of Strings, Enum: monday-sunday)
-    │   └── timezone (String, Default: UTC)
-    ├── status (String, Enum: scheduled, active, completed, cancelled, missed)
-    ├── sessionData (Object)
-    │   ├── backgroundImage (String, Optional)
-    │   ├── backgroundPrompt (String, Optional)
-    │   ├── greeting (String, Optional)
-    │   ├── moodCheckIn (Object, Optional)
-    │   ├── exploration (Array of Objects)
-    │   ├── copingTool (Object, Optional)
-    │   ├── reflection (Object, Optional)
-    │   └── closure (Object, Optional)
-    ├── nextSessionDate (Date, Required)
-    ├── lastSessionSummary (String, Optional)
-    ├── completedAt (Date, Optional)
-    ├── createdAt (Date, Default: Date.now)
+    ├── pseudonym (String, Required - Anonymous display name)
+    ├── content (String, Required, maxlength: 2000)
+    ├── comments (Array of Comment Objects)
+    │   ├── commentId (String, Required)
+    │   ├── firebaseUid (String, Required, Indexed)
+    │   ├── pseudonym (String, Required)
+    │   ├── content (String, Required, maxlength: 1000)
+    │   ├── parentCommentId (String, Optional, Indexed - for nested replies)
+    │   ├── replyCount (Number, Default: 0)
+    │   ├── createdAt (Date, Default: Date.now)
+    │   └── isModerated (Boolean, Default: true)
+    ├── commentCount (Number, Default: 0)
+    ├── isModerated (Boolean, Default: true)
+    ├── createdAt (Date, Default: Date.now, Indexed)
     └── updatedAt (Date, Default: Date.now)
 ```
 
@@ -378,6 +418,7 @@ MongoDB Collections:
 - `GET /api/forum/posts/:postId` - Get a specific forum post and comments
 - `POST /api/forum/posts` - Create a new post (AI-moderated)
 - `POST /api/forum/posts/:postId/comments` - Add a comment to a post (AI-moderated)
+- **Real-time Updates**: Forum uses Socket.io for live post updates, reactions, and new comments
 
 ## 🎨 Key Components
 
@@ -398,47 +439,55 @@ MongoDB Collections:
 - **ReflectionChart**: Reflection data visualization
 - **HeroSection**: Landing page hero section
 - **SecretCodeModal**: Secret code validation modal
+- **InstallPrompt**: PWA installation prompt with platform-specific guidance
 - **Forum**: Community forum interface for anonymous, AI-moderated peer support (NEW!)
 
 ### Backend Models
 - **User**: User profiles, mood history, reflections
 - **Chat**: Conversation history and context
 - **Session**: Wellness session management and data
+- **ForumPost**: Forum posts, comments, and reactions
 
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Node.js** with Express.js
+- **Node.js** with Express.js (v5.1.0)
 - **MongoDB** with Mongoose ODM (v8.18.1)
 - **Google Gemini AI** (@google/genai v1.19.0) for intelligent conversations
 - **Google Cloud Speech-to-Text** (@google-cloud/speech v7.2.0) for audio transcription
-- **Google Cloud Text-to-Speech** for audio responses
+- **Google Cloud Text-to-Speech** and **Web Speech API** for audio responses
+- **Google Cloud Vertex AI** (@google-cloud/vertexai v1.10.0) for advanced AI models
+- **Imagen 3** (via Vertex AI) for AI-generated nature scene backgrounds in therapy sessions (NEW)
+- **Lyria-002** (via Vertex AI) for AI-composed therapeutic background music (NEW)
 - **Firebase Admin** (v12.7.0) for authentication
+- **Socket.io** (v4.8.1) for real-time forum updates
 - **Multer** (v2.0.2) for file uploads
 - **CORS** (v2.8.5) for cross-origin requests
 - **Axios** (v1.12.2) for HTTP requests
-- **Imagen 3** for AI-generated nature scene backgrounds in therapy sessions (NEW)
-- **Lyria-002** for AI-composed therapeutic background music (NEW)
 
 ### Frontend
 - **React 19.1.1** with modern hooks
 - **React DOM 19.1.1** for rendering
-- **TailwindCSS** (v3.4.0) for styling
+- **TailwindCSS** (v3.4.18) for styling
 - **Framer Motion** (v12.23.13) for animations
 - **Firebase** (v12.2.1) for authentication
+- **Socket.io Client** (v4.8.1) for real-time updates
 - **Axios** (v1.12.2) for API calls
 - **React Router DOM** (v7.9.1) for navigation
 - **Heroicons** (@heroicons/react v2.2.0) for icons
 - **React Scripts** (v5.0.1) for build tools
+- **Service Worker** for PWA capabilities and offline support
 
 ## 🔒 Security Features
 
-- **Firebase Anonymous Authentication** for privacy
-- **CORS** enabled for cross-origin requests
-- **Environment variables** for sensitive data
-- **Secure MongoDB** connections
-- **API key protection** and rotation
-- **File upload validation** and size limits
+- **Firebase Anonymous Authentication** for privacy-first user experience
+- **CORS** enabled with controlled origins for cross-origin requests
+- **Environment variables** for sensitive data protection
+- **Secure MongoDB** connections with authentication
+- **API key protection** and secure credential management
+- **File upload validation** with size limits and type restrictions
+- **AI Content Moderation** for forum posts to ensure safe community interactions
+- **HTTPS enforcement** for production deployments (via service worker)
 
 ## 📱 Usage
 
@@ -499,25 +548,50 @@ MongoDB Collections:
 ### Session Personalization
 - Each therapy session features a dynamically created nature background image (via Imagen 3) and AI-composed instrumental music (via Lyria-002) personalized to your mood and preferences.
 
+### Installing as a PWA 📱
+1. **Desktop (Chrome/Edge)**:
+   - Click the install icon in the address bar (⊕)
+   - Or go to Menu → Install Zephyra
+
+2. **iOS (Safari)**:
+   - Tap the Share button
+   - Scroll down and tap "Add to Home Screen"
+   - Tap "Add" to confirm
+
+3. **Android (Chrome)**:
+   - Tap the menu (⋮) in the top right
+   - Tap "Install app" or "Add to Home screen"
+   - Tap "Install" to confirm
+
+4. **Benefits**:
+   - Launches in standalone window (no browser UI)
+   - Offline access to previously loaded content
+   - Faster load times with cached resources
+   - App icon on your home screen/desktop
+
 ## 🚀 Current Status
 
 The platform currently includes:
 - **AI-powered chat system** with voice and text support
-- **Session management** with scheduling and instant sessions
-- **Mood tracking** and reflection tools
+- **Session management** with scheduling, instant sessions, and AI-generated backgrounds/music
+- **Mood tracking** and reflection tools with interactive visualizations
 - **Mind Canvas** - AI-powered mood analysis from drawings (NEW!)
-- **User authentication** and profile management
-- **Personalized AI responses** based on user context
-- **Audio processing** with speech-to-text and text-to-speech
+- **User authentication** and profile management with anonymous Firebase auth
+- **Personalized AI responses** based on user context and history
+- **Audio processing** with speech-to-text and text-to-speech (Cloud + Web APIs)
 - **AI Moderated Support Forum** – Anonymous, AI-powered community space for sharing and peer support (NEW!)
+- **Progressive Web App (PWA)** - Installable on all devices with offline support
+- **Real-time updates** with Socket.io for forum interactions
+- **Cross-platform compatibility** - Works seamlessly on iOS, Android, Chrome, Firefox, Safari, and Edge
 
 ## 🔮 Future Development
 
 Potential areas for expansion:
-- Enhanced mobile responsiveness
-- Additional wellness tools and exercises
-- More detailed analytics and reporting
-- Integration with external wellness services
+- Additional wellness tools and exercises (meditation guides, journaling prompts)
+- More detailed analytics and reporting (weekly/monthly wellness reports)
+- Integration with external wellness services and resources
+- Enhanced session customization options
+- Community features expansion (group sessions, peer matching)
 
 ## 📝 Scripts
 
@@ -530,12 +604,6 @@ Potential areas for expansion:
 - `npm run dev` - Start development server (alternative script)
 - `npm run build` - Build for production
 - `npm run eject` - Eject from Create React App (irreversible)
-
-### Testing
-- `node test-auth.js` - Test authentication flow
-- `node test-personalized-quote.js` - Test personalized quote generation
-- `node test-session-completion.js` - Test session completion flow
-- `node test-mind-canvas.js` - Test Mind Canvas AI mood analysis (NEW!)
 
 ## 🔧 Troubleshooting
 
@@ -560,11 +628,23 @@ Potential areas for expansion:
    - Verify Firebase project configuration
    - Check Anonymous Authentication is enabled
    - Ensure Firebase config is correct in `frontend/src/firebase.js`
+   - Check browser's localStorage is enabled (required for auth persistence)
 
 5. **Database connection issues**
    - Verify MongoDB connection string
    - Check if MongoDB service is running
    - Ensure database name matches in connection string
+
+6. **PWA installation issues**
+   - Ensure app is served over HTTPS in production
+   - Check service worker registration in browser DevTools
+   - Verify manifest.json is accessible
+   - Clear browser cache and service worker cache if needed
+
+7. **Forum real-time updates not working**
+   - Check Socket.io connection in browser DevTools
+   - Verify WebSocket support in browser
+   - Ensure CORS is properly configured for Socket.io
 
 ### Debug Mode
 Enable debug logging by setting `NODE_ENV=development` in your backend `.env` file.
