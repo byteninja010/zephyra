@@ -30,25 +30,57 @@ const Dashboard = () => {
   const [showCompanionTooltip, setShowCompanionTooltip] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(0);
   const [companionActive, setCompanionActive] = useState(() => {
-    const saved = localStorage.getItem('companionActive');
-    return saved !== null ? saved === 'true' : true;
+    const saved = localStorage.getItem("companionActive");
+    return saved !== null ? saved === "true" : true;
   });
 
   // Persist companion active state
   useEffect(() => {
-    localStorage.setItem('companionActive', companionActive);
+    localStorage.setItem("companionActive", companionActive);
   }, [companionActive]);
 
   // Activity suggestions for the companion robot
   const activitySuggestions = [
-    { icon: "🧘", text: "Try a breathing exercise", action: () => setShowBreathingExercise(true) },
-    { icon: "😊", text: "Check in on your mood", action: () => setShowMoodModal(true) },
-    { icon: "💬", text: "Chat with your AI friend", action: () => navigate("/chat") },
-    { icon: "🎨", text: "Express yourself on Mind Canvas", action: () => setShowMindCanvas(true) },
-    { icon: "📝", text: "Reflect on your thoughts", action: () => setShowReflectionChart(true) },
-    { icon: "🔥", text: "Check your wellness streak", action: () => setShowStreakTracker(true) },
-    { icon: "👥", text: "Visit the support forum", action: () => navigate("/forum") },
-    { icon: "📅", text: "Schedule a wellness session", action: () => navigate("/sessions") }
+    {
+      icon: "🧘",
+      text: "Try a breathing exercise",
+      action: () => setShowBreathingExercise(true),
+    },
+    {
+      icon: "😊",
+      text: "Check in on your mood",
+      action: () => setShowMoodModal(true),
+    },
+    {
+      icon: "💬",
+      text: "Chat with your AI friend",
+      action: () => navigate("/chat"),
+    },
+    {
+      icon: "🎨",
+      text: "Express yourself on Mind Canvas",
+      action: () => setShowMindCanvas(true),
+    },
+    {
+      icon: "📝",
+      text: "Reflect on your thoughts",
+      action: () => setShowReflectionChart(true),
+    },
+    {
+      icon: "🔥",
+      text: "Check your wellness streak",
+      action: () => setShowStreakTracker(true),
+    },
+    {
+      icon: "👥",
+      text: "Visit the support forum",
+      action: () => navigate("/forum"),
+    },
+    {
+      icon: "📅",
+      text: "Schedule a wellness session",
+      action: () => navigate("/sessions"),
+    },
   ];
 
   // Companion robot tooltip cycling
@@ -80,7 +112,7 @@ const Dashboard = () => {
       clearInterval(showTooltipInterval);
       clearInterval(cycleActivity);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companionActive]);
 
   // Close toasts on scroll
@@ -94,8 +126,8 @@ const Dashboard = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [showMindCanvasToast, showSupportForumToast]);
 
   useEffect(() => {
@@ -186,7 +218,7 @@ const Dashboard = () => {
     };
 
     validateUser();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
   const handleSignOut = () => {
@@ -250,7 +282,9 @@ const Dashboard = () => {
       const firebaseUid = localStorage.getItem("firebaseUid");
       if (!firebaseUid) return;
 
-      const response = await fetch(`${API_URL}/api/sessions/upcoming/${firebaseUid}?limit=10`);
+      const response = await fetch(
+        `${API_URL}/api/sessions/upcoming/${firebaseUid}?limit=10`
+      );
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -346,13 +380,19 @@ const Dashboard = () => {
                 alt="Zephyra Logo"
                 className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
               />
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold" style={{ color: "#1E252B" }}>
+              <h1
+                className="text-lg sm:text-xl md:text-2xl font-bold"
+                style={{ color: "#1E252B" }}
+              >
                 Zephyra
               </h1>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-5 mr-2 sm:mr-4">
               <div className="text-right hidden sm:block">
-                <p className="text-xs sm:text-sm font-medium" style={{ color: "#1E252B" }}>
+                <p
+                  className="text-xs sm:text-sm font-medium"
+                  style={{ color: "#1E252B" }}
+                >
                   {user.nickname ? `Hello, ${user.nickname}` : "Welcome back"}
                 </p>
                 <p className="text-xs" style={{ color: "#475569" }}>
@@ -487,9 +527,19 @@ const Dashboard = () => {
 
           {/* Sessions */}
           <div
-            className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
+            {/* New Feature Badges */}
+            <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
+              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+                ✨ <span className="hidden sm:inline">MORE</span> PERSONALIZED
+              </span>
+              <span className=" px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
+                ✨ POWERED BY IMAGEN & LYRIA
+              </span>
+            </div>
+
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
@@ -538,9 +588,9 @@ const Dashboard = () => {
           <div
             id="support-forum-section"
             className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
-              highlightedCard === 'support-forum' 
-                ? 'border-cyan-400 shadow-2xl ring-4 ring-cyan-300/50 animate-pulse' 
-                : 'border-white/40 hover:shadow-xl'
+              highlightedCard === "support-forum"
+                ? "border-cyan-400 shadow-2xl ring-4 ring-cyan-300/50 animate-pulse"
+                : "border-white/40 hover:shadow-xl"
             }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
@@ -550,10 +600,10 @@ const Dashboard = () => {
                 ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
               </span>
               <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
-              ✨ MODERATED BY GEMINI
+                ✨ MODERATED BY GEMINI
               </span>
             </div>
-            
+
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
@@ -602,9 +652,9 @@ const Dashboard = () => {
           <div
             id="mind-canvas-section"
             className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
-              highlightedCard === 'mind-canvas' 
-                ? 'border-blue-400 shadow-2xl ring-4 ring-blue-300/50 animate-pulse' 
-                : 'border-white/40 hover:shadow-xl'
+              highlightedCard === "mind-canvas"
+                ? "border-blue-400 shadow-2xl ring-4 ring-blue-300/50 animate-pulse"
+                : "border-white/40 hover:shadow-xl"
             }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
@@ -614,10 +664,10 @@ const Dashboard = () => {
                 ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
               </span>
               <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
-              ✨ POWERED BY VISION AI
+                ✨ POWERED BY VISION AI
               </span>
             </div>
-            
+
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
@@ -661,11 +711,9 @@ const Dashboard = () => {
               Start Drawing
             </button>
           </div>
-
         </div>
 
-
-         {/* Wellness Insights */}
+        {/* Wellness Insights */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 mb-8 sm:mb-12">
           {/* Mood Graph */}
           <div className="lg:col-span-1">
@@ -682,7 +730,8 @@ const Dashboard = () => {
                 <div
                   className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mr-2 sm:mr-4"
                   style={{
-                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                    background:
+                      "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                   }}
                 >
                   <svg
@@ -710,14 +759,15 @@ const Dashboard = () => {
                 onClick={() => navigate("/sessions")}
                 className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
                 style={{
-                  background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                  background:
+                    "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                   color: "white",
                 }}
               >
                 Manage All
               </button>
             </div>
-            
+
             {scheduledSessions && scheduledSessions.length > 0 ? (
               <div className="space-y-3">
                 {scheduledSessions.slice(0, 4).map((session, index) => (
@@ -726,18 +776,24 @@ const Dashboard = () => {
                     className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300"
                     style={{ background: "rgba(60, 145, 197, 0.05)" }}
                   >
-                      <div className="flex items-center space-x-2 sm:space-x-3">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
                       <div
                         className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
                         style={{
-                          background: session.status === 'active' 
-                            ? "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)"
-                            : "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)"
+                          background:
+                            session.status === "active"
+                              ? "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)"
+                              : "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                         }}
                       ></div>
                       <div>
-                        <p className="text-sm font-medium" style={{ color: "#1E252B" }}>
-                          {session.sessionId.startsWith('session-instant_') ? 'Instant Session' : 'Scheduled Session'}
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: "#1E252B" }}
+                        >
+                          {session.sessionId.startsWith("session-instant_")
+                            ? "Instant Session"
+                            : "Scheduled Session"}
                         </p>
                         <p className="text-xs" style={{ color: "#475569" }}>
                           {session.schedule.frequency} • {session.schedule.time}
@@ -745,8 +801,11 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-medium" style={{ color: "#3C91C5" }}>
-                        {session.status === 'active' ? 'Active' : 'Scheduled'}
+                      <p
+                        className="text-xs font-medium"
+                        style={{ color: "#3C91C5" }}
+                      >
+                        {session.status === "active" ? "Active" : "Scheduled"}
                       </p>
                       <p className="text-xs" style={{ color: "#475569" }}>
                         {new Date(session.nextSessionDate).toLocaleDateString()}
@@ -767,7 +826,8 @@ const Dashboard = () => {
                 <div
                   className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
                   style={{
-                    background: "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
+                    background:
+                      "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
                   }}
                 >
                   <svg
@@ -791,7 +851,8 @@ const Dashboard = () => {
                   onClick={() => navigate("/sessions")}
                   className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
                   style={{
-                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                    background:
+                      "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
                     color: "white",
                   }}
                 >
@@ -800,8 +861,6 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-
-          
         </div>
 
         {/* Additional Quick Actions */}
@@ -937,9 +996,16 @@ const Dashboard = () => {
 
           {/* Chat with AI */}
           <div
-            className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
+            {/* New Feature Badge */}
+            <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
+              <span className="hidden lg:inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
+                ✨ NEW
+              </span>
+            </div>
+
             <div
               className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto"
               style={{
@@ -1032,11 +1098,7 @@ const Dashboard = () => {
               View Streaks
             </button>
           </div>
-
         </div>
-
-        
-        
       </main>
 
       {/* Mood Check-in Modal */}
@@ -1073,7 +1135,8 @@ const Dashboard = () => {
       {/* Support Forum Toast Notification - Fixed Top Center */}
       {showSupportForumToast && (
         <div className="hidden lg:block fixed top-8 left-[41.5%] -translate-x-1/2 z-40 animate-bounce">
-          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
+          <div
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
             style={{
               background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
             }}
@@ -1081,10 +1144,15 @@ const Dashboard = () => {
             <button
               onClick={() => {
                 setShowSupportForumToast(false);
-                const supportForumSection = document.getElementById('support-forum-section');
+                const supportForumSection = document.getElementById(
+                  "support-forum-section"
+                );
                 if (supportForumSection) {
-                  supportForumSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  setHighlightedCard('support-forum');
+                  supportForumSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                  setHighlightedCard("support-forum");
                   setTimeout(() => setHighlightedCard(null), 3000);
                 }
               }}
@@ -1095,8 +1163,12 @@ const Dashboard = () => {
                 NEW
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-white font-semibold text-sm">Try Out</span>
-                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">Support Forum</span>
+                <span className="text-white font-semibold text-sm">
+                  Try Out
+                </span>
+                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">
+                  Support Forum
+                </span>
               </div>
             </button>
             <button
@@ -1104,8 +1176,18 @@ const Dashboard = () => {
               className="ml-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-0.5 transition-all"
               aria-label="Dismiss"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -1115,7 +1197,8 @@ const Dashboard = () => {
       {/* Mind Canvas Toast Notification - Fixed Top Center */}
       {showMindCanvasToast && (
         <div className="hidden lg:block fixed top-20 left-[42%] -translate-x-1/2 z-40 animate-bounce">
-          <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
+          <div
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
             style={{
               background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
             }}
@@ -1123,10 +1206,15 @@ const Dashboard = () => {
             <button
               onClick={() => {
                 setShowMindCanvasToast(false);
-                const mindCanvasSection = document.getElementById('mind-canvas-section');
+                const mindCanvasSection = document.getElementById(
+                  "mind-canvas-section"
+                );
                 if (mindCanvasSection) {
-                  mindCanvasSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  setHighlightedCard('mind-canvas');
+                  mindCanvasSection.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                  setHighlightedCard("mind-canvas");
                   setTimeout(() => setHighlightedCard(null), 3000);
                 }
               }}
@@ -1137,8 +1225,12 @@ const Dashboard = () => {
                 NEW
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-white font-semibold text-sm">Try Out</span>
-                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">Mind Canvas</span>
+                <span className="text-white font-semibold text-sm">
+                  Try Out
+                </span>
+                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">
+                  Mind Canvas
+                </span>
               </div>
             </button>
             <button
@@ -1146,8 +1238,18 @@ const Dashboard = () => {
               className="ml-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-0.5 transition-all"
               aria-label="Dismiss"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -1159,38 +1261,43 @@ const Dashboard = () => {
         {/* Tooltip */}
         {showCompanionTooltip && (
           <div className="absolute bottom-full right-0 mb-2 sm:mb-3 w-44 sm:w-56 md:w-60 animate-fade-in">
-            <div 
+            <div
               className="bg-white rounded-lg sm:rounded-2xl shadow-xl border-2 p-2 sm:p-3 relative"
               style={{
                 borderColor: "#3C91C5",
-                background: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)"
+                background: "linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%)",
               }}
             >
               {/* Speech bubble arrow */}
-              <div 
+              <div
                 className="absolute -bottom-2 right-3 sm:right-6 w-3 h-3 sm:w-4 sm:h-4 bg-white transform rotate-45 border-r-2 border-b-2"
                 style={{ borderColor: "#3C91C5" }}
               ></div>
-              
+
               <div className="relative z-10 flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
-                <span className="text-lg sm:text-2xl">{activitySuggestions[currentActivity].icon}</span>
+                <span className="text-lg sm:text-2xl">
+                  {activitySuggestions[currentActivity].icon}
+                </span>
                 <p className="text-xs sm:text-sm font-medium text-gray-800 flex-1 leading-tight">
                   {activitySuggestions[currentActivity].text}
                 </p>
               </div>
-              
+
               <div className="relative z-10 flex gap-1.5 sm:gap-2">
                 <button
                   onClick={() => {
                     activitySuggestions[currentActivity].action();
                     setShowCompanionTooltip(false);
                     // Cycle to next activity after user completes current one
-                    setCurrentActivity((prev) => (prev + 1) % activitySuggestions.length);
+                    setCurrentActivity(
+                      (prev) => (prev + 1) % activitySuggestions.length
+                    );
                   }}
                   className="flex-1 py-1 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-md active:scale-95"
                   style={{
-                    background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                    color: "white"
+                    background:
+                      "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                    color: "white",
                   }}
                 >
                   Let's do it!
@@ -1204,9 +1311,11 @@ const Dashboard = () => {
                   style={{
                     background: companionActive ? "#FEE2E2" : "#D1FAE5",
                     color: companionActive ? "#991B1B" : "#065F46",
-                    borderColor: companionActive ? "#FCA5A5" : "#86EFAC"
+                    borderColor: companionActive ? "#FCA5A5" : "#86EFAC",
                   }}
-                  title={companionActive ? "Pause suggestions" : "Resume suggestions"}
+                  title={
+                    companionActive ? "Pause suggestions" : "Resume suggestions"
+                  }
                 >
                   {companionActive ? "⏸️" : "▶️"}
                 </button>
@@ -1214,52 +1323,62 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-        
+
         {/* Companion Robot Button */}
         <button
           onClick={() => setShowCompanionTooltip(!showCompanionTooltip)}
-          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center relative group ${companionActive ? "bg-cyan-700" : "bg-gray-600"}`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center relative group ${
+            companionActive ? "bg-cyan-700" : "bg-gray-600"
+          }`}
           style={{
             color: "white",
-            animation: companionActive ? "bounceSlow 3s ease-in-out infinite" : "none"
+            animation: companionActive
+              ? "bounceSlow 3s ease-in-out infinite"
+              : "none",
           }}
-          title={companionActive ? "Your Wellness Companion (Active)" : "Your Wellness Companion (Paused)"}
+          title={
+            companionActive
+              ? "Your Wellness Companion (Active)"
+              : "Your Wellness Companion (Paused)"
+          }
         >
-           {/* Robot Face */}
-           <div className="relative scale-75 sm:scale-90 md:scale-100">
-             {/* Head */}
-             <div className="w-8 h-8 bg-white rounded-lg flex flex-col items-center justify-center relative">
-               {/* Left Ear */}
-               <div className="absolute -left-2 top-2 w-1.5 h-3 bg-orange-400 rounded-sm"></div>
-               
-               {/* Right Ear */}
-               <div className="absolute -right-2 top-2 w-1.5 h-3 bg-orange-400 rounded-sm"></div>
-               
-               {/* Antenna */}
-               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
-                 <div className="w-0.5 h-2 bg-white"></div>
-                 <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
-               </div>
-               
-               {/* Eyes */}
-               <div className="flex gap-1.5 mb-1">
-                 <div className="w-1.5 h-1.5 bg-gray-800 rounded-full animate-blink"></div>
-                 <div className="w-1.5 h-1.5 bg-gray-800 rounded-full animate-blink"></div>
-               </div>
-               
-               {/* Smile */}
-               <div className="w-4 h-1.5 border-b-2 border-gray-800 rounded-full"></div>
-             </div>
-             
-             {/* Notification badge */}
-             <div 
-               className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white"
-               style={{
-                 background: companionActive ? "#4ADE80" : "#F87171",
-                 animation: companionActive ? "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite" : "none"
-               }}
-             ></div>
-           </div>
+          {/* Robot Face */}
+          <div className="relative scale-75 sm:scale-90 md:scale-100">
+            {/* Head */}
+            <div className="w-8 h-8 bg-white rounded-lg flex flex-col items-center justify-center relative">
+              {/* Left Ear */}
+              <div className="absolute -left-2 top-2 w-1.5 h-3 bg-orange-400 rounded-sm"></div>
+
+              {/* Right Ear */}
+              <div className="absolute -right-2 top-2 w-1.5 h-3 bg-orange-400 rounded-sm"></div>
+
+              {/* Antenna */}
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex flex-col items-center">
+                <div className="w-0.5 h-2 bg-white"></div>
+                <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse"></div>
+              </div>
+
+              {/* Eyes */}
+              <div className="flex gap-1.5 mb-1">
+                <div className="w-1.5 h-1.5 bg-gray-800 rounded-full animate-blink"></div>
+                <div className="w-1.5 h-1.5 bg-gray-800 rounded-full animate-blink"></div>
+              </div>
+
+              {/* Smile */}
+              <div className="w-4 h-1.5 border-b-2 border-gray-800 rounded-full"></div>
+            </div>
+
+            {/* Notification badge */}
+            <div
+              className="absolute -top-1 -right-1 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full border-2 border-white"
+              style={{
+                background: companionActive ? "#4ADE80" : "#F87171",
+                animation: companionActive
+                  ? "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite"
+                  : "none",
+              }}
+            ></div>
+          </div>
         </button>
       </div>
 
@@ -1270,7 +1389,7 @@ const Dashboard = () => {
           className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center"
           style={{
             background: "linear-gradient(135deg, #EF4444 0%, #DC2626 100%)",
-            color: "white"
+            color: "white",
           }}
           title="Crisis Support"
         >
@@ -1315,15 +1434,27 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">Crisis Support</h3>
-                    <p className="text-red-100 text-sm">Immediate help when you need it</p>
+                    <p className="text-red-100 text-sm">
+                      Immediate help when you need it
+                    </p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowCrisisModal(false)}
                   className="text-white hover:text-red-200 transition-colors"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -1351,22 +1482,39 @@ const Dashboard = () => {
                   Need Immediate Help?
                 </h4>
                 <p className="text-gray-600 text-sm mb-4">
-                  If you're experiencing a mental health crisis or having thoughts of self-harm, please reach out for help immediately.
+                  If you're experiencing a mental health crisis or having
+                  thoughts of self-harm, please reach out for help immediately.
                 </p>
               </div>
 
               {/* Emergency Contact */}
               <div className="dashboard-card bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600 mb-2">14416</div>
-                  <p className="text-sm text-red-700 font-medium mb-2">Suicide & Crisis Lifeline</p>
-                  <p className="text-xs text-red-600 mb-3">Available 24/7, free and confidential</p>
+                  <div className="text-3xl font-bold text-red-600 mb-2">
+                    14416
+                  </div>
+                  <p className="text-sm text-red-700 font-medium mb-2">
+                    Suicide & Crisis Lifeline
+                  </p>
+                  <p className="text-xs text-red-600 mb-3">
+                    Available 24/7, free and confidential
+                  </p>
                   <a
                     href="tel:14416"
                     className="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                      />
                     </svg>
                     Call Now
                   </a>
@@ -1377,13 +1525,27 @@ const Dashboard = () => {
               <div className="space-y-3">
                 <div className="dashboard-card flex items-center p-3 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-4 h-4 text-blue-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Emergency Services</p>
-                    <p className="text-xs text-gray-600">Call 112 for immediate danger</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      Emergency Services
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Call 112 for immediate danger
+                    </p>
                   </div>
                 </div>
               </div>
