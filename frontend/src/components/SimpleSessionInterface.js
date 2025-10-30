@@ -396,7 +396,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   if (!session) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-8">
+        <div className="dashboard-card bg-white rounded-2xl p-8">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-lg">Making Your Session Personalized...</p>
@@ -419,7 +419,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       {/* Completion Loading Overlay */}
       {isCompleting && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl">
+          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-md mx-4 text-center shadow-2xl">
             <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-3 sm:mb-4"></div>
             <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2">Completing Session</h3>
             <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Generating your session summary and saving progress...</p>
@@ -433,7 +433,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
       {/* Session Start Modal */}
       {showMoodCheckIn && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
-          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4">
+          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4">
             <div className="text-center mb-4 sm:mb-6">
               <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <span className="text-xl sm:text-2xl">🎯</span>

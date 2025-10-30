@@ -54,7 +54,7 @@ const SecretCodeModal = () => {
           
           {/* Modal Content */}
           <div className="relative z-10 w-full max-w-md animate-fade-in">
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/20">
+            <div className="dashboard-card bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/20">
               {/* Modal Header */}
               <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
@@ -139,7 +139,7 @@ const SecretCodeModal = () => {
           </button>
 
           {/* Main Card */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
+          <div className="dashboard-card bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-2">
@@ -201,7 +201,7 @@ const SecretCodeModal = () => {
 
 
             {/* Instructions */}
-            <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+            <div className="dashboard-card p-3 sm:p-4 rounded-lg sm:rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
               <h3 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3" style={{ color: '#1E252B' }}>How to use your secret code:</h3>
               <div className="text-xs sm:text-sm space-y-2" style={{ color: '#475569' }}>
                 <div className="flex items-start">

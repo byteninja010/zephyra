@@ -96,7 +96,7 @@ const InstallPrompt = () => {
       {/* Install Prompt */}
       <div className="fixed top-0 left-0 right-0 z-50 animate-in slide-in-from-top duration-500">
         <div 
-          className="mx-4 mt-4 rounded-2xl shadow-2xl overflow-hidden"
+          className="dashboard-card mx-4 mt-4 rounded-2xl shadow-2xl overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)' }}
         >
           {/* Floating Background Elements */}
@@ -142,7 +142,7 @@ const InstallPrompt = () => {
 
                 {/* iOS Instructions */}
                 {isIOS && (
-                  <div className="mb-4 p-3 bg-white/60 backdrop-blur-sm rounded-xl">
+                  <div className="dashboard-card mb-4 p-3 bg-white/60 backdrop-blur-sm rounded-xl">
                     <p className="text-xs font-semibold mb-2" style={{ color: '#1E252B' }}>
                       📱 How to Install:
                     </p>

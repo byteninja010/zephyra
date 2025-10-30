@@ -276,7 +276,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
             {/* Drawing Area */}
             <div className="flex flex-col space-y-3 sm:space-y-4 h-full">
               {/* Instructions Banner */}
-              <div className={`border rounded-lg p-2 sm:p-3 text-xs sm:text-sm ${
+              <div className={`dashboard-card border rounded-lg p-2 sm:p-3 text-xs sm:text-sm ${
                 isEraser 
                   ? 'bg-pink-50 border-pink-200 text-pink-800'
                   : 'bg-blue-50 border-blue-200 text-blue-800'
@@ -287,7 +287,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
                 }
               </div>
               
-              <div className="flex-1 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] relative bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 sm:border-4 border-blue-200">
+              <div className="dashboard-card flex-1 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] relative bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 sm:border-4 border-blue-200">
                 <canvas
                   ref={canvasRef}
                   className={`absolute inset-0 w-full h-full ${isEraser ? 'cursor-not-allowed' : 'cursor-crosshair'}`}
@@ -314,7 +314,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setIsEraser(false)}
-                    className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
+                    className={`dashboard-card flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
                       !isEraser
                         ? 'text-white shadow-lg scale-105'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -330,7 +330,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
                   </button>
                   <button
                     onClick={() => setIsEraser(true)}
-                    className={`flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
+                    className={`dashboard-card flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
                       isEraser
                         ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg scale-105'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -369,7 +369,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
 
                 {/* Eraser Info - Only show when erasing */}
                 {isEraser && (
-                  <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
+                  <div className="dashboard-card bg-pink-50 border border-pink-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 text-pink-800">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -450,7 +450,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
               {showResult && analysis ? (
                 <div className="flex-1 space-y-6 animate-fade-in">
                   {/* Mood Display */}
-                  <div className={`bg-gradient-to-br ${getMoodColor(analysis.mood)} rounded-2xl p-8 text-white shadow-xl`}>
+                  <div className={`dashboard-card bg-gradient-to-br ${getMoodColor(analysis.mood)} rounded-2xl p-8 text-white shadow-xl`}>
                     <div className="flex items-center justify-center mb-4">
                       <span className="text-7xl">{getMoodEmoji(analysis.mood)}</span>
                     </div>
@@ -464,28 +464,28 @@ const MindCanvas = ({ isOpen, onClose }) => {
 
                   {/* Analysis Details */}
                   <div className="space-y-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+                    <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
                       <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
                         <span className="mr-2">🎨</span> Color Story
                       </h4>
                       <p className="text-gray-700">{analysis.colorAnalysis}</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100">
+                    <div className="dashboard-card bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100">
                       <h4 className="font-semibold text-cyan-900 mb-2 flex items-center">
                         <span className="mr-2">✏️</span> Stroke Energy
                       </h4>
                       <p className="text-gray-700">{analysis.strokeAnalysis}</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border border-green-100">
+                    <div className="dashboard-card bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border border-green-100">
                       <h4 className="font-semibold text-green-900 mb-2 flex items-center">
                         <span className="mr-2">💡</span> Activity Suggestion
                       </h4>
                       <p className="text-gray-700 font-medium">{analysis.activitySuggestion}</p>
                     </div>
 
-                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+                    <div className="dashboard-card bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
                       <h4 className="font-semibold text-orange-900 mb-2 flex items-center">
                         <span className="mr-2">💙</span> A Message For You
                       </h4>
@@ -516,7 +516,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
                       There's no right or wrong way to draw. 
                       When you're ready, AI will interpret the feelings behind your creation.
                     </p>
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+                    <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
                       <p className="text-sm text-gray-700">
                         <strong>Tip:</strong> Don't overthink it. Just draw what feels right in this moment. 
                         Abstract shapes, colors, lines — it all tells a story.

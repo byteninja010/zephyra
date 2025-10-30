@@ -700,7 +700,7 @@ const ChatInterface = () => {
         ></div>
       </div>
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-white/20">
+      <div className="dashboard-card sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-8xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
@@ -761,7 +761,7 @@ const ChatInterface = () => {
       <div className="flex h-[calc(100vh-64px)]">
         {/* Sidebar - Chat History */}
         <div
-          className={`${showMobileMenu ? "block" : "hidden"} ${
+          className={`dashboard-card ${showMobileMenu ? "block" : "hidden"} ${
             isChatHistoryCollapsed ? "lg:hidden" : "lg:block"
           } bg-white/60 backdrop-blur-sm border-r border-white/20 flex-shrink-0 transition-all duration-300 relative`}
           style={{ width: `${sidebarWidth}px` }}
@@ -820,7 +820,7 @@ const ChatInterface = () => {
                 chatHistory.map((chat) => (
                   <div
                     key={chat._id}
-                    className={`p-3 rounded-xl cursor-pointer transition-all duration-300 group hover:shadow-lg ${
+                    className={`dashboard-card p-3 rounded-xl cursor-pointer transition-all duration-300 group hover:shadow-lg ${
                       currentChatId === chat._id
                         ? "text-white shadow-xl"
                         : "bg-white/80 hover:bg-white hover:-translate-y-1"
@@ -950,7 +950,7 @@ const ChatInterface = () => {
           {!currentChatId ? (
             <div className="flex-1 flex items-center justify-center p-8 relative z-10">
               <div className="text-center max-w-md">
-                <div className="w-32 h-32 rounded-3xl flex items-center justify-center mx-auto mb-6 glass backdrop-blur-lg border border-white/20 shadow-2xl">
+                <div className="dashboard-card w-32 h-32 rounded-3xl flex items-center justify-center mx-auto mb-6 glass backdrop-blur-lg border border-white/20 shadow-2xl">
                   <img
                     src="/logo.png"
                     alt="Zephyra Logo"
@@ -1037,7 +1037,7 @@ const ChatInterface = () => {
               <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
                 {messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center relative z-10">
-                    <div className="w-28 h-28 rounded-3xl flex items-center justify-center mb-6 glass backdrop-blur-lg border border-white/20 shadow-2xl">
+                    <div className="dashboard-card w-28 h-28 rounded-3xl flex items-center justify-center mb-6 glass backdrop-blur-lg border border-white/20 shadow-2xl">
                       <img
                         src="/logo.png"
                         alt="Zephyra Logo"
@@ -1080,7 +1080,7 @@ const ChatInterface = () => {
                         }`}
                       >
                       <div
-                        className={`max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg ${
+                        className={`dashboard-card max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg ${
                           message.sender === "user"
                             ? "text-white"
                             : "bg-white/80 backdrop-blur-sm"
@@ -1152,7 +1152,7 @@ const ChatInterface = () => {
                     {/* Loading State */}
                     {isLoading && (
                       <div className="flex justify-start">
-                        <div className="max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg bg-white/80 backdrop-blur-sm">
+                        <div className="dashboard-card max-w-xs lg:max-w-md px-6 py-4 rounded-2xl shadow-lg bg-white/80 backdrop-blur-sm">
                           <div className="flex items-center space-x-3">
                             {loadingType === 'audio' ? (
                               <div className="flex items-center space-x-2">
@@ -1205,7 +1205,7 @@ const ChatInterface = () => {
               </div>
 
               {/* Input Area */}
-              <div className="bg-white/60 backdrop-blur-sm border-t border-white/20 p-4 relative z-10">
+              <div className="dashboard-card bg-white/60 backdrop-blur-sm border-t border-white/20 p-4 relative z-10">
 
                 <div className="flex items-center space-x-3">
                   <div className="flex-1 relative">
@@ -1299,7 +1299,7 @@ const ChatInterface = () => {
           {/* Backdrop with blur effect */}
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
           
-          <div className="relative bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-6 mx-4 max-w-sm animate-in slide-in-from-bottom-4 duration-300 hover:shadow-3xl transition-all">
+          <div className="dashboard-card relative bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-6 mx-4 max-w-sm animate-in slide-in-from-bottom-4 duration-300 hover:shadow-3xl transition-all">
             <div className="flex items-center space-x-4">
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center animate-pulse shadow-lg"
@@ -1394,7 +1394,7 @@ const ChatInterface = () => {
            ></div>
            
            {/* Dialog */}
-           <div className="relative bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8 mx-4 max-w-md animate-in slide-in-from-bottom-4 duration-300">
+           <div className="dashboard-card relative bg-white/95 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8 mx-4 max-w-md animate-in slide-in-from-bottom-4 duration-300">
              <div className="text-center">
                {/* Warning Icon */}
                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)' }}>

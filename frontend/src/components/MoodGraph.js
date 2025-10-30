@@ -70,7 +70,7 @@ const MoodGraph = ({ moodHistory }) => {
   return (
     <div className="w-full">
       {/* Graph Container */}
-      <div className="relative bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/40">
+      <div className="dashboard-card relative bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/40">
         {/* Title */}
         <div className="flex items-center justify-between mb-8 sm:mb-12 md:mb-16">
           <h3 className="text-base sm:text-lg md:text-xl font-semibold" style={{ color: '#1E252B' }}>Mood Trends</h3>

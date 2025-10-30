@@ -398,7 +398,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <div
-                className="p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40"
+                className="dashboard-card p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40"
                 style={{ background: "rgba(255, 255, 255, 0.8)" }}
               >
                 <div className="flex items-center justify-center mb-3 sm:mb-4">
@@ -437,7 +437,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* AI Companion */}
           <div
-            className="group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
@@ -487,7 +487,7 @@ const Dashboard = () => {
 
           {/* Sessions */}
           <div
-            className="group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
@@ -537,7 +537,7 @@ const Dashboard = () => {
           {/* Support Forum */}
           <div
             id="support-forum-section"
-            className={`group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
+            className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
               highlightedCard === 'support-forum' 
                 ? 'border-cyan-400 shadow-2xl ring-4 ring-cyan-300/50 animate-pulse' 
                 : 'border-white/40 hover:shadow-xl'
@@ -601,7 +601,7 @@ const Dashboard = () => {
           {/* Mind Canvas */}
           <div
             id="mind-canvas-section"
-            className={`group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
+            className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
               highlightedCard === 'mind-canvas' 
                 ? 'border-blue-400 shadow-2xl ring-4 ring-blue-300/50 animate-pulse' 
                 : 'border-white/40 hover:shadow-xl'
@@ -674,7 +674,7 @@ const Dashboard = () => {
 
           {/* Scheduled Sessions */}
           <div
-            className="p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40"
+            className="dashboard-card p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -808,7 +808,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-12">
           {/* Mood Check-in */}
           <div
-            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
@@ -888,7 +888,7 @@ const Dashboard = () => {
 
           {/* Breathing Exercise */}
           <div
-            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
@@ -937,7 +937,7 @@ const Dashboard = () => {
 
           {/* Chat with AI */}
           <div
-            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
@@ -986,7 +986,7 @@ const Dashboard = () => {
 
           {/* Streak Tracker */}
           <div
-            className="group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             <div
@@ -1293,7 +1293,7 @@ const Dashboard = () => {
       {/* Crisis Support Modal */}
       {showCrisisModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl animate-bounce-in">
+          <div className="dashboard-card bg-white rounded-2xl max-w-md w-full mx-4 overflow-hidden shadow-2xl animate-bounce-in">
             {/* Header */}
             <div className="bg-gradient-to-r from-red-500 to-red-600 px-6 py-4 text-white">
               <div className="flex items-center justify-between">
@@ -1356,7 +1356,7 @@ const Dashboard = () => {
               </div>
 
               {/* Emergency Contact */}
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+              <div className="dashboard-card bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-red-600 mb-2">14416</div>
                   <p className="text-sm text-red-700 font-medium mb-2">Suicide & Crisis Lifeline</p>
@@ -1375,7 +1375,7 @@ const Dashboard = () => {
 
               {/* Additional Resources */}
               <div className="space-y-3">
-                <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+                <div className="dashboard-card flex items-center p-3 bg-gray-50 rounded-lg">
                   <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
                     <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

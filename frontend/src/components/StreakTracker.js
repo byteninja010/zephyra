@@ -306,17 +306,17 @@ const StreakTracker = ({ isOpen, onClose }) => {
 
         {/* Streak Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8">
-          <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl text-center" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)', color: 'white' }}>
+          <div className="dashboard-card p-4 sm:p-6 rounded-lg sm:rounded-xl text-center" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)', color: 'white' }}>
             <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">{currentStreak}</div>
             <div className="text-xs sm:text-sm opacity-90">Current Streak</div>
             <div className="text-xs opacity-75 mt-1">Days in a row</div>
           </div>
-          <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl text-center" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+          <div className="dashboard-card p-4 sm:p-6 rounded-lg sm:rounded-xl text-center" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
             <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2" style={{ color: '#10B981' }}>{longestStreak}</div>
             <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Longest Streak</div>
             <div className="text-xs mt-1" style={{ color: '#6B7280' }}>Personal best</div>
           </div>
-          <div className="p-4 sm:p-6 rounded-lg sm:rounded-xl text-center" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
+          <div className="dashboard-card p-4 sm:p-6 rounded-lg sm:rounded-xl text-center" style={{ background: 'rgba(245, 158, 11, 0.1)' }}>
             <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2" style={{ color: '#F59E0B' }}>{history.length}</div>
             <div className="text-xs sm:text-sm" style={{ color: '#475569' }}>Total Activities</div>
             <div className="text-xs mt-1" style={{ color: '#6B7280' }}>All time</div>
@@ -333,7 +333,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
               <button
                 key={activity}
                 onClick={() => addActivity(activity)}
-                className="p-3 sm:p-4 rounded-lg sm:rounded-xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                className="dashboard-card p-3 sm:p-4 rounded-lg sm:rounded-xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
                 style={{
                   background: `linear-gradient(135deg, ${getActivityColor(activity)}20, ${getActivityColor(activity)}10)`,
                   border: `2px solid ${getActivityColor(activity)}30`
@@ -360,7 +360,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
             {Object.keys(weeklyStats).map((activity) => (
               <div
                 key={activity}
-                className="p-3 sm:p-4 rounded-lg text-center"
+                className="dashboard-card p-3 sm:p-4 rounded-lg text-center"
                 style={{ background: 'rgba(229, 231, 235, 0.5)' }}
               >
                 <div className="text-xl sm:text-2xl mb-1">{getActivityIcon(activity)}</div>
@@ -382,7 +382,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
           </h3>
           {recentActivity.length === 0 ? (
             <div className="text-center py-6 sm:py-8">
-              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+              <div className="dashboard-card w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
                 <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="#3C91C5" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -394,7 +394,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
               {recentActivity.map((entry, index) => (
                 <div
                   key={entry._id || entry.id || index}
-                  className="flex items-center justify-between p-2 sm:p-3 rounded-lg"
+                  className="dashboard-card flex items-center justify-between p-2 sm:p-3 rounded-lg"
                   style={{ background: 'rgba(229, 231, 235, 0.3)' }}
                 >
                   <div className="flex items-center space-x-2 sm:space-x-3">
@@ -424,7 +424,7 @@ const StreakTracker = ({ isOpen, onClose }) => {
         </div>
 
         {/* Motivational Message */}
-        <div className="mt-6 sm:mt-8 p-3 sm:p-4 rounded-lg text-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+        <div className="dashboard-card mt-6 sm:mt-8 p-3 sm:p-4 rounded-lg text-center" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
           <p className="text-xs sm:text-sm" style={{ color: '#475569' }}>
             {currentStreak > 0 
               ? `Keep it up! You're on a ${currentStreak}-day streak! 🔥`

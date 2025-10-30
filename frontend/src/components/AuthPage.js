@@ -143,7 +143,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
         </button>
 
         {/* Main Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
+        <div className="dashboard-card bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
             <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
@@ -226,7 +226,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-xl animate-slide-up transform transition-all duration-300 hover:scale-[1.01]">
+            <div className="dashboard-card mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-xl animate-slide-up transform transition-all duration-300 hover:scale-[1.01]">
               <div className="flex items-center">
                 <svg
                   className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 mr-2 sm:mr-3 flex-shrink-0"
@@ -322,7 +322,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
 
                 {/* Privacy Information */}
                 <div
-                  className="p-3 sm:p-4 rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
+                  className="dashboard-card p-3 sm:p-4 rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md"
                   style={{
                     background: 'rgba(60, 145, 197, 0.05)',
                     borderColor: '#3C91C5',

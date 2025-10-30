@@ -111,7 +111,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
+      <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden">
         <div className="overflow-y-auto max-h-[90vh] p-4 sm:p-6 md:p-8">
         <div className="flex justify-between items-center mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>
@@ -137,7 +137,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
               <button
                 key={key}
                 onClick={() => setBreathPattern(key)}
-                className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                className={`dashboard-card p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                   breathPattern === key
                     ? 'text-white'
                     : 'text-gray-700 hover:bg-gray-100'
@@ -234,7 +234,7 @@ const BreathingExercise = ({ isOpen, onClose }) => {
         </div>
 
         {/* Instructions */}
-        <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
+        <div className="dashboard-card mt-4 sm:mt-6 p-3 sm:p-4 rounded-lg" style={{ background: 'rgba(60, 145, 197, 0.1)' }}>
           <h3 className="text-sm sm:text-base font-medium mb-2" style={{ color: '#1E252B' }}>Instructions:</h3>
           <ul className="text-xs sm:text-sm space-y-1" style={{ color: '#475569' }}>
             <li>• Find a comfortable position</li>

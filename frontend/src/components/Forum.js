@@ -721,7 +721,7 @@ const Forum = () => {
         </div>
 
       {/* Header - Twitter Style */}
-      <div className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50" style={{ borderColor: '#e5e7eb' }}>
+      <div className="dashboard-card bg-white/80 backdrop-blur-sm border-b sticky top-0 z-50" style={{ borderColor: '#e5e7eb' }}>
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between px-3 sm:px-4 md:px-6 py-2 sm:py-3">
             {/* Left: Logo & Back */}
@@ -792,7 +792,7 @@ const Forum = () => {
         {/* Main Feed Column */}
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Compose Post Card - Twitter Style */}
-          <div ref={newPostRef} className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm mb-3 sm:mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
+          <div ref={newPostRef} className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm mb-3 sm:mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
             <div className="p-3 sm:p-4">
               <div className="flex space-x-2 sm:space-x-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm sm:text-base" style={{ background: getAvatarGradient(pseudonym) }}>
@@ -838,7 +838,7 @@ const Forum = () => {
           </div>
 
           {/* Tabs & Search Section */}
-          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
+          <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
             {/* Tabs */}
             <div className="flex border-b" style={{ borderColor: '#e5e7eb' }}>
               <button
@@ -928,7 +928,7 @@ const Forum = () => {
               </div>
             ) : (
               filteredPosts.map((post) => (
-                <div key={post.postId} className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40 transition-all hover:shadow-md" style={{ borderColor: '#e5e7eb' }}>
+                <div key={post.postId} className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40 transition-all hover:shadow-md" style={{ borderColor: '#e5e7eb' }}>
                   <div className="p-3 sm:p-4 md:p-5">
                     {/* Post Header */}
                     <div className="flex items-start justify-between mb-2 sm:mb-3">
