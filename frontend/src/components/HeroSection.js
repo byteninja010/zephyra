@@ -351,7 +351,7 @@ const HeroSection = () => {
                   </p>
                 </div>
                 <p className="text-xs sm:text-sm text-center font-light leading-relaxed flex-grow" style={{ color: '#475569' }}>
-                  Crafting beautiful, responsive UIs with React and building robust backend services—bringing wellness to life
+                  Crafting beautiful, responsive UIs with React.js and building robust backend services—bringing wellness to life
                 </p>
               </div>
             </div>
