@@ -755,7 +755,8 @@ const Forum = () => {
                           <div className="absolute -top-1 left-1/2 w-2 h-2 bg-gray-900 rotate-45" style={{ transform: 'translateX(-50%)' }}></div>
                           <p className="font-semibold mb-1">🛡️ AI Moderated Forum</p>
                           <p className="text-gray-300 text-xs">All posts and comments are automatically</p>
-                          <p className="text-gray-300 text-xs">reviewed by AI to ensure a safe space</p>
+                          <p className="text-gray-300 text-xs">reviewed by AI before being posted to</p>
+                          <p className="text-gray-300 text-xs text-start">ensure a safe space for everyone.</p>
                         </div>
                       </div>
                     )}
@@ -770,7 +771,7 @@ const Forum = () => {
                   {pseudonym?.[0] || '?'}
                 </div>
                 <span className="text-sm font-medium" style={{ color: '#475569' }}>
-                  {pseudonym || 'Loading...'}
+                  You are {pseudonym || 'Loading...'}
                 </span>
               </div>
             </div>
@@ -802,7 +803,7 @@ const Forum = () => {
                   <textarea
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
-                    placeholder="What's on your mind?"
+                    placeholder="What's on your mind? Post pseudonymously and get support from real like-minded individuals."
                     className="w-full text-sm sm:text-base md:text-lg border-0 focus:outline-none resize-none placeholder-gray-400"
                     style={{ color: '#1e293b', minHeight: '50px' }}
                     maxLength={2000}

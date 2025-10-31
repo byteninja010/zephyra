@@ -373,7 +373,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="relative z-10 bg-white/80 backdrop-blur-sm border-b border-white/20">
         <div className="max-w-8xl px-2 sm:px-4 md:px-8 lg:px-10">
-          <div className="flex justify-between items-center py-2">
+          <div className="dashboard-card flex justify-between items-center py-2">
             <div className="flex items-center space-x-1">
               <img
                 src="/logo.png"
@@ -477,9 +477,53 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {/* AI Companion */}
           <div
-            className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
+            {/* Info Icon with Tooltip */}
+            <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+              <div className="relative group/info">
+                <button
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-100 active:scale-95"
+                  style={{ color: "#3C91C5" }}
+                  aria-label="AI Companion information"
+                >
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-0 mt-2 w-48 sm:w-56 md:w-64 opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 pointer-events-none z-20">
+                  <div
+                    className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl"
+                    style={{
+                      background: "rgba(30, 37, 43, 0.95)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <p className="leading-relaxed">
+                      If you wanna have a small conversation and want faster responses
+                      go for AI companion
+                    </p>
+                    {/* Tooltip arrow */}
+                    <div
+                      className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45"
+                      style={{ background: "rgba(30, 37, 43, 0.95)" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
               style={{
@@ -511,7 +555,7 @@ const Dashboard = () => {
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Your supportive AI friend, always here to listen
+              Have a quick conversation with your supportive AI friend
             </p>
             <button
               onClick={() => navigate("/chat")}
@@ -530,6 +574,50 @@ const Dashboard = () => {
             className="dashboard-card group p-4 sm:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
+            {/* Info Icon with Tooltip */}
+            <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+              <div className="relative group/info">
+                <button
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-100 active:scale-95"
+                  style={{ color: "#3C91C5" }}
+                  aria-label="Therapy Sessions information"
+                >
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-0 mt-2 w-56 sm:w-64 md:w-72 opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 pointer-events-none z-20">
+                  <div
+                    className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl"
+                    style={{
+                      background: "rgba(30, 37, 43, 0.95)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <p className="leading-relaxed">
+                      For long, deep conversations in a fully personalized
+                      environment with your AI therapist go for Therapy Session
+                    </p>
+                    {/* Tooltip arrow */}
+                    <div
+                      className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45"
+                      style={{ background: "rgba(30, 37, 43, 0.95)" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
               <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
@@ -564,13 +652,13 @@ const Dashboard = () => {
               className="text-sm sm:text-base md:text-lg lg:text-xl font-semibold mb-1 sm:mb-2 md:mb-3 text-center"
               style={{ color: "#1E252B" }}
             >
-              Sessions
+              Therapy Sessions
             </h3>
             <p
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Schedule and manage your wellness sessions
+              Attend personalized wellness sessions and schedule them
             </p>
             <button
               onClick={() => navigate("/sessions")}
@@ -634,7 +722,7 @@ const Dashboard = () => {
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Safe anonymous community with AI content moderation
+              Post pseudonymously and get support from a community of like-minded individuals
             </p>
             <button
               onClick={() => navigate("/forum")}
@@ -698,7 +786,7 @@ const Dashboard = () => {
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Draw your emotions, AI understands
+              Draw your emotions, AI understands your art and provides insights
             </p>
             <button
               onClick={() => setShowMindCanvas(true)}

@@ -514,7 +514,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
                     <p className="text-gray-600 leading-relaxed">
                       Let your emotions flow through colors and strokes. 
                       There's no right or wrong way to draw. 
-                      When you're ready, AI will interpret the feelings behind your creation.
+                      When you're ready, AI will interpret the feelings behind your creation once you click <strong>Reveal My Mood button below</strong> after completing your drawing.
                     </p>
                     <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
                       <p className="text-sm text-gray-700">
