@@ -629,23 +629,25 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
             <div
-              className={`max-w-[85%] sm:max-w-xs md:max-w-sm lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl border-2 ${
+              className={`max-w-[85%] sm:max-w-xs md:max-w-sm lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 border-2 relative ${
                 message.sender === 'user'
-                  ? 'text-white'
-                  : 'text-gray-800'
+                  ? 'text-black rounded-tl-xl rounded-tr-xl rounded-bl-xl'
+                  : 'text-gray-800 rounded-tl-xl rounded-tr-xl rounded-br-xl'
               }`}
               style={message.sender === 'user' ? {
                 background: 'rgba(147, 197, 253, 0.2)',
                 backdropFilter: 'blur(40px) saturate(200%)',
                 WebkitBackdropFilter: 'blur(40px) saturate(200%)',
                 borderColor: 'rgba(255, 255, 255, 0.4)',
-                boxShadow: '0 8px 32px 0 rgba(147, 197, 253, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)'
+                boxShadow: '0 8px 32px 0 rgba(147, 197, 253, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
+                borderRadius: '18px 18px 4px 18px'
               } : {
                 background: 'rgba(255, 255, 255, 0.25)',
                 backdropFilter: 'blur(40px) saturate(200%)',
                 WebkitBackdropFilter: 'blur(40px) saturate(200%)',
                 borderColor: 'rgba(255, 255, 255, 0.5)',
-                boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)'
+                boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.15), inset 0 1px 1px 0 rgba(255, 255, 255, 0.4)',
+                borderRadius: '18px 18px 18px 4px'
               }}
             >
                 <p className="text-xs sm:text-sm break-words">{message.text}</p>

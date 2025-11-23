@@ -74,7 +74,6 @@ A comprehensive mental health and wellness platform built with the MERN stack, f
 - **Gradient Backgrounds**: Personalized session backgrounds
 
 ### 📱 Progressive Web App (PWA)
-- **Offline Support**: Service worker with intelligent caching strategies for assets, API calls, and images
 - **Installable**: Install Zephyra as a standalone app on any device (iOS, Android, Desktop)
 - **Install Prompts**: Smart installation prompts with platform-specific instructions
 - **App-like Experience**: Standalone display mode with custom theme colors
@@ -476,7 +475,6 @@ MongoDB Collections:
 - **React Router DOM** (v7.9.1) for navigation
 - **Heroicons** (@heroicons/react v2.2.0) for icons
 - **React Scripts** (v5.0.1) for build tools
-- **Service Worker** for PWA capabilities and offline support
 
 ## 🔒 Security Features
 
@@ -487,7 +485,6 @@ MongoDB Collections:
 - **API key protection** and secure credential management
 - **File upload validation** with size limits and type restrictions
 - **AI Content Moderation** for forum posts to ensure safe community interactions
-- **HTTPS enforcement** for production deployments (via service worker)
 
 ## 📱 Usage
 
@@ -637,9 +634,7 @@ Potential areas for expansion:
 
 6. **PWA installation issues**
    - Ensure app is served over HTTPS in production
-   - Check service worker registration in browser DevTools
    - Verify manifest.json is accessible
-   - Clear browser cache and service worker cache if needed
 
 7. **Forum real-time updates not working**
    - Check Socket.io connection in browser DevTools

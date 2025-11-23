@@ -136,7 +136,7 @@ const InstallPrompt = () => {
                 <p className="text-sm leading-relaxed mb-4" style={{ color: '#475569' }}>
                   {isIOS 
                     ? 'Add Zephyra to your home screen for quick access and a native app experience.'
-                    : 'Install Zephyra for faster access, offline support, and a native app experience.'
+                    : 'Install Zephyra for faster access and a native app experience.'
                   }
                 </p>
 
@@ -177,7 +177,7 @@ const InstallPrompt = () => {
             </div>
 
             {/* Benefits */}
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="text-center p-2 bg-white/40 backdrop-blur-sm rounded-lg">
                 <div className="text-xl mb-1">⚡</div>
                 <p className="text-xs font-medium" style={{ color: '#475569' }}>Faster</p>
@@ -185,10 +185,6 @@ const InstallPrompt = () => {
               <div className="text-center p-2 bg-white/40 backdrop-blur-sm rounded-lg">
                 <div className="text-xl mb-1">📱</div>
                 <p className="text-xs font-medium" style={{ color: '#475569' }}>Native Feel</p>
-              </div>
-              <div className="text-center p-2 bg-white/40 backdrop-blur-sm rounded-lg">
-                <div className="text-xl mb-1">🌙</div>
-                <p className="text-xs font-medium" style={{ color: '#475569' }}>Offline</p>
               </div>
             </div>
           </div>

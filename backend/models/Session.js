@@ -37,7 +37,7 @@ const sessionSchema = new mongoose.Schema({
   },
   sessionData: {
     backgroundImage: {
-      type: String, // URL to generated background or mood emoji
+      type: String, // Cloudinary URL to generated background or mood emoji
       default: null
     },
     backgroundPrompt: {
@@ -53,7 +53,7 @@ const sessionSchema = new mongoose.Schema({
       default: null
     },
     backgroundMusic: {
-      type: String, // Base64 audio data or URL to generated music
+      type: String, // Cloudinary URL to generated music
       default: null
     },
     musicPrompt: {

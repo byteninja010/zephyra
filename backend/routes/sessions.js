@@ -4,6 +4,7 @@ const { GoogleGenAI } = require('@google/genai');
 const axios = require('axios');
 const { VertexAI } = require('@google-cloud/vertexai');
 const { GoogleAuth } = require('google-auth-library');
+const { uploadBase64Image, uploadBase64Audio } = require('../config/cloudinary');
 const router = express.Router();
 
 // Initialize Gemini AI
@@ -379,10 +380,20 @@ const generateSessionBackground = async (userContext, sessionType = 'general', f
           imageBase64 = imageBase64.split(',')[1];
         }
         
-        const imageUrl = `data:image/png;base64,${imageBase64}`;
+        // Upload to Cloudinary instead of storing base64
+        const base64DataUrl = `data:image/png;base64,${imageBase64}`;
+        let cloudinaryUrl = null;
+        
+        try {
+          cloudinaryUrl = await uploadBase64Image(base64DataUrl, 'zephyra-sessions/images');
+        } catch (cloudinaryError) {
+          console.error('[Sessions] Failed to upload image to Cloudinary, falling back to base64:', cloudinaryError);
+          // Fallback to base64 if Cloudinary upload fails (backward compatibility)
+          cloudinaryUrl = base64DataUrl;
+        }
         
         return {
-          imageUrl: imageUrl,
+          imageUrl: cloudinaryUrl,
           prompt: imagePrompt,
           mood: userMood,
           type: 'gemini-image',
@@ -506,10 +517,21 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
         }
         
         // Lyria returns clean base64 WAV data
-        const musicUrl = `data:audio/wav;base64,${musicBase64}`;
+        const base64DataUrl = `data:audio/wav;base64,${musicBase64}`;
+        
+        // Upload to Cloudinary instead of storing base64
+        let cloudinaryUrl = null;
+        
+        try {
+          cloudinaryUrl = await uploadBase64Audio(base64DataUrl, 'zephyra-sessions/music');
+        } catch (cloudinaryError) {
+          console.error('[Sessions] Failed to upload audio to Cloudinary, falling back to base64:', cloudinaryError);
+          // Fallback to base64 if Cloudinary upload fails (backward compatibility)
+          cloudinaryUrl = base64DataUrl;
+        }
         
         return {
-          musicUrl: musicUrl,
+          musicUrl: cloudinaryUrl,
           prompt: musicPrompt,
           mood: userMood,
           generatedWith: 'Lyria 2',

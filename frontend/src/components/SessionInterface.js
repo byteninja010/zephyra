@@ -413,11 +413,15 @@ const SessionInterface = ({ sessionId, onClose, onComplete, userContext: propUse
                     className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-[85%] sm:max-w-xs px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl ${
+                      className={`max-w-[85%] sm:max-w-xs px-3 sm:px-4 py-2 sm:py-3 ${
                         message.sender === 'user'
-                          ? 'bg-blue-500 text-white'
+                          ? 'bg-blue-500 text-black'
                           : 'bg-gray-100 text-gray-800'
                       }`}
+                      style={message.sender === 'user' 
+                        ? { borderRadius: '18px 18px 4px 18px' }
+                        : { borderRadius: '18px 18px 18px 4px' }
+                      }
                     >
                       <p className="text-xs sm:text-sm break-words">{message.text}</p>
                       {message.audioUrl && (

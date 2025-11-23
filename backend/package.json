@@ -21,6 +21,7 @@
     "@google-cloud/vertexai": "^1.10.0",
     "@google/genai": "^1.19.0",
     "axios": "^1.12.2",
+    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
