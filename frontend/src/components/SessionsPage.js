@@ -290,10 +290,22 @@ const SessionsPage = () => {
       {/* Personalization Modal */}
       {showPersonalizationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4 shadow-2xl transform transition-all">
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
-              ✨ Personalize Your Session
-            </h3>
+          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4 shadow-2xl transform transition-all relative">
+            {/* Header with title and close button */}
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
+                ✨ Personalize Your Session
+              </h3>
+              <button
+                onClick={() => setShowPersonalizationModal(false)}
+                className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0 ml-4"
+                aria-label="Close modal"
+              >
+                <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <p className="text-sm sm:text-base text-gray-600 mb-4 sm:mb-6">
               Do you have anything specific in mind for your session's background or music? 
               Share your preferences, and we'll create a truly personalized experience for you!
@@ -324,7 +336,8 @@ const SessionsPage = () => {
               </button>
               <button
                 onClick={handlePersonalizationConfirm}
-                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300"
+                disabled={!personalizationInput.trim()}
+                className="flex-1 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
                 style={{ background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)' }}
               >
                 {personalizationInput.trim() ? 'Personalize' : 'Continue'}
@@ -437,13 +450,13 @@ const SessionsPage = () => {
         </div>
 
         {/* Upcoming Sessions */}
-        <div className="space-y-4 sm:space-y-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8" style={{ color: '#1E252B' }}>
+        <div className="space-y-4 sm:space-y-1">
+          <h2 className="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-2" style={{ color: '#1E252B' }}>
             Upcoming Sessions
           </h2>
           
           {upcomingSessions.length === 0 ? (
-            <div className="text-center py-8 sm:py-12 px-4">
+            <div className="text-center py-6 sm:py-6 px-4">
               <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <CalendarDaysIcon className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" style={{ color: '#9CA3AF' }} />
               </div>
@@ -453,13 +466,6 @@ const SessionsPage = () => {
               <p className="text-sm sm:text-base md:text-lg mb-4 sm:mb-6" style={{ color: '#475569' }}>
                 Schedule your first wellness session to get started
               </p>
-              <button
-                onClick={() => setShowScheduling(true)}
-                className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300"
-                style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
-              >
-                Schedule Session
-              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

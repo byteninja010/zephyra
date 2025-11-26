@@ -114,10 +114,17 @@ CRITICAL: ALWAYS prioritize the USER'S MOST RECENT instructions and preferences 
 - Pay close attention to the entire conversation history to provide personalized, context-aware responses
 - Language preference, tone, and style should dynamically adjust based on what the user wants RIGHT NOW in the conversation`;
 
+  // Build the prompt with session-specific additions if needed
+  let promptToUse = basePrompt;
+  
   if (isSessionChat) {
-    return basePrompt + `
+    promptToUse = basePrompt + `
 
 SESSION MODE: You are in a dedicated wellness session acting as a supportive therapist and mental wellness companion. This is a focused, therapeutic conversation where the user has specifically chosen to engage in mental wellness work.
+
+RESPONSE LENGTH: Your responses should not exceed 150 words maximum. Answer as per requirement - be concise when a brief response is sufficient, and more detailed when the topic requires deeper exploration. The 150-word limit is a maximum, not a target.
+
+CONTEXT USAGE: When the user asks questions or discusses topics related to their user context (such as their wellness goals, previous mood patterns, reflections, session history, or personal information provided in the context), prioritize answering from that context. Reference specific details from their context when relevant. If the question is not related to their user context, answer normally based on your general knowledge and therapeutic expertise.
 
 THERAPEUTIC APPROACH:
 - Ask open-ended questions to understand their current state and concerns
@@ -131,8 +138,6 @@ THERAPEUTIC APPROACH:
 
 SESSION FOCUS: If they mentioned something specific at the start, gently explore that. If not, ask about their current state, recent experiences, or what's been on their mind. Be curious and supportive in your approach.`;
   }
-
-  return basePrompt;
 
   if (userContext && userContext.userProfile) {
     const { nickname, ageRange, goals, preferredSupport, moodHistory, reflections } = userContext.userProfile;
@@ -168,12 +173,13 @@ SESSION FOCUS: If they mentioned something specific at the start, gently explore
     if (isSessionChat && sessionContext) {
       contextInfo += "\n\nCURRENT SESSION CONTEXT:\n";
       
+      // Give priority to what user mentioned at session start (modal input)
+      if (sessionContext.moodCheckIn?.note) {
+        contextInfo += `- User's session focus: ${sessionContext.moodCheckIn.note} (mentioned at session start - use this as important context)\n`;
+      }
+      
       if (sessionContext.moodCheckIn?.mood) {
-        contextInfo += `- Current mood: ${sessionContext.moodCheckIn.mood}`;
-        if (sessionContext.moodCheckIn.note) {
-          contextInfo += ` (${sessionContext.moodCheckIn.note})`;
-        }
-        contextInfo += "\n";
+        contextInfo += `- Current mood: ${sessionContext.moodCheckIn.mood}\n`;
       }
       
       if (sessionContext.exploration && sessionContext.exploration.length > 0) {
@@ -191,7 +197,7 @@ SESSION FOCUS: If they mentioned something specific at the start, gently explore
       }
     }
     
-    const fullPrompt = basePrompt + contextInfo;
+    const fullPrompt = promptToUse + contextInfo;
     
     // Cache the system prompt for future use
     systemPromptCache.set(cacheKey, fullPrompt);
@@ -205,7 +211,7 @@ SESSION FOCUS: If they mentioned something specific at the start, gently explore
     return fullPrompt;
   }
   
-  return basePrompt;
+  return promptToUse;
 };
 
 // Helper function to transcribe audio using Google Speech-to-Text
@@ -716,13 +722,43 @@ router.post('/:chatId/message', async (req, res) => {
       const recentMessages = chat.messages.slice(-10);
       const languagePreference = detectLanguagePreference(recentMessages);
       
+      // Add session-specific context for session chats
+      let sessionContextInfo = '';
+      if (isSessionChat && chat.context) {
+        const sessionCtx = chat.context.sessionContext;
+        const cumulativeSummary = chat.context.cumulativeSessionSummary || '';
+        
+        sessionContextInfo = '\n\nSESSION-SPECIFIC CONTEXT:\n';
+        
+        // Current session history
+        if (sessionCtx?.exploration && sessionCtx.exploration.length > 0) {
+          const sessionHistory = sessionCtx.exploration.map(e => 
+            `User: ${e.userMessage}\nAI: ${e.aiResponse}`
+          ).join('\n\n');
+          sessionContextInfo += `CURRENT SESSION HISTORY:\n${sessionHistory}\n\n`;
+        }
+        
+        // Current mood
+        if (sessionCtx?.moodCheckIn?.mood) {
+          sessionContextInfo += `CURRENT MOOD: ${sessionCtx.moodCheckIn.mood}\n\n`;
+        }
+        
+        // Current user message
+        sessionContextInfo += `CURRENT USER MESSAGE: ${message}\n\n`;
+        
+        // Cumulative session summary
+        if (cumulativeSummary) {
+          sessionContextInfo += `CUMULATIVE SESSION SUMMARY: ${cumulativeSummary}\n\n`;
+        }
+      }
+      
       // Add session context if this is a session chat
       let sessionContext = '';
       if (isSessionChat) {
         sessionContext = '\n\nSESSION CONTEXT: This is a dedicated wellness session. The user has specifically chosen to engage in mental wellness work. Be extra supportive and comprehensive in your responses.';
       }
       
-      const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
+      const prompt = `${systemPrompt}${sessionContextInfo}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
       // Log model and token configuration
       const modelName = isSessionChat ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
@@ -958,17 +994,47 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
         `${msg.sender}: ${msg.text}`
       ).join('\n');
 
-      // Detect language preference from recent messages
-      const recentMessages = chat.messages.slice(-10);
-      const languagePreference = detectLanguagePreference(recentMessages);
-      
+              // Detect language preference from recent messages
+              const recentMessages = chat.messages.slice(-10);
+              const languagePreference = detectLanguagePreference(recentMessages);
+              
+              // Add session-specific context for session chats
+              let sessionContextInfo = '';
+              if (isSessionChat && chat.context) {
+                const sessionCtx = chat.context.sessionContext;
+                const cumulativeSummary = chat.context.cumulativeSessionSummary || '';
+                
+                sessionContextInfo = '\n\nSESSION-SPECIFIC CONTEXT:\n';
+                
+                // Current session history
+                if (sessionCtx?.exploration && sessionCtx.exploration.length > 0) {
+                  const sessionHistory = sessionCtx.exploration.map(e => 
+                    `User: ${e.userMessage}\nAI: ${e.aiResponse}`
+                  ).join('\n\n');
+                  sessionContextInfo += `CURRENT SESSION HISTORY:\n${sessionHistory}\n\n`;
+                }
+                
+                // Current mood
+                if (sessionCtx?.moodCheckIn?.mood) {
+                  sessionContextInfo += `CURRENT MOOD: ${sessionCtx.moodCheckIn.mood}\n\n`;
+                }
+                
+                // Current user message
+                sessionContextInfo += `CURRENT USER MESSAGE: ${transcription}\n\n`;
+                
+                // Cumulative session summary
+                if (cumulativeSummary) {
+                  sessionContextInfo += `CUMULATIVE SESSION SUMMARY: ${cumulativeSummary}\n\n`;
+                }
+              }
+              
               // Add session context if this is a session chat
               let sessionContext = '';
               if (isSessionChat) {
                 sessionContext = '\n\nSESSION CONTEXT: This is a dedicated wellness session. The user has specifically chosen to engage in mental wellness work. Be extra supportive and comprehensive in your responses.';
               }
               
-              const prompt = `${systemPrompt}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
+              const prompt = `${systemPrompt}${sessionContextInfo}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
       // Log model and token configuration
       const modelName = isSessionChat ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";

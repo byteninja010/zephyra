@@ -19,8 +19,6 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentPlayingAudio, setCurrentPlayingAudio] = useState(null);
-  const [showMoodCheckIn, setShowMoodCheckIn] = useState(true);
-  const [moodNote, setMoodNote] = useState('');
   const [chatId, setChatId] = useState(null);
   const [isCompleting, setIsCompleting] = useState(false);
   const [backgroundGradient, setBackgroundGradient] = useState('linear-gradient(135deg, #4ade80 0%, #22c55e 100%)');
@@ -176,37 +174,24 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
     }
   };
 
-  const handleSessionStart = async () => {
-    setIsLoading(true);
-    try {
+  // Initialize session chat when session loads
+  useEffect(() => {
+    if (session && !chatId && messages.length === 0) {
       // Don't create a regular chat - use 'session-chat' ID
       // The backend will create a session-linked chat automatically when first message is sent
       setChatId('session-chat');
       
-      // Generate session start message with context
+      // Generate session start message
       const sessionStartMessage = {
         id: Date.now(),
-        text: `Welcome to your wellness session! I'm here to support you today. ${moodNote ? `I see you mentioned: "${moodNote}". ` : ''}Is there anything from our previous sessions you'd like to continue working on, or would you like to share what's on your mind today?`,
+        text: `Welcome to your wellness session! I'm here to support you today. Is there anything from our previous sessions you'd like to continue working on, or would you like to share what's on your mind today?`,
         sender: 'ai',
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, sessionStartMessage]);
-      setShowMoodCheckIn(false);
-      
-      // Update session with any notes provided
-      if (moodNote) {
-        await sessionService.updateSession(sessionId, 'moodCheckIn', {
-          mood: 'shared',
-          note: moodNote
-        });
-      }
-    } catch (error) {
-      // Error starting session
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [session, chatId, messages.length]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -371,7 +356,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   const completeSession = async () => {
     try {
       setIsCompleting(true);
-      const summary = `Session completed with ${moodNote ? 'user notes shared' : 'general discussion'} and ${messages.length} message exchanges.`;
+      const summary = `Session completed with ${messages.length} message exchanges.`;
       
       // Get auth data from context (most reliable)
       const authData = getAuthData();
@@ -425,47 +410,6 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
             <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">Generating your session summary and saving progress...</p>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '80%' }}></div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Session Start Modal */}
-      {showMoodCheckIn && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
-          <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4">
-            <div className="text-center mb-4 sm:mb-6">
-              <h3 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>
-                Welcome to Your Therapy Session
-              </h3>
-              <p className="text-sm sm:text-base text-gray-600">Let's begin your personalized wellness session</p>
-            </div>
-            
-            <div className="space-y-3 sm:space-y-4">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium mb-2 text-gray-700">
-                  Is there anything from our previous sessions you'd like to continue working on?
-                </label>
-                <textarea
-                  value={moodNote}
-                  onChange={(e) => setMoodNote(e.target.value)}
-                  placeholder="Share what's on your mind, any concerns, or things you'd like to work on today..."
-                  className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  rows={4}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  This helps me understand what you'd like to focus on today. You can also just start chatting about anything on your mind.
-                </p>
-              </div>
-              
-              <button
-                onClick={handleSessionStart}
-                disabled={isLoading}
-                className="w-full px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-white rounded-lg sm:rounded-xl hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
-              >
-                {isLoading ? 'Starting Session...' : 'Start Session'}
-              </button>
             </div>
           </div>
         </div>
