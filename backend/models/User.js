@@ -82,10 +82,6 @@ const userSchema = new mongoose.Schema({
   preferredSupport: [{
     type: String
   }],
-  emergencyContactEmail: {
-    type: String,
-    default: null
-  },
   onboardingCompleted: {
     type: Boolean,
     default: false

@@ -83,7 +83,8 @@ const setupForumHandlers = (io) => {
         // Notify sender of success
         socket.emit('post_accepted', {
           post: postData,
-          message: 'Your post has been published successfully'
+          message: 'Your post has been published successfully',
+          selfHarm: moderationResult.selfHarm || false
         });
 
       } catch (error) {

@@ -435,11 +435,8 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 p-4">
           <div className="dashboard-card bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 max-w-lg w-full mx-4">
             <div className="text-center mb-4 sm:mb-6">
-              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                <span className="text-xl sm:text-2xl">🎯</span>
-              </div>
               <h3 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: '#1E252B' }}>
-                Welcome to Your Session
+                Welcome to Your Therapy Session
               </h3>
               <p className="text-sm sm:text-base text-gray-600">Let's begin your personalized wellness session</p>
             </div>

@@ -146,7 +146,7 @@ const AuthPage = ({ initialMode = 'login' }) => {
         <div className="dashboard-card bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 sm:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
           {/* Header */}
           <div className="text-center mb-6 sm:mb-8">
-            <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+            <div className="flex items-center justify-center space-x-1 sm:space-x-1 mb-4 sm:mb-6">
               <img
                 src="/logo.png"
                 alt="Zephyra Logo"

@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import API_BASE_URL from '../config/api';
 import authService from '../services/authService';
 
-const MindCanvas = ({ isOpen, onClose }) => {
+const MindCanvas = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -31,25 +33,35 @@ const MindCanvas = ({ isOpen, onClose }) => {
   ];
 
   useEffect(() => {
-    if (isOpen && canvasRef.current) {
-      // Small delay to ensure the modal is fully rendered
+    if (canvasRef.current) {
+      // Small delay to ensure the component is fully rendered
       setTimeout(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         
         const ctx = canvas.getContext('2d');
         
+        // Save current drawing if canvas has content
+        const hasContent = canvas.width > 0 && canvas.height > 0;
+        const imageData = hasContent ? ctx.getImageData(0, 0, canvas.width, canvas.height) : null;
+        
         // Set canvas size to match the container
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width || 800;
         canvas.height = rect.height || 600;
         
-        // Set white background
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        // Restore drawing or set white background
+        if (imageData && imageData.data.some(pixel => pixel !== 255)) {
+          // Has drawing content, restore it
+          ctx.putImageData(imageData, 0, 0);
+        } else {
+          // No content, set white background
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
       }, 100);
     }
-  }, [isOpen]);
+  }, []);
 
   const getCoordinates = (e, rect) => {
     // Handle both mouse and touch events
@@ -245,13 +257,10 @@ const MindCanvas = ({ isOpen, onClose }) => {
     setAnalysis(null);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Header */}
+      <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
           <div>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
               Mind Canvas
@@ -261,7 +270,7 @@ const MindCanvas = ({ isOpen, onClose }) => {
             </p>
           </div>
           <button
-            onClick={onClose}
+            onClick={() => navigate('/dashboard')}
             className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0 ml-2"
           >
             <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,9 +279,9 @@ const MindCanvas = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 bg-white">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:min-h-[calc(100vh-250px)]">
             {/* Drawing Area */}
             <div className="flex flex-col space-y-3 sm:space-y-4 h-full">
               {/* Instructions Banner */}
@@ -528,7 +537,6 @@ const MindCanvas = ({ isOpen, onClose }) => {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 };

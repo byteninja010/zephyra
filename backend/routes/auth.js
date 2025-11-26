@@ -117,7 +117,6 @@ router.post('/validate-secret-code', async (req, res) => {
         ageRange: user.ageRange,
         goals: user.goals,
         preferredSupport: user.preferredSupport,
-        emergencyContactEmail: user.emergencyContactEmail,
         moodHistory: user.moodHistory,
         reflections: user.reflections,
         activityHistory: user.activityHistory
@@ -154,7 +153,6 @@ router.get('/user/:firebaseUid', async (req, res) => {
         ageRange: user.ageRange,
         goals: user.goals,
         preferredSupport: user.preferredSupport,
-        emergencyContactEmail: user.emergencyContactEmail,
         moodHistory: user.moodHistory,
         reflections: user.reflections,
         activityHistory: user.activityHistory
@@ -194,7 +192,7 @@ router.put('/user/:firebaseUid/last-login', async (req, res) => {
 router.put('/user/:firebaseUid/onboarding', async (req, res) => {
   try {
     const { firebaseUid } = req.params;
-    const { nickname, ageRange, mood, moodNote, goals, preferredSupport, emergencyContactEmail } = req.body;
+    const { nickname, ageRange, mood, moodNote, goals, preferredSupport } = req.body;
 
     const user = await User.findOne({ firebaseUid, isActive: true });
 
@@ -207,7 +205,6 @@ router.put('/user/:firebaseUid/onboarding', async (req, res) => {
     if (ageRange !== undefined) user.ageRange = ageRange || null;
     if (goals !== undefined) user.goals = goals || [];
     if (preferredSupport !== undefined) user.preferredSupport = preferredSupport || [];
-    if (emergencyContactEmail !== undefined) user.emergencyContactEmail = emergencyContactEmail || null;
     
     // Add initial mood to mood history if provided
     if (mood) {
@@ -233,7 +230,6 @@ router.put('/user/:firebaseUid/onboarding', async (req, res) => {
         ageRange: user.ageRange,
         goals: user.goals,
         preferredSupport: user.preferredSupport,
-        emergencyContactEmail: user.emergencyContactEmail,
         onboardingCompleted: user.onboardingCompleted
       }
     });

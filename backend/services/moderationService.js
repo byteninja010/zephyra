@@ -84,18 +84,42 @@ Distinguish between:
 - CASUAL SHARING (allowed): "Hello!", "How's everyone?", "I went for a walk today", "Good morning friends"
 - FRUSTRATED ATTACK (not allowed): "This community sucks", "You all don't understand", "Why are you people so stupid"
 
+Additionally, if the content is ACCEPTED, you must also check if it indicates self-harm or suicidal ideation. This is separate from the verdict - content can be accepted but still indicate self-harm concerns.
+
 Respond ONLY with valid JSON in this exact format:
 {
   "verdict": "accept",
-  "reason": "Brief explanation"
+  "reason": "Brief explanation",
+  "selfHarm": true
+}
+
+OR
+
+{
+  "verdict": "accept",
+  "reason": "Brief explanation",
+  "selfHarm": false
 }
 
 OR
 
 {
   "verdict": "reject",
-  "reason": "Brief explanation"
-}`;
+  "reason": "Brief explanation",
+  "selfHarm": false
+}
+
+IMPORTANT: Set "selfHarm" to true ONLY if:
+- The content indicates the user is experiencing thoughts of self-harm or suicide
+- The content suggests the user is in immediate danger
+- The content expresses active suicidal ideation (not just past experiences or general discussion)
+- The content indicates the user needs immediate crisis support
+
+Set "selfHarm" to false if:
+- The content is general mental health discussion
+- The content discusses past experiences without current risk
+- The content is casual conversation or positive sharing
+- The content is rejected (always false for rejected content)`;
 
     const result = await retryGeminiCall(() =>
       genAI.models.generateContent({
@@ -124,7 +148,8 @@ OR
       // Fallback: accept by default if parsing fails (fail-safe approach)
       moderationResult = {
         verdict: 'accept',
-        reason: 'Content appears safe (parsing issue, defaulting to accept)'
+        reason: 'Content appears safe (parsing issue, defaulting to accept)',
+        selfHarm: false
       };
     }
 
@@ -133,8 +158,19 @@ OR
       // Fallback to accept
       return {
         verdict: 'accept',
-        reason: 'Content appears safe (validation issue, defaulting to accept)'
+        reason: 'Content appears safe (validation issue, defaulting to accept)',
+        selfHarm: false
       };
+    }
+
+    // Ensure selfHarm flag exists (default to false)
+    if (moderationResult.selfHarm === undefined) {
+      moderationResult.selfHarm = false;
+    }
+
+    // If rejected, selfHarm should always be false
+    if (moderationResult.verdict === 'reject') {
+      moderationResult.selfHarm = false;
     }
 
     return moderationResult;
@@ -145,7 +181,8 @@ OR
     // This ensures the forum remains functional even if AI is down
     return {
       verdict: 'accept',
-      reason: 'Moderation service temporarily unavailable (defaulting to accept)'
+      reason: 'Moderation service temporarily unavailable (defaulting to accept)',
+      selfHarm: false
     };
   }
 };

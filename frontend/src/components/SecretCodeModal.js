@@ -126,11 +126,11 @@ const SecretCodeModal = () => {
       </div>
 
       {!showWarningModal && (
-        <div className="relative z-10 w-full max-w-lg mb-4 sm:mb-8">
+        <div className="relative z-10 w-full max-w-lg mx-auto mb-4 sm:mb-8 px-2 sm:px-4">
           {/* Back Button */}
           <button
             onClick={handleGoBack}
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-all duration-300 mb-4 sm:mb-8 mt-4 sm:mt-8 transform hover:scale-105 hover:-translate-x-1 group text-sm sm:text-base"
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-all duration-300 mb-4 sm:mb-6 mt-4 sm:mt-8 transform hover:scale-105 hover:-translate-x-1 group text-xs sm:text-sm md:text-base"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 group-hover:-translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -141,47 +141,32 @@ const SecretCodeModal = () => {
           {/* Main Card */}
           <div className="dashboard-card bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:-translate-y-1 animate-fade-in">
           {/* Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-2">
+          <div className="text-center mb-4 sm:mb-4">
+            <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-1 sm:mb-1">
               <img 
                 src="/logo.png" 
                 alt="Zephyra Logo" 
-                className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
+                className="w-10 h-8 sm:w-12 sm:h-10 md:w-16 md:h-14 object-contain"
               />
-              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: '#1E252B' }}>Zephyra</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold" style={{ color: '#1E252B' }}>Welcome to Zephyra!</h1>
             </div>
             
-            {/* Success Icon */}
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-lg animate-bounce-in">
-              <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            
-            <h2 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2" style={{ color: '#1E252B' }}>
-              {isNewUser ? 'Welcome to Zephyra!' : 'Account Ready!'}
-            </h2>
-            <p className="text-xs sm:text-sm font-medium px-2" style={{ color: '#475569' }}>
-              {isNewUser 
-                ? 'Your anonymous account has been created successfully' 
-                : 'Your account is ready to use'
-              }
-            </p>
           </div>
 
           {/* Secret Code Display */}
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-4 sm:space-y-5">
             <div className="text-center">
               <label className="block text-xs sm:text-sm font-medium mb-2 sm:mb-3" style={{ color: '#1E252B' }}>
                 Your Secret Code
               </label>
               <div className="relative">
-                <div className="bg-gray-50 border-2 border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 font-mono text-2xl sm:text-3xl font-bold tracking-wider text-center select-all transform transition-all duration-300 hover:scale-[1.02] focus:scale-[1.02] focus:shadow-lg" style={{ color: '#1E252B' }}>
+                <div className="bg-gray-50 border-2 border-gray-200 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-6 font-mono text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-wider text-center select-all transform transition-all duration-300 hover:scale-[1.02] focus:scale-[1.02] focus:shadow-lg break-all" style={{ color: '#1E252B', wordBreak: 'break-all' }}>
                   {secretCode}
                 </div>
                 <button
                   onClick={handleCopyCode}
-                  className="absolute top-1 right-1 sm:top-2 sm:right-2 p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 transition-all duration-300 transform hover:scale-110"
+                  className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 transition-all duration-300 transform hover:scale-110"
+                  aria-label="Copy secret code"
                 >
                   {copied ? (
                     <svg className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 animate-bounce-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -201,30 +186,30 @@ const SecretCodeModal = () => {
 
 
             {/* Instructions */}
-            <div className="dashboard-card p-3 sm:p-4 rounded-lg sm:rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
-              <h3 className="text-sm sm:text-base font-semibold mb-2 sm:mb-3" style={{ color: '#1E252B' }}>How to use your secret code:</h3>
-              <div className="text-xs sm:text-sm space-y-2" style={{ color: '#475569' }}>
+            <div className="dashboard-card p-3 sm:p-4 md:p-5 rounded-lg sm:rounded-xl border transform transition-all duration-300 hover:scale-[1.01] hover:shadow-md" style={{ background: 'rgba(60, 145, 197, 0.05)', borderColor: '#3C91C5' }}>
+              <h3 className="text-xs sm:text-sm md:text-base font-semibold mb-2 sm:mb-3" style={{ color: '#1E252B' }}>How to use your secret code:</h3>
+              <div className="text-xs sm:text-sm space-y-2 sm:space-y-2.5" style={{ color: '#475569' }}>
                 <div className="flex items-start">
-                  <span className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>1</span>
-                  <p>Save the code somewhere safe</p>
+                  <span className="text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center mr-2 sm:mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>1</span>
+                  <p className="leading-relaxed">Save the code somewhere safe</p>
                 </div>
                 <div className="flex items-start">
-                  <span className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>2</span>
-                  <p>When you return, go to the login page</p>
+                  <span className="text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center mr-2 sm:mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>2</span>
+                  <p className="leading-relaxed">When you return, go to the login page</p>
                 </div>
                 <div className="flex items-start">
-                  <span className="text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>3</span>
-                  <p>Enter your secret code to access your account</p>
+                  <span className="text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center mr-2 sm:mr-3 mt-0.5 flex-shrink-0" style={{ background: '#3C91C5', color: 'white' }}>3</span>
+                  <p className="leading-relaxed">Enter your secret code to access your account</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 sm:mt-8">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-6">
             <button
               onClick={handleGoBack}
-              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform active:scale-95"
+              className="flex-1 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 transform active:scale-95"
               style={{ 
                 background: 'rgba(107, 114, 128, 0.1)', 
                 color: '#475569',
@@ -235,7 +220,7 @@ const SecretCodeModal = () => {
             </button>
             <button
               onClick={handleContinue}
-              className="flex-1 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] transform active:scale-95"
+              className="flex-1 px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] transform active:scale-95"
               style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}
             >
               Continue to Dashboard
@@ -243,12 +228,12 @@ const SecretCodeModal = () => {
           </div>
 
           {/* Powered by Gemini */}
-          <div className="mt-6 sm:mt-8 flex items-center justify-center space-x-1 sm:space-x-2 transform transition-all duration-300 hover:scale-105 group">
+          <div className="mt-4 sm:mt-6 md:mt-6 flex items-center justify-center space-x-1 sm:space-x-2 transform transition-all duration-300 hover:scale-105 group">
             <div className="relative overflow-hidden rounded-lg">
               <img 
                 src="/Google_Gemini_logo.png" 
                 alt="Gemini AI" 
-                className="w-5 h-5 sm:w-6 sm:h-6 object-contain group-hover:animate-wiggle transition-transform duration-300"
+                className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 object-contain group-hover:animate-wiggle transition-transform duration-300"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 group-hover:animate-shimmer"></div>
             </div>
@@ -256,8 +241,8 @@ const SecretCodeModal = () => {
           </div>
 
           {/* Footer */}
-          <div className="mt-4 sm:mt-6 text-center px-2">
-            <p className="text-xs" style={{ color: '#94A3B8' }}>
+          <div className="mt-3 sm:mt-4 md:mt-4 text-center px-2">
+            <p className="text-xs sm:text-xs" style={{ color: '#94A3B8' }}>
               Your data is encrypted and stored securely. Only you can access it with your secret code.
             </p>
           </div>

@@ -7,7 +7,6 @@ import MoodGraph from "./MoodGraph";
 import BreathingExercise from "./BreathingExercise";
 import ReflectionChart from "./ReflectionChart";
 import StreakTracker from "./StreakTracker";
-import MindCanvas from "./MindCanvas";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -15,11 +14,11 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [redirecting, setRedirecting] = useState(false);
   const [showMoodModal, setShowMoodModal] = useState(false);
+  const [isFirstMoodCheckIn, setIsFirstMoodCheckIn] = useState(false);
   const [moodHistory, setMoodHistory] = useState([]);
   const [showBreathingExercise, setShowBreathingExercise] = useState(false);
   const [showReflectionChart, setShowReflectionChart] = useState(false);
   const [showStreakTracker, setShowStreakTracker] = useState(false);
-  const [showMindCanvas, setShowMindCanvas] = useState(false);
   const [personalizedQuote, setPersonalizedQuote] = useState("");
   const [quoteLoading, setQuoteLoading] = useState(true);
   const [scheduledSessions, setScheduledSessions] = useState([]);
@@ -59,7 +58,7 @@ const Dashboard = () => {
     {
       icon: "🎨",
       text: "Express yourself on Mind Canvas",
-      action: () => setShowMindCanvas(true),
+      action: () => navigate("/mind-canvas"),
     },
     {
       icon: "📝",
@@ -188,6 +187,7 @@ const Dashboard = () => {
           // 1. No mood check recorded for today in localStorage AND
           // 2. No mood entries found for today in the database
           if (lastMoodCheckDate !== today && todayMoods.length === 0) {
+            setIsFirstMoodCheckIn(true);
             setShowMoodModal(true);
           }
 
@@ -256,6 +256,7 @@ const Dashboard = () => {
   };
 
   const handleMoodCheckIn = () => {
+    setIsFirstMoodCheckIn(false);
     setShowMoodModal(true);
   };
 
@@ -682,6 +683,49 @@ const Dashboard = () => {
             }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
+            {/* Info Icon with Tooltip */}
+            <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+              <div className="relative group/info">
+                <button
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-100 active:scale-95"
+                  style={{ color: "#3C91C5" }}
+                  aria-label="AI-Moderated Forum information"
+                >
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-0 mt-2 w-56 sm:w-64 md:w-72 opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 pointer-events-none z-20">
+                  <div
+                    className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl"
+                    style={{
+                      background: "rgba(30, 37, 43, 0.95)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <p className="leading-relaxed">
+                      Share your thoughts pseudonymously and connect with a supportive community of likeminded people.
+                    </p>
+                    {/* Tooltip arrow */}
+                    <div
+                      className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45"
+                      style={{ background: "rgba(30, 37, 43, 0.95)" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
               <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
@@ -746,13 +790,56 @@ const Dashboard = () => {
             }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
+            {/* Info Icon with Tooltip */}
+            <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-10">
+              <div className="relative group/info">
+                <button
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center transition-all duration-200 hover:bg-gray-100 active:scale-95"
+                  style={{ color: "#3C91C5" }}
+                  aria-label="Mind Canvas information"
+                >
+                  <svg
+                    className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </button>
+                {/* Tooltip */}
+                <div className="absolute top-full left-0 mt-2 w-56 sm:w-64 md:w-72 opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 pointer-events-none z-20">
+                  <div
+                    className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl"
+                    style={{
+                      background: "rgba(30, 37, 43, 0.95)",
+                      backdropFilter: "blur(8px)",
+                    }}
+                  >
+                    <p className="leading-relaxed">
+                      Draw freely and let AI analyze your drawings to provide meaningful insights about your emotional state.
+                    </p>
+                    {/* Tooltip arrow */}
+                    <div
+                      className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45"
+                      style={{ background: "rgba(30, 37, 43, 0.95)" }}
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
             {/* New Feature Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
               <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
                 ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
               </span>
               <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
-                ✨ POWERED BY VISION AI
+                ✨ POWERED BY GEMINI VISION
               </span>
             </div>
 
@@ -789,7 +876,7 @@ const Dashboard = () => {
               Draw your emotions, AI understands your art and provides insights
             </p>
             <button
-              onClick={() => setShowMindCanvas(true)}
+              onClick={() => navigate("/mind-canvas")}
               className="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
               style={{
                 background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
@@ -1068,7 +1155,7 @@ const Dashboard = () => {
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Guided breathing for calm & relaxation
+              Guided breathing exercises for calm & relaxation
             </p>
             <button
               onClick={() => setShowBreathingExercise(true)}
@@ -1124,7 +1211,7 @@ const Dashboard = () => {
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Track your thoughts & growth
+              Track your thoughts & achievements for motivation
             </p>
             <button
               onClick={() => setShowReflectionChart(true)}
@@ -1173,7 +1260,7 @@ const Dashboard = () => {
               className="text-xs sm:text-sm font-light text-center mb-3 sm:mb-4"
               style={{ color: "#475569" }}
             >
-              Build healthy habits & Streaks
+              Build healthy habits & Streaks for mental wellness
             </p>
             <button
               onClick={() => setShowStreakTracker(true)}
@@ -1194,6 +1281,7 @@ const Dashboard = () => {
         isOpen={showMoodModal}
         onClose={() => setShowMoodModal(false)}
         onMoodSubmitted={handleMoodSubmitted}
+        isFirstCheckIn={isFirstMoodCheckIn}
       />
 
       {/* Breathing Exercise Modal */}
@@ -1212,12 +1300,6 @@ const Dashboard = () => {
       <StreakTracker
         isOpen={showStreakTracker}
         onClose={() => setShowStreakTracker(false)}
-      />
-
-      {/* Mind Canvas Modal */}
-      <MindCanvas
-        isOpen={showMindCanvas}
-        onClose={() => setShowMindCanvas(false)}
       />
 
       {/* Support Forum Toast Notification - Fixed Top Center */}
@@ -1246,7 +1328,6 @@ const Dashboard = () => {
               }}
               className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
-              <span className="text-lg">💬</span>
               <span className="px-2 py-0.5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full">
                 NEW
               </span>
@@ -1308,7 +1389,6 @@ const Dashboard = () => {
               }}
               className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
             >
-              <span className="text-lg">🎨</span>
               <span className="px-2 py-0.5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full">
                 NEW
               </span>

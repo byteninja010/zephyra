@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import socketService from '../services/socketService';
-import authService from '../services/authService';
 
 const Forum = () => {
   const navigate = useNavigate();
@@ -12,8 +11,6 @@ const Forum = () => {
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newPostContent, setNewPostContent] = useState('');
-  const [submittingPost, setSubmittingPost] = useState(false);
   const [submittingComments, setSubmittingComments] = useState({}); // Track which posts have comments being submitted
   const [expandedPostId, setExpandedPostId] = useState(null);
   const [commentInputs, setCommentInputs] = useState({});
@@ -25,7 +22,7 @@ const Forum = () => {
   const [activeTab, setActiveTab] = useState('all'); // 'all' or 'my-posts'
   const [showInfoTooltip, setShowInfoTooltip] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
-  const newPostRef = useRef(null);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   // Track window size for responsive comment nesting
   useEffect(() => {
@@ -35,6 +32,16 @@ const Forum = () => {
     
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Track scroll position for scroll-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollToTop(window.scrollY > 300);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Show notification (needs to be defined before use in other callbacks)
@@ -119,35 +126,6 @@ const Forum = () => {
       }));
     });
 
-    // Listen for own post acceptance
-    socketService.onPostAccepted(async (data) => {
-      showNotification('Your post has been published!', 'success');
-      setSubmittingPost(false);
-      setNewPostContent('');
-      
-      // Log forum post activity
-      const logForumActivity = async () => {
-        try {
-          const uid = firebaseUid || localStorage.getItem('firebaseUid');
-          if (!uid) return;
-
-          await authService.logActivity(uid, 'forumPost');
-        } catch (error) {
-          // Silent fail - activity logging is non-critical
-        }
-      };
-
-      // Call the logging function (non-blocking)
-      logForumActivity();
-    });
-
-    // Listen for own post rejection
-    socketService.onPostRejected((data) => {
-      showNotification(`Post not published: ${data.reason}`, 'error');
-      setSubmittingPost(false);
-      setNewPostContent('');
-    });
-
     // Listen for own comment acceptance
     socketService.onCommentAccepted((data) => {
       showNotification('Your comment has been published!', 'success');
@@ -176,12 +154,6 @@ const Forum = () => {
     });
 
     // Listen for errors
-    socketService.onPostError((data) => {
-      showNotification('Failed to submit post: ' + data.error, 'error');
-      setSubmittingPost(false);
-      setNewPostContent('');
-    });
-
     socketService.onCommentError((data) => {
       showNotification('Failed to submit comment: ' + data.error, 'error');
       // Clear submitting state for the specific post
@@ -236,28 +208,6 @@ const Forum = () => {
     } catch (error) {
       // Error loading comments
     }
-  };
-
-  // Submit new post
-  const handleSubmitPost = () => {
-    if (!newPostContent.trim()) {
-      showNotification('Please write something before posting', 'warning');
-      return;
-    }
-
-    if (newPostContent.length > 2000) {
-      showNotification('Post is too long (max 2000 characters)', 'warning');
-      return;
-    }
-
-    if (!socketService.isConnected()) {
-      showNotification('Not connected to server. Please refresh the page.', 'error');
-      return;
-    }
-
-    setSubmittingPost(true);
-    showNotification('AI is checking your message...', 'info');
-    socketService.submitPost(firebaseUid, newPostContent);
   };
 
   // Submit comment (or reply)
@@ -792,52 +742,6 @@ const Forum = () => {
       <div className="relative z-10 max-w-6xl mx-auto flex gap-4 sm:gap-6 pt-4 sm:pt-6 px-2 sm:px-4 pb-20">
         {/* Main Feed Column */}
         <div className="flex-1 max-w-2xl mx-auto">
-          {/* Compose Post Card - Twitter Style */}
-          <div ref={newPostRef} className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm mb-3 sm:mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
-            <div className="p-3 sm:p-4">
-              <div className="flex space-x-2 sm:space-x-3">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm sm:text-base" style={{ background: getAvatarGradient(pseudonym) }}>
-                  {pseudonym?.[0] || '?'}
-                </div>
-                <div className="flex-1">
-                  <textarea
-                    value={newPostContent}
-                    onChange={(e) => setNewPostContent(e.target.value)}
-                    placeholder="What's on your mind? Post pseudonymously and get support from real like-minded individuals."
-                    className="w-full text-sm sm:text-base md:text-lg border-0 focus:outline-none resize-none placeholder-gray-400"
-                    style={{ color: '#1e293b', minHeight: '50px' }}
-                    maxLength={2000}
-                    disabled={submittingPost}
-                  />
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: '#f1f5f9' }}>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs" style={{ color: '#64748b' }}>
-                        {newPostContent.length}/2000
-                      </span>
-                      <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: '#E8F4FD', color: '#3C91C5' }}>
-                        🛡️ AI Moderated
-                      </span>
-                    </div>
-                    <button
-                      onClick={handleSubmitPost}
-                      disabled={submittingPost || !newPostContent.trim()}
-                      className="px-5 py-2 rounded-full font-semibold text-white text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                      style={{ 
-                        background: submittingPost || !newPostContent.trim() ? '#94a3b8' : 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)',
-                        boxShadow: submittingPost || !newPostContent.trim() ? 'none' : '0 2px 8px rgba(60, 145, 197, 0.3)'
-                      }}
-                    >
-                      {submittingPost && (
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                      )}
-                      <span>{submittingPost ? 'Posting...' : 'Post'}</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Tabs & Search Section */}
           <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm mb-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
             {/* Tabs */}
@@ -968,9 +872,9 @@ const Forum = () => {
                     {/* Post Actions */}
                     <div className="flex items-center space-x-1 ml-0 sm:ml-15 pt-2 sm:pt-3 border-t" style={{ borderColor: '#f1f5f9' }}>
                       <button
-                        onClick={() => togglePost(post.postId)}
+                        onClick={() => navigate(`/forum/${post.postId}`)}
                         className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full transition-colors group"
-                        style={{ color: expandedPostId === post.postId ? '#3C91C5' : '#64748b' }}
+                        style={{ color: '#64748b' }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#E8F4FD'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
@@ -980,81 +884,6 @@ const Forum = () => {
                         <span className="text-xs sm:text-sm font-medium">{post.commentCount || 0}</span>
                       </button>
                     </div>
-
-                    {/* Comments Section */}
-                    {expandedPostId === post.postId && (
-                      <div className="mt-4 pt-4 border-t space-y-4" style={{ borderColor: '#f1f5f9' }}>
-                        {/* Comment Input */}
-                        <div className="flex space-x-2 sm:space-x-3 ml-0 sm:ml-12 md:ml-15">
-                          <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-xs" style={{ background: getAvatarGradient(pseudonym) }}>
-                            {pseudonym?.[0] || '?'}
-                          </div>
-                          <div className="flex-1">
-                            {replyingTo[post.postId] && (
-                              <div className="mb-2 p-2 rounded-lg flex items-center justify-between" style={{ backgroundColor: '#E8F4FD' }}>
-                                <span className="text-sm font-medium" style={{ color: '#3C91C5' }}>
-                                  Replying to comment
-                                </span>
-                                <button
-                                  onClick={() => handleCancelReply(post.postId)}
-                                  className="text-sm font-medium hover:underline"
-                                  style={{ color: '#3C91C5' }}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            )}
-                            <textarea
-                              value={commentInputs[post.postId] || ''}
-                              onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.postId]: e.target.value }))}
-                              placeholder={replyingTo[post.postId] ? "Write your reply..." : "Post your reply..."}
-                              className="w-full px-3 py-2 border rounded-xl focus:outline-none resize-none text-sm"
-                              style={{ 
-                                borderColor: '#e5e7eb',
-                                color: '#1e293b'
-                              }}
-                              rows="2"
-                              maxLength={1000}
-                              onFocus={(e) => e.target.style.borderColor = '#3C91C5'}
-                              onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                            />
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="text-xs" style={{ color: '#94a3b8' }}>
-                                {(commentInputs[post.postId] || '').length}/1000
-                              </span>
-                              <button
-                                onClick={() => handleSubmitComment(post.postId)}
-                                disabled={!commentInputs[post.postId]?.trim() || submittingComments[post.postId]}
-                                className="px-4 py-1.5 rounded-full font-semibold text-white text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                                style={{ 
-                                  background: !commentInputs[post.postId]?.trim() || submittingComments[post.postId] ? '#94a3b8' : 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
-                                }}
-                              >
-                                {submittingComments[post.postId] && (
-                                  <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent"></div>
-                                )}
-                                <span>{submittingComments[post.postId] ? 'Posting...' : (replyingTo[post.postId] ? 'Reply' : 'Reply')}</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Comments List - Hierarchical/Threaded */}
-                        <div className="ml-0 sm:ml-12 md:ml-15">
-                          {post.comments && post.comments.length > 0 ? (
-                            <div className="space-y-0">
-                              {organizeCommentsHierarchy(post.comments).map((comment) => 
-                                renderCommentThread(comment, post.postId, 0)
-                              )}
-                            </div>
-                          ) : (
-                            <div className="py-8 text-center">
-                              <p className="text-sm" style={{ color: '#94a3b8' }}>No comments yet. Be the first to reply!</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               ))
@@ -1084,6 +913,38 @@ const Forum = () => {
           )}
         </div>
       </div>
+
+      {/* Floating Create Post Button */}
+      <button
+        onClick={() => navigate('/forum/new')}
+        className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-50 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+        style={{ 
+          background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)',
+          boxShadow: '0 4px 12px rgba(60, 145, 197, 0.4)'
+        }}
+        title="Create New Post"
+      >
+        <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </button>
+
+      {/* Scroll to Top Button */}
+      {showScrollToTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 left-6 sm:bottom-8 sm:left-8 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl animate-fade-in"
+          style={{ 
+            background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)',
+            boxShadow: '0 4px 12px rgba(60, 145, 197, 0.4)'
+          }}
+          title="Scroll to top"
+        >
+          <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      )}
       </div>
     </>
   );

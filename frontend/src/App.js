@@ -9,6 +9,9 @@ import OnboardingFlow from './components/OnboardingFlow';
 import ChatInterface from './components/ChatInterface';
 import SessionsPage from './components/SessionsPage';
 import Forum from './components/Forum';
+import PostDetail from './components/PostDetail';
+import NewPost from './components/NewPost';
+import MindCanvas from './components/MindCanvas';
 import InstallPrompt from './components/InstallPrompt';
 
 function App() {
@@ -45,6 +48,11 @@ function App() {
           
           {/* Forum Route */}
           <Route path="/forum" element={<Forum />} />
+          <Route path="/forum/new" element={<NewPost />} />
+          <Route path="/forum/:postId" element={<PostDetail />} />
+          
+          {/* Mind Canvas Route */}
+          <Route path="/mind-canvas" element={<MindCanvas />} />
           
           {/* Catch all route - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
