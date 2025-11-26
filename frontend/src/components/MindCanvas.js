@@ -377,7 +377,7 @@ const MindCanvas = () => {
                 )}
 
                 {/* Eraser Info - Only show when erasing */}
-                {isEraser && (
+                {/* {isEraser && (
                   <div className="dashboard-card bg-pink-50 border border-pink-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 text-pink-800">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +388,7 @@ const MindCanvas = () => {
                       </p>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 {/* Brush Size */}
                 <div>
@@ -455,7 +455,7 @@ const MindCanvas = () => {
             </div>
 
             {/* Results Area */}
-            <div className="flex flex-col">
+            <div className="flex flex-col justify-center">
               {showResult && analysis ? (
                 <div className="flex-1 space-y-6 animate-fade-in">
                   {/* Mood Display */}
@@ -514,8 +514,8 @@ const MindCanvas = () => {
                   </button>
                 </div>
               ) : (
-                <div className="flex-1 pt-32 pl-10">
-                  <div className="text-center max-w-md space-y-6 animate-gentle-pulse">
+                <div className="flex-1 pt-32 px-4 sm:px-6 md:px-8">
+                  <div className="text-center max-w-md space-y-6 animate-gentle-pulse mx-auto">
                     <div className="text-6xl mb-4">🎨</div>
                     <h3 className="text-2xl font-bold text-gray-800">
                       Express Yourself
