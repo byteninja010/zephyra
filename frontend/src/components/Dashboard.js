@@ -27,9 +27,7 @@ const Dashboard = () => {
   const [showCompanionTooltip, setShowCompanionTooltip] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState(() => 
-    Math.floor(Math.random() * 7)
-  );
+  const [currentActivity, setCurrentActivity] = useState(0);
   const [companionActive, setCompanionActive] = useState(() => {
     const saved = localStorage.getItem("companionActive");
     return saved !== null ? saved === "true" : true;
@@ -73,6 +71,14 @@ const Dashboard = () => {
       action: () => navigate("/sessions"),
     },
   ];
+
+  // Initialize currentActivity with a random value
+  useEffect(() => {
+    if (activitySuggestions.length > 0) {
+      setCurrentActivity(Math.floor(Math.random() * activitySuggestions.length));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Companion robot tooltip cycling
   useEffect(() => {
@@ -1268,17 +1274,17 @@ const Dashboard = () => {
 
               <div className="relative z-10 flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
                 <span className="text-lg sm:text-2xl">
-                  {activitySuggestions[currentActivity].icon}
+                  {activitySuggestions[currentActivity]?.icon || "💡"}
                 </span>
                 <p className="text-xs sm:text-sm font-medium text-gray-800 flex-1 leading-tight">
-                  {activitySuggestions[currentActivity].text}
+                  {activitySuggestions[currentActivity]?.text || "Try an activity"}
                 </p>
               </div>
 
               <div className="relative z-10 flex gap-1.5 sm:gap-2">
                 <button
                   onClick={() => {
-                    activitySuggestions[currentActivity].action();
+                    activitySuggestions[currentActivity]?.action?.();
                     setShowCompanionTooltip(false);
                     // Select random activity after user completes current one
                     setCurrentActivity(
