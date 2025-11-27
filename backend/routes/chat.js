@@ -713,8 +713,13 @@ router.post('/:chatId/message', async (req, res) => {
       
       const systemPrompt = await getSystemPrompt(chat.context, isSessionChat);
       
-      // Build conversation history for context (last 100 messages for much better context)
-      const conversationHistory = chat.messages.slice(-100).map(msg => 
+      // Check if this is an instant session (faster response needed)
+      const isInstantSession = sessionId && sessionId.startsWith('session-instant_');
+      
+      // Build conversation history for context
+      // Use fewer messages for instant sessions for faster processing
+      const historyLimit = isInstantSession ? 20 : 100;
+      const conversationHistory = chat.messages.slice(-historyLimit).map(msg => 
         `${msg.sender}: ${msg.text}`
       ).join('\n');
 
@@ -730,9 +735,10 @@ router.post('/:chatId/message', async (req, res) => {
         
         sessionContextInfo = '\n\nSESSION-SPECIFIC CONTEXT:\n';
         
-        // Current session history
+        // Current session history (limit for instant sessions)
         if (sessionCtx?.exploration && sessionCtx.exploration.length > 0) {
-          const sessionHistory = sessionCtx.exploration.map(e => 
+          const historyLimit = isInstantSession ? 3 : sessionCtx.exploration.length;
+          const sessionHistory = sessionCtx.exploration.slice(-historyLimit).map(e => 
             `User: ${e.userMessage}\nAI: ${e.aiResponse}`
           ).join('\n\n');
           sessionContextInfo += `CURRENT SESSION HISTORY:\n${sessionHistory}\n\n`;
@@ -746,8 +752,8 @@ router.post('/:chatId/message', async (req, res) => {
         // Current user message
         sessionContextInfo += `CURRENT USER MESSAGE: ${message}\n\n`;
         
-        // Cumulative session summary
-        if (cumulativeSummary) {
+        // Cumulative session summary (only for scheduled sessions, not instant)
+        if (cumulativeSummary && !isInstantSession) {
           sessionContextInfo += `CUMULATIVE SESSION SUMMARY: ${cumulativeSummary}\n\n`;
         }
       }
@@ -760,9 +766,9 @@ router.post('/:chatId/message', async (req, res) => {
       
       const prompt = `${systemPrompt}${sessionContextInfo}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
-      // Log model and token configuration
+      // Keep gemini-2.5-flash for all session chats, but use lower tokens for instant sessions
       const modelName = isSessionChat ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
-      const maxTokens = isSessionChat ? 8192 : 2000;
+      const maxTokens = isInstantSession ? 1024 : (isSessionChat ? 4000 : 2000);
 
       const result = await retryGeminiCall(() => 
         genAI.models.generateContent({
@@ -771,6 +777,7 @@ router.post('/:chatId/message', async (req, res) => {
         generationConfig: {
           temperature: 0.7,
           maxOutputTokens: maxTokens,
+          maxInputTokens: 2000,
           topP: 0.9,
           topK: 40
         }
@@ -990,7 +997,13 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
     try {
               const systemPrompt = await getSystemPrompt(chat.context, isSessionChat);
 
-      const conversationHistory = chat.messages.slice(-100).map(msg => 
+      // Check if this is an instant session (faster response needed)
+      const isInstantSession = sessionId && sessionId.startsWith('session-instant_');
+      
+      // Build conversation history for context
+      // Use fewer messages for instant sessions for faster processing
+      const historyLimit = isInstantSession ? 20 : 100;
+      const conversationHistory = chat.messages.slice(-historyLimit).map(msg => 
         `${msg.sender}: ${msg.text}`
       ).join('\n');
 
@@ -1006,9 +1019,10 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
                 
                 sessionContextInfo = '\n\nSESSION-SPECIFIC CONTEXT:\n';
                 
-                // Current session history
+                // Current session history (limit for instant sessions)
                 if (sessionCtx?.exploration && sessionCtx.exploration.length > 0) {
-                  const sessionHistory = sessionCtx.exploration.map(e => 
+                  const historyLimit = isInstantSession ? 3 : sessionCtx.exploration.length;
+                  const sessionHistory = sessionCtx.exploration.slice(-historyLimit).map(e => 
                     `User: ${e.userMessage}\nAI: ${e.aiResponse}`
                   ).join('\n\n');
                   sessionContextInfo += `CURRENT SESSION HISTORY:\n${sessionHistory}\n\n`;
@@ -1022,8 +1036,8 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
                 // Current user message
                 sessionContextInfo += `CURRENT USER MESSAGE: ${transcription}\n\n`;
                 
-                // Cumulative session summary
-                if (cumulativeSummary) {
+                // Cumulative session summary (only for scheduled sessions, not instant)
+                if (cumulativeSummary && !isInstantSession) {
                   sessionContextInfo += `CUMULATIVE SESSION SUMMARY: ${cumulativeSummary}\n\n`;
                 }
               }
@@ -1036,9 +1050,9 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
               
               const prompt = `${systemPrompt}${sessionContextInfo}\n\nCONVERSATION HISTORY:\n${conversationHistory}\n\nLANGUAGE INSTRUCTION: ${languagePreference}${sessionContext}\n\nPlease respond as Zephyra, the mental wellness companion. Be empathetic, supportive, and helpful.`;
 
-      // Log model and token configuration
+      // Keep gemini-2.5-flash for all session chats, but use lower tokens for instant sessions
       const modelName = isSessionChat ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
-      const maxTokens = isSessionChat ? 8192 : 2000;
+      const maxTokens = isInstantSession ? 500 : (isSessionChat ? 4000 : 2000);
 
       const result = await retryGeminiCall(() => 
         genAI.models.generateContent({
@@ -1047,6 +1061,7 @@ router.post('/:chatId/audio', upload.single('audio'), async (req, res) => {
         generationConfig: {
           temperature: 0.7,
             maxOutputTokens: maxTokens,
+          maxInputTokens: 2000,
           topP: 0.9,
           topK: 40
         }

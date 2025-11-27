@@ -33,7 +33,14 @@ const sessionService = {
   getUpcomingSessions: async (limit = 5) => {
     try {
       const firebaseUid = localStorage.getItem('firebaseUid');
-      const response = await axios.get(`${API_URL}/api/sessions/upcoming/${firebaseUid}?limit=${limit}`);
+      // Add timestamp to prevent caching
+      const timestamp = Date.now();
+      const response = await axios.get(`${API_URL}/api/sessions/upcoming/${firebaseUid}?limit=${limit}&_t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       return response.data;
     } catch (error) {
       console.error('Error getting upcoming sessions:', error);
@@ -90,13 +97,8 @@ const sessionService = {
   // Get session data by ID
   getSession: async (sessionId) => {
     try {
-      const firebaseUid = localStorage.getItem('firebaseUid');
-      // For now, we'll use the startInstantSession response
-      // In production, you'd want a dedicated GET endpoint
-      const response = await axios.post(`${API_URL}/api/sessions/start-instant`, {
-        firebaseUid,
-        userContext: {}
-      });
+      // Use proper GET endpoint - does NOT create sessions
+      const response = await axios.get(`${API_URL}/api/sessions/${sessionId}`);
       return response.data;
     } catch (error) {
       console.error('Error getting session:', error);
@@ -198,6 +200,21 @@ const sessionService = {
       return response.data;
     } catch (error) {
       console.error('Error cancelling session:', error);
+      throw error;
+    }
+  },
+
+  // Close a session (updates summary, sets scheduled sessions to 'scheduled' status)
+  closeSession: async (sessionId, firebaseUid = null, secretCode = null) => {
+    try {
+      const requestBody = {};
+      if (firebaseUid) requestBody.firebaseUid = firebaseUid;
+      if (secretCode) requestBody.secretCode = secretCode;
+      
+      const response = await axios.post(`${API_URL}/api/sessions/close/${sessionId}`, requestBody);
+      return response.data;
+    } catch (error) {
+      console.error('Error closing session:', error);
       throw error;
     }
   }

@@ -542,11 +542,27 @@ const generateSessionMusic = async (userMood, sessionType = 'general', duration 
       }
       
     } catch (musicError) {
-      return null;
+      // Fallback to default music if generation fails
+      console.error('[Sessions] Music generation failed, using fallback:', musicError);
+      return {
+        musicUrl: 'https://res.cloudinary.com/dt94wej8m/video/upload/v1764268364/zephyra-sessions/music/nayq9ylym4rntegpxj7g.wav',
+        prompt: 'Default calming ambient music (fallback)',
+        mood: userMood || 'calm',
+        generatedWith: 'fallback',
+        duration: 30
+      };
     }
     
   } catch (error) {
-    return null;
+    // Fallback to default music if complete failure
+    console.error('[Sessions] Music generation complete failure, using fallback:', error);
+    return {
+      musicUrl: 'https://res.cloudinary.com/dt94wej8m/video/upload/v1764268364/zephyra-sessions/music/nayq9ylym4rntegpxj7g.wav',
+      prompt: 'Default calming ambient music (fallback)',
+      mood: 'calm',
+      generatedWith: 'fallback',
+      duration: 30
+    };
   }
 };
 
@@ -568,8 +584,12 @@ router.post('/create', async (req, res) => {
       return res.status(400).json({ error: 'Invalid time format. Use HH:MM (24-hour format)' });
     }
 
-    // Check if user already has a session schedule
-    const existingSession = await Session.findOne({ firebaseUid, status: { $in: ['scheduled', 'active'] } });
+    // Check if user already has a scheduled session (exclude instant sessions)
+    const existingSession = await Session.findOne({ 
+      firebaseUid, 
+      status: { $in: ['scheduled', 'active'] },
+      sessionId: { $not: { $regex: /^session-instant_/ } } // Exclude instant sessions
+    });
     if (existingSession) {
       return res.status(400).json({ error: 'User already has an active session schedule' });
     }
@@ -611,9 +631,11 @@ router.get('/schedule/:firebaseUid', async (req, res) => {
   try {
     const { firebaseUid } = req.params;
 
+    // Only get scheduled sessions (not instant sessions)
     const session = await Session.findOne({ 
       firebaseUid, 
-      status: { $in: ['scheduled', 'active'] } 
+      status: { $in: ['scheduled', 'active'] },
+      sessionId: { $not: { $regex: /^session-instant_/ } } // Exclude instant sessions
     });
 
     if (!session) {
@@ -796,32 +818,276 @@ router.get('/upcoming/:firebaseUid', async (req, res) => {
   try {
     const { firebaseUid } = req.params;
     const { limit = 5 } = req.query;
+    const minSessions = 4; // Minimum number of sessions to show (for 2x2 grid)
 
-    // Get all sessions, excluding completed/cancelled ones
-    const allSessions = await Session.find({
+    // Get the current schedule
+    const currentSchedule = await Session.findOne({
       firebaseUid,
       status: { $in: ['scheduled', 'active'] },
-      nextSessionDate: { $gte: new Date() }
-    })
-    .sort({ createdAt: -1 }) // Sort by creation date, newest first
-    .select('sessionId schedule nextSessionDate status createdAt');
+      sessionId: { $not: { $regex: /^session-instant_/ } }
+    });
 
-    // Deduplicate sessions - keep only the most recent of each type
+    // Get all existing sessions, excluding completed/cancelled ones
+    // Include active sessions regardless of date, and scheduled sessions within 1-hour window or future dates
+    const now = new Date();
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000); // 1 hour ago
+    
+    const allSessions = await Session.find({
+      firebaseUid,
+      $or: [
+        { status: 'active' }, // Include all active sessions
+        { 
+          status: 'scheduled',
+          $or: [
+            { nextSessionDate: { $gte: now } }, // Future scheduled sessions
+            { 
+              nextSessionDate: { 
+                $gte: oneHourAgo,
+                $lt: now 
+              } // Scheduled sessions within the last hour (1-hour join window)
+            }
+          ]
+        }
+      ]
+    })
+    .sort({ nextSessionDate: 1 }) // Sort by nextSessionDate, earliest first
+    .select('sessionId schedule nextSessionDate status createdAt lastSessionSummary');
+
+    // Helper function to normalize date for comparison (same day)
+    const normalizeDate = (date) => {
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    };
+
+    // Deduplicate sessions - only remove actual duplicates (same sessionId)
+    // Keep all unique sessions, even if they're on the same date
     const deduplicatedSessions = [];
-    const seenTypes = new Set();
+    const seenSessionIds = new Set();
+    const instantSessions = [];
 
     for (const session of allSessions) {
-      const sessionType = session.sessionId.startsWith('session-instant_') ? 'instant' : 'scheduled';
+      const isInstant = session.sessionId.startsWith('session-instant_');
       
-      // Only add if we haven't seen this type before
-      if (!seenTypes.has(sessionType)) {
-        seenTypes.add(sessionType);
-        deduplicatedSessions.push(session);
+      if (isInstant) {
+        // For instant sessions, keep only one (they're temporary)
+        if (instantSessions.length === 0) {
+          instantSessions.push(session);
+        }
+      } else {
+        // For scheduled sessions, only skip if we've seen this exact sessionId
+        if (!seenSessionIds.has(session.sessionId)) {
+          seenSessionIds.add(session.sessionId);
+          deduplicatedSessions.push(session);
+        }
       }
     }
 
-    // Limit the results
-    const sessions = deduplicatedSessions.slice(0, parseInt(limit));
+    // Combine scheduled and instant sessions
+    deduplicatedSessions.push(...instantSessions);
+
+    // If we have a schedule, generate virtual sessions for next 4 occurrences
+    if (currentSchedule && currentSchedule.schedule) {
+      const scheduledSessions = deduplicatedSessions.filter(s => 
+        !s.sessionId.startsWith('session-instant_')
+      );
+
+      // Always generate virtual sessions to show next 4 occurrences based on schedule
+      // Start from the first scheduled session date or the schedule's nextSessionDate
+      let startDate = null;
+      
+      if (scheduledSessions.length > 0) {
+        // Use the earliest scheduled session as starting point
+        const earliestSession = scheduledSessions.sort((a, b) => 
+          new Date(a.nextSessionDate) - new Date(b.nextSessionDate)
+        )[0];
+        startDate = new Date(earliestSession.nextSessionDate);
+      } else if (currentSchedule.nextSessionDate) {
+        startDate = new Date(currentSchedule.nextSessionDate);
+      } else {
+        startDate = new Date();
+      }
+
+      // Generate exactly 4 sessions total (1 real + 3 virtual, or 4 virtual if no real)
+      const targetCount = 4;
+      const virtualSessions = [];
+      let currentDate = new Date(startDate);
+      
+      // Track existing sessions by date/time to avoid duplicates
+      const existingDateKeys = new Set(scheduledSessions.map(s => {
+        const sDate = new Date(s.nextSessionDate);
+        return `${normalizeDate(sDate)}_${sDate.getHours()}_${sDate.getMinutes()}`;
+      }));
+
+      // Generate virtual sessions for the next occurrences
+      // We need (targetCount - scheduledSessions.length) virtual sessions
+      let sessionsToGenerate = targetCount - scheduledSessions.length;
+      let attempts = 0;
+      const maxAttempts = 30;
+
+      while (virtualSessions.length < sessionsToGenerate && attempts < maxAttempts) {
+        attempts++;
+        
+        // Calculate next session date using the schedule's method
+        // This will advance to the next occurrence based on frequency (daily/weekly/monthly)
+        const nextDate = currentSchedule.calculateNextSession(currentDate);
+        
+        // Create a unique key for this date/time
+        const dateKey = `${normalizeDate(nextDate)}_${nextDate.getHours()}_${nextDate.getMinutes()}`;
+        
+        // Only add if we don't already have a session for this exact date/time
+        if (!existingDateKeys.has(dateKey)) {
+          const virtualSession = {
+            sessionId: `virtual_${Date.now()}_${attempts}`,
+            schedule: currentSchedule.schedule,
+            nextSessionDate: nextDate,
+            status: 'scheduled',
+            createdAt: new Date(),
+            lastSessionSummary: currentSchedule.lastSessionSummary || null,
+            _isVirtual: true
+          };
+
+          virtualSessions.push(virtualSession);
+          existingDateKeys.add(dateKey); // Mark this date as used
+        }
+        
+        // Move currentDate to the calculated nextDate for the next iteration
+        currentDate = new Date(nextDate);
+      }
+
+      // Combine: real sessions + virtual sessions, sort by date, take first 4
+      const allScheduledSessions = [...scheduledSessions, ...virtualSessions].sort((a, b) => 
+        new Date(a.nextSessionDate) - new Date(b.nextSessionDate)
+      ).slice(0, targetCount);
+
+      // Replace scheduled sessions in deduplicatedSessions
+      const otherSessions = deduplicatedSessions.filter(s => 
+        s.sessionId.startsWith('session-instant_')
+      );
+      deduplicatedSessions.length = 0;
+      deduplicatedSessions.push(...allScheduledSessions, ...otherSessions);
+    }
+
+    // Final pass: remove only true duplicates (same sessionId), keep all unique sessions
+    const finalSessions = [];
+    const finalSeenIds = new Set(); // Track by sessionId to avoid true duplicates
+    
+    // Sort by nextSessionDate first
+    deduplicatedSessions.sort((a, b) => 
+      new Date(a.nextSessionDate) - new Date(b.nextSessionDate)
+    );
+
+    // Remove only duplicates with same sessionId, keep all unique sessions
+    for (const session of deduplicatedSessions) {
+      if (!finalSeenIds.has(session.sessionId)) {
+        finalSeenIds.add(session.sessionId);
+        finalSessions.push(session);
+      }
+      // If sessionId already seen, skip it (true duplicate)
+    }
+
+    // Ensure we have at least 4 sessions for dashboard (2x2 grid) by generating more virtual sessions if needed
+    if (currentSchedule && currentSchedule.schedule) {
+      const scheduledFinalSessions = finalSessions.filter(s => 
+        !s.sessionId.startsWith('session-instant_')
+      );
+      
+      const dashboardMinSessions = 4; // Need 4 for 2x2 grid
+      if (scheduledFinalSessions.length < dashboardMinSessions) {
+        let lastSessionDate = null;
+        
+        // Find the latest scheduled session date
+        if (scheduledFinalSessions.length > 0) {
+          const latestSession = scheduledFinalSessions.sort((a, b) => 
+            new Date(b.nextSessionDate) - new Date(a.nextSessionDate)
+          )[0];
+          lastSessionDate = new Date(latestSession.nextSessionDate);
+        } else if (currentSchedule.nextSessionDate) {
+          lastSessionDate = new Date(currentSchedule.nextSessionDate);
+        } else {
+          lastSessionDate = new Date();
+        }
+
+        // Generate additional virtual sessions to reach dashboardMinSessions
+        let sessionsNeeded = dashboardMinSessions - scheduledFinalSessions.length;
+        let currentDate = new Date(lastSessionDate);
+        let attempts = 0;
+        const maxAttempts = 30; // Prevent infinite loop
+
+        while (scheduledFinalSessions.length < dashboardMinSessions && attempts < maxAttempts) {
+          attempts++;
+          
+          // Calculate next session date using the schedule's method
+          const nextDate = currentSchedule.calculateNextSession(currentDate);
+          currentDate = new Date(nextDate);
+
+          // Check if a session already exists for this exact date and time
+          const hasSessionForDate = finalSessions.some(s => {
+            if (s._isVirtual && s.sessionId.startsWith('virtual_')) return false; // Don't check against other virtuals
+            const sDate = new Date(s.nextSessionDate);
+            const vDate = new Date(nextDate);
+            return normalizeDate(sDate) === normalizeDate(vDate) && 
+                   sDate.getHours() === vDate.getHours() && 
+                   sDate.getMinutes() === vDate.getMinutes();
+          });
+
+          // Only create virtual session if no session exists for this exact date/time
+          if (!hasSessionForDate) {
+            const virtualSession = {
+              sessionId: `virtual_${Date.now()}_${attempts}`,
+              schedule: currentSchedule.schedule,
+              nextSessionDate: nextDate,
+              status: 'scheduled',
+              createdAt: new Date(),
+              lastSessionSummary: currentSchedule.lastSessionSummary || null,
+              _isVirtual: true
+            };
+
+            scheduledFinalSessions.push(virtualSession);
+            finalSessions.push(virtualSession);
+            finalSeenIds.add(virtualSession.sessionId);
+          }
+        }
+
+        // Re-sort after adding virtual sessions
+        finalSessions.sort((a, b) => 
+          new Date(a.nextSessionDate) - new Date(b.nextSessionDate)
+        );
+      }
+    }
+
+    // Limit the results, but ensure at least 4 sessions are returned for the dashboard
+    const requestedLimit = parseInt(limit);
+    const dashboardMinSessions = 4; // Dashboard needs 4 sessions for 2x2 grid
+    const effectiveLimit = Math.max(dashboardMinSessions, requestedLimit);
+    
+    // Separate active and scheduled for proper response
+    // Also filter out expired scheduled sessions (more than 1 hour past scheduled time)
+    const activeSessions = finalSessions.filter(s => s.status === 'active');
+    const scheduledSessions = finalSessions.filter(s => {
+      if (s.status !== 'scheduled') return false;
+      
+      // Check if session is expired (more than 1 hour past scheduled time)
+      if (s.nextSessionDate && s.schedule?.time) {
+        const sessionDate = new Date(s.nextSessionDate);
+        const [hours, minutes] = s.schedule.time.split(':').map(Number);
+        sessionDate.setHours(hours, minutes, 0, 0);
+        const timeSinceSession = now - sessionDate;
+        const hoursSinceSession = Math.floor(timeSinceSession / (1000 * 60 * 60));
+        if (timeSinceSession > 0 && hoursSinceSession >= 1) {
+          return false; // Expired - more than 1 hour past
+        }
+      }
+      
+      return true;
+    });
+    
+    // Sort scheduled sessions and take up to effectiveLimit
+    scheduledSessions.sort((a, b) => new Date(a.nextSessionDate) - new Date(b.nextSessionDate));
+    const finalScheduledSessions = scheduledSessions.slice(0, effectiveLimit);
+    
+    // Combine: active sessions first, then scheduled
+    const sessions = [...activeSessions, ...finalScheduledSessions];
 
     res.json({
       success: true,
@@ -969,15 +1235,40 @@ Create a professional therapeutic cumulative summary that captures the essential
       cumulativeSummary = newSessionSummary; // Fallback to new session summary
     }
 
-    // Update session with summary and mark as completed
+    // Update session with summary
     session.sessionData.reflection = {
       summary: newSessionSummary,
       keyInsights: session.sessionData?.reflection?.keyInsights || [],
       nextSteps: session.sessionData?.reflection?.nextSteps || [],
       timestamp: new Date()
     };
-    session.status = 'completed';
+    
+    // Update lastSessionSummary for continuation
     session.lastSessionSummary = newSessionSummary;
+    session.completedAt = new Date();
+
+    // If this is a scheduled session (not instant), reuse the same session
+    // Turn it back to scheduled status and calculate next session date
+    if (!session.sessionId.startsWith('session-instant_') && session.schedule) {
+      // Calculate next session date from the completion date
+      const nextSessionDate = session.calculateNextSession(session.completedAt);
+      
+      // Update the same session: set status back to scheduled and update nextSessionDate
+      session.status = 'scheduled';
+      session.nextSessionDate = nextSessionDate;
+      
+      // Clear session data for next session (keep only summary)
+      session.sessionData.backgroundImage = null;
+      session.sessionData.backgroundMusic = null;
+      session.sessionData.greeting = null;
+      session.sessionData.moodCheckIn = null;
+      session.sessionData.exploration = [];
+      session.sessionData.copingTool = null;
+      // Keep reflection summary for reference
+    } else {
+      // For instant sessions, mark as completed
+      session.status = 'completed';
+    }
 
     await session.save();
 
@@ -1051,92 +1342,270 @@ router.delete('/cleanup/:firebaseUid', async (req, res) => {
   }
 });
 
+// Close a session (without completing - updates summary and sets status to scheduled)
+router.post('/close/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const { firebaseUid, secretCode } = req.body;
+    
+    let finalFirebaseUid = firebaseUid;
+    
+    // Fallback: Try to get firebaseUid from secret code if not provided
+    if (!finalFirebaseUid && secretCode) {
+      try {
+        const User = require('../models/User');
+        const user = await User.findOne({ secretCode, isActive: true });
+        if (user) {
+          finalFirebaseUid = user.firebaseUid;
+        }
+      } catch (error) {
+        // Continue with error handling below
+      }
+    }
+    
+    if (!finalFirebaseUid) {
+      return res.status(400).json({ 
+        error: 'Firebase UID is required'
+      });
+    }
+
+    const session = await Session.findOne({ sessionId, firebaseUid: finalFirebaseUid });
+    if (!session) {
+      return res.status(404).json({ error: 'Session not found' });
+    }
+
+    if (session.status !== 'active') {
+      return res.status(400).json({ error: 'Session is not active' });
+    }
+
+    // Get the most recent cumulative summary from user's context
+    const User = require('../models/User');
+    const user = await User.findOne({ firebaseUid: finalFirebaseUid, isActive: true });
+    const previousCumulativeSummary = user?.userContext?.cumulativeSessionSummary || '';
+
+    // Generate new session summary (same as complete endpoint)
+    let newSessionSummary = '';
+    try {
+      const sessionPrompt = `Please create a comprehensive summary for this single mental wellness session.
+
+SESSION DATA:
+- Session ID: ${session.sessionId}
+- Mood Check-in: ${session.sessionData?.moodCheckIn?.mood || 'Not recorded'}${session.sessionData?.moodCheckIn?.note ? ' - ' + session.sessionData.moodCheckIn.note : ''}
+- Exploration Conversations: ${session.sessionData?.exploration?.length || 0} exchanges
+- Coping Tool Used: ${session.sessionData?.copingTool?.type || 'None'}
+- Session Insights: ${session.sessionData?.reflection?.keyInsights?.join(', ') || 'None'}
+- Next Steps: ${session.sessionData?.reflection?.nextSteps?.join(', ') || 'None'}
+
+CONVERSATION HISTORY:
+${session.sessionData?.exploration?.map((exchange, index) => 
+  `Exchange ${index + 1}:
+  User: ${exchange.userMessage}
+  AI: ${exchange.aiResponse}
+  Time: ${exchange.timestamp}`
+).join('\n\n') || 'No conversation history'}
+
+Create a detailed summary (approximately 300-500 words) of this single session including:
+1. Key topics discussed
+2. Emotional state and mood progression
+3. Insights gained
+4. Coping strategies explored
+5. Actionable next steps
+6. Overall session impact
+
+Focus only on this specific session.`;
+
+      const sessionResult = await retryGeminiCall(() => 
+        genAI.models.generateContent({
+          model: "gemini-2.5-flash-lite",
+          contents: sessionPrompt,
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1000
+          }
+        })
+      );
+
+      newSessionSummary = sessionResult.candidates[0].content.parts[0].text;
+    } catch (summaryError) {
+      newSessionSummary = `Session closed on ${new Date().toISOString()}. Key topics discussed: ${session.sessionData?.exploration?.length || 0} conversation exchanges. Mood: ${session.sessionData?.moodCheckIn?.mood || 'Not recorded'}.`;
+    }
+
+    // Now create cumulative summary combining old + new
+    let cumulativeSummary = '';
+    try {
+      const cumulativePrompt = `Please create a consolidated cumulative summary by combining the previous cumulative summary with the new session summary.
+
+PREVIOUS CUMULATIVE SUMMARY:
+${previousCumulativeSummary || 'No previous sessions - this is the first session.'}
+
+NEW SESSION SUMMARY:
+${newSessionSummary}
+
+INSTRUCTIONS:
+1. Combine both summaries into ONE comprehensive summary
+2. EXACTLY 150 words (no more, no less) - count every word carefully
+3. Focus only on the MOST CRITICAL therapeutic information
+4. Include: key mood patterns, major breakthroughs, recurring themes, current progress
+5. Maintain chronological flow
+6. Be concise but preserve essential therapeutic context
+7. Prioritize recent insights and actionable patterns
+
+Create a professional therapeutic cumulative summary that captures the essential journey in exactly 150 words.`;
+
+      const cumulativeResult = await retryGeminiCall(() => 
+        genAI.models.generateContent({
+          model: "gemini-2.5-flash-lite",
+          contents: cumulativePrompt,
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 200
+          }
+        })
+      );
+
+      cumulativeSummary = cumulativeResult.candidates[0].content.parts[0].text;
+    } catch (cumulativeError) {
+      cumulativeSummary = newSessionSummary; // Fallback to new session summary
+    }
+
+    // Update session with summary
+    if (!session.sessionData.reflection) {
+      session.sessionData.reflection = {};
+    }
+    session.sessionData.reflection.summary = newSessionSummary;
+    session.sessionData.reflection.keyInsights = session.sessionData?.reflection?.keyInsights || [];
+    session.sessionData.reflection.nextSteps = session.sessionData?.reflection?.nextSteps || [];
+    session.sessionData.reflection.timestamp = new Date();
+    
+    // Update lastSessionSummary for continuation
+    session.lastSessionSummary = newSessionSummary;
+
+    // For scheduled sessions, set status to 'scheduled' 
+    // Keep the original nextSessionDate (when session was started) so it remains visible in Ongoing Sessions for 1 hour
+    // For instant sessions, keep status as 'active' (they'll be cleaned up later)
+    if (!session.sessionId.startsWith('session-instant_') && session.schedule) {
+      // Update the same session: set status back to scheduled
+      // Keep nextSessionDate as the original scheduled time (not the next occurrence)
+      // This ensures the session remains visible in "Ongoing Sessions" for 1 hour from start time
+      session.status = 'scheduled';
+      // Don't update nextSessionDate here - keep it as the original scheduled time
+      // The next occurrence will be calculated when the session is actually completed
+      
+      // Clear session data for next session (keep only summary)
+      session.sessionData.backgroundImage = null;
+      session.sessionData.backgroundMusic = null;
+      session.sessionData.greeting = null;
+      session.sessionData.moodCheckIn = null;
+      session.sessionData.exploration = [];
+      session.sessionData.copingTool = null;
+      // Keep reflection summary for reference
+    }
+    // For instant sessions, leave status as 'active' - they'll be handled separately
+
+    await session.save();
+
+    // Update user context with new cumulative summary
+    await User.findOneAndUpdate(
+      { firebaseUid: finalFirebaseUid },
+      {
+        $set: {
+          'userContext.cumulativeSessionSummary': cumulativeSummary,
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'Session closed successfully',
+      newSessionSummary: newSessionSummary,
+      cumulativeSummary: cumulativeSummary,
+      session: {
+        sessionId: session.sessionId,
+        status: session.status,
+        nextSessionDate: session.nextSessionDate
+      }
+    });
+
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start a session
 router.post('/start/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
     const { userContext, customPreferences } = req.body;
 
+    // Reject virtual session IDs immediately - these are placeholders only
+    if (sessionId.startsWith('virtual_')) {
+      return res.status(400).json({ error: 'Cannot start virtual sessions. Virtual sessions are placeholders only.' });
+    }
+    
+    // Reject instant session IDs - must use /start-instant endpoint
+    if (sessionId.startsWith('session-instant_')) {
+      return res.status(400).json({ error: 'Use /start-instant endpoint for instant sessions' });
+    }
+    
     const session = await Session.findOne({ sessionId });
     if (!session) {
       return res.status(404).json({ error: 'Session not found' });
     }
 
-    if (session.status !== 'scheduled') {
-      // If already active, check if content exists
-      if (session.status === 'active') {
-        const hasBackground = !!session.sessionData.backgroundImage;
-        const hasMusic = !!session.sessionData.backgroundMusic;
-        const forceRegenerate = !!customPreferences;
-        
-        if (hasBackground && hasMusic && !forceRegenerate) {
-          return res.json({
-            success: true,
-            session: {
-              sessionId: session.sessionId,
-              status: session.status,
-              backgroundImage: session.sessionData.backgroundImage,
-              backgroundPrompt: session.sessionData.backgroundPrompt,
-              backgroundType: session.sessionData.backgroundType,
-              backgroundMusic: session.sessionData.backgroundMusic,
-              musicPrompt: session.sessionData.musicPrompt,
-              greeting: session.sessionData.greeting
-            },
-            message: 'Session already active'
-          });
-        }
-      } else {
-        return res.status(400).json({ error: 'Session is not in scheduled status' });
-      }
+    // Double-check: Only allow starting scheduled sessions (not instant sessions)
+    if (session.sessionId.startsWith('session-instant_')) {
+      return res.status(400).json({ error: 'Use /start-instant endpoint for instant sessions' });
+    }
+    
+    // Allow starting scheduled sessions (status: 'scheduled') or already active scheduled sessions
+    // Don't allow starting completed or cancelled sessions
+    if (session.status !== 'scheduled' && session.status !== 'active') {
+      return res.status(400).json({ error: 'Session is not available to start' });
+    }
+    
+    // Ensure this is a scheduled session with a schedule
+    if (!session.schedule) {
+      return res.status(400).json({ error: 'Session does not have a schedule' });
     }
 
     // Update session status to active
     session.status = 'active';
     
-    // Force regeneration if user provided custom preferences
-    const forceRegenerate = !!customPreferences;
+    // Always generate background and music (same behavior as instant sessions)
+    // Generate personalized background based on user mood and custom preferences
+    const backgroundData = await generateSessionBackground(userContext, 'instant', session.firebaseUid, customPreferences);
     
-    // Check if we need to generate content
-    const needsBackground = !session.sessionData.backgroundImage || forceRegenerate;
-    const needsMusic = !session.sessionData.backgroundMusic || forceRegenerate;
+    // Store personalized prompts for music generation reuse
+    let personalizedPromptsForMusic = backgroundData?.personalizedPrompts || null;
     
-    // Store personalized prompts if background is generated
-    let personalizedPromptsForMusic = null;
-    
-    // Generate personalized background only if missing
-    if (needsBackground) {
-      const backgroundData = await generateSessionBackground(userContext, 'scheduled', session.firebaseUid, customPreferences);
-      
-      if (backgroundData) {
-        // Store the generated image URL or mood for gradient fallback
-        session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
-        session.sessionData.backgroundPrompt = backgroundData.prompt;
-        session.sessionData.backgroundType = backgroundData.type; // 'gemini-image' or 'gradient'
-        if (backgroundData.generatedWith) {
-          session.sessionData.generatedWith = backgroundData.generatedWith;
-        }
-        // Store personalized prompts for music generation
-        personalizedPromptsForMusic = backgroundData.personalizedPrompts;
+    // Update session with background
+    if (backgroundData) {
+      // Store the generated image URL or mood for gradient fallback
+      session.sessionData.backgroundImage = backgroundData.imageUrl || backgroundData.mood;
+      session.sessionData.backgroundPrompt = backgroundData.prompt;
+      session.sessionData.backgroundType = backgroundData.type; // 'generated-image' or 'gradient'
+      if (backgroundData.generatedWith) {
+        session.sessionData.generatedWith = backgroundData.generatedWith;
       }
     }
 
-    // Generate therapeutic music only if missing
-    if (needsMusic) {
-      const userMood = await getUserMoodForBackground(session.firebaseUid);
-      const musicData = await generateSessionMusic(userMood, 'scheduled', 30, session.firebaseUid, personalizedPromptsForMusic);
-      
-      if (musicData) {
-        session.sessionData.backgroundMusic = musicData.musicUrl;
-        session.sessionData.musicPrompt = musicData.prompt;
-        session.sessionData.musicGeneratedWith = musicData.generatedWith;
-      }
+    // Generate therapeutic music based on user mood (using personalized prompts if available)
+    const userMood = await getUserMoodForBackground(session.firebaseUid);
+    const musicData = await generateSessionMusic(userMood, 'instant', 30, session.firebaseUid, personalizedPromptsForMusic);
+    
+    // Update session with music
+    if (musicData) {
+      session.sessionData.backgroundMusic = musicData.musicUrl;
+      session.sessionData.musicPrompt = musicData.prompt;
+      session.sessionData.musicGeneratedWith = musicData.generatedWith;
     }
 
-    // Get last session summary from Firestore
+    // Get last session summary from MongoDB
     const lastSessionSummary = await getLastSessionSummary(session.firebaseUid);
     
-    // Generate greeting with context
-    const greeting = await generatePersonalizedGreeting(userContext, lastSessionSummary, 200);
+    // Generate greeting with context (same as instant sessions)
+    const greeting = await generatePersonalizedGreeting(userContext, lastSessionSummary, 150);
     session.sessionData.greeting = greeting;
 
     await session.save();
@@ -1158,6 +1627,43 @@ router.post('/start/:sessionId', async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get a session by ID (read-only, does not create sessions)
+router.get('/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    const session = await Session.findOne({ sessionId });
+    if (!session) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Session not found' 
+      });
+    }
+    
+    res.json({
+      success: true,
+      session: {
+        sessionId: session.sessionId,
+        status: session.status,
+        backgroundImage: session.sessionData?.backgroundImage || null,
+        backgroundPrompt: session.sessionData?.backgroundPrompt || null,
+        backgroundType: session.sessionData?.backgroundType || null,
+        backgroundMusic: session.sessionData?.backgroundMusic || null,
+        musicPrompt: session.sessionData?.musicPrompt || null,
+        greeting: session.sessionData?.greeting || null,
+        schedule: session.schedule || null,
+        nextSessionDate: session.nextSessionDate || null,
+        lastSessionSummary: session.lastSessionSummary || null
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error' 
+    });
   }
 });
 
@@ -1317,13 +1823,33 @@ router.delete('/cancel/:sessionId', async (req, res) => {
       return res.status(404).json({ error: 'Session not found' });
     }
 
-    session.status = 'cancelled';
-    await session.save();
-
-    res.json({
-      success: true,
-      message: 'Session schedule cancelled successfully'
-    });
+    const isInstantSession = sessionId.startsWith('session-instant_');
+    
+    // Allow cancellation of instant sessions or scheduled sessions
+    if (isInstantSession) {
+      // For instant sessions, allow cancellation if status is active
+      if (session.status === 'active') {
+        session.status = 'cancelled';
+        await session.save();
+        return res.json({
+          success: true,
+          message: 'Instant session cancelled successfully'
+        });
+      } else {
+        return res.status(400).json({ error: 'Only active instant sessions can be cancelled.' });
+      }
+    } else {
+      // For scheduled sessions, only allow cancellation if status is scheduled
+      if (session.status !== 'scheduled') {
+        return res.status(400).json({ error: 'Only scheduled sessions can be cancelled.' });
+      }
+      session.status = 'cancelled';
+      await session.save();
+      return res.json({
+        success: true,
+        message: 'Session schedule cancelled successfully'
+      });
+    }
 
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });

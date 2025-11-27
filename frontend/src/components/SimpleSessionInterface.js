@@ -21,6 +21,7 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
   const [currentPlayingAudio, setCurrentPlayingAudio] = useState(null);
   const [chatId, setChatId] = useState(null);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [backgroundGradient, setBackgroundGradient] = useState('linear-gradient(135deg, #4ade80 0%, #22c55e 100%)');
   const [backgroundMusic, setBackgroundMusic] = useState(null);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
@@ -518,9 +519,9 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
               )}
               <button
                 onClick={completeSession}
-                disabled={isCompleting}
+                disabled={isCompleting || isClosing}
                 className={`px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-xs sm:text-sm border-2 font-medium ${
-                  isCompleting 
+                  isCompleting || isClosing
                     ? 'cursor-not-allowed' 
                     : 'hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]'
                 }`}
@@ -530,26 +531,50 @@ const SimpleSessionInterface = ({ sessionId, onClose, onComplete, userContext })
                   WebkitBackdropFilter: 'blur(40px) saturate(200%)',
                   borderColor: 'rgba(255, 255, 255, 0.4)',
                   boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
-                  color: isCompleting ? '#64748b' : '#1e293b',
-                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)'
+                  color: (isCompleting || isClosing) ? '#64748b' : '#1e293b',
+                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
+                  opacity: (isCompleting || isClosing) ? 0.5 : 1
                 }}
               >
-                <span className="hidden sm:inline">{isCompleting ? 'Completing...' : 'Complete Session'}</span>
-                <span className="sm:hidden">{isCompleting ? 'Completing...' : 'Complete'}</span>
+                {isClosing ? (
+                  <>
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin inline-block mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Closing...</span>
+                    <span className="sm:hidden">Closing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">{isCompleting ? 'Completing...' : 'Complete Session'}</span>
+                    <span className="sm:hidden">{isCompleting ? 'Completing...' : 'Complete'}</span>
+                  </>
+                )}
               </button>
               <button
-                onClick={onClose}
-                className="p-1.5 sm:p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)]"
+                onClick={async () => {
+                  if (isClosing) return;
+                  setIsClosing(true);
+                  try {
+                    await onClose();
+                  } finally {
+                    setIsClosing(false);
+                  }
+                }}
+                disabled={isClosing || isCompleting}
+                className="p-1.5 sm:p-2 rounded-lg transition-all duration-300 border-2 hover:shadow-[0_8px_32px_0_rgba(255,255,255,0.2)] disabled:cursor-not-allowed disabled:opacity-50"
                 style={{
                   background: 'rgba(255, 255, 255, 0.2)',
                   backdropFilter: 'blur(40px) saturate(200%)',
                   WebkitBackdropFilter: 'blur(40px) saturate(200%)',
                   borderColor: 'rgba(255, 255, 255, 0.4)',
                   boxShadow: '0 8px 32px 0 rgba(255, 255, 255, 0.1), inset 0 1px 1px 0 rgba(255, 255, 255, 0.3)',
-                  color: '#1e293b'
+                  color: isClosing ? '#64748b' : '#1e293b'
                 }}
               >
-                <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                {isClosing ? (
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <XMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                )}
               </button>
             </div>
           </div>

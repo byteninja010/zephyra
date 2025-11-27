@@ -127,37 +127,56 @@ sessionSchema.pre('save', function(next) {
 });
 
 // Method to calculate next session date
-sessionSchema.methods.calculateNextSession = function() {
-  const now = new Date();
-  const currentTime = now.getHours() * 60 + now.getMinutes();
+sessionSchema.methods.calculateNextSession = function(fromDate) {
+  const startFrom = fromDate ? new Date(fromDate) : new Date();
+  const isAdvancing = !!fromDate; // If fromDate is provided, we are advancing the schedule
+  
+  if (!this.schedule || !this.schedule.time) {
+    console.warn('Session missing schedule or time:', this._id);
+    return new Date(startFrom.getTime() + 24 * 60 * 60 * 1000);
+  }
+
+  const currentTime = startFrom.getHours() * 60 + startFrom.getMinutes();
   const scheduledTime = parseInt(this.schedule.time.split(':')[0]) * 60 + parseInt(this.schedule.time.split(':')[1]);
   
-  let nextDate = new Date(now);
+  let nextDate = new Date(startFrom);
   
   switch (this.schedule.frequency) {
     case 'daily':
-      if (currentTime >= scheduledTime) {
+      if (isAdvancing || currentTime >= scheduledTime) {
         nextDate.setDate(nextDate.getDate() + 1);
       }
       break;
     case 'weekly':
       const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       const targetDays = this.schedule.days.map(day => dayNames.indexOf(day));
-      const currentDay = now.getDay();
+      const currentDay = startFrom.getDay();
       
-      // Find next occurrence
+      // Check if today is one of the target days and time hasn't passed
       let daysUntilNext = 0;
-      for (let i = 1; i <= 7; i++) {
-        const checkDay = (currentDay + i) % 7;
-        if (targetDays.includes(checkDay)) {
-          daysUntilNext = i;
-          break;
+      if (!isAdvancing && targetDays.includes(currentDay) && currentTime < scheduledTime) {
+        // Schedule for today - daysUntilNext stays 0
+      } else {
+        // Find next occurrence
+        for (let i = 1; i <= 7; i++) {
+          const checkDay = (currentDay + i) % 7;
+          if (targetDays.includes(checkDay)) {
+            daysUntilNext = i;
+            break;
+          }
         }
       }
       nextDate.setDate(nextDate.getDate() + daysUntilNext);
       break;
     case 'monthly':
-      nextDate.setMonth(nextDate.getMonth() + 1);
+      // Check if scheduled time today hasn't passed yet
+      if (!isAdvancing && currentTime < scheduledTime) {
+        // Schedule for today
+        // nextDate is already set to startFrom, no need to change
+      } else {
+        // Schedule for next month
+        nextDate.setMonth(nextDate.getMonth() + 1);
+      }
       break;
   }
   

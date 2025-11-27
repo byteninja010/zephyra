@@ -76,10 +76,17 @@ const SessionScheduling = ({ isOpen, onClose }) => {
   const handleCancelSchedule = async () => {
     if (!currentSchedule) return;
     
+    // Only allow cancellation of scheduled sessions, not instant sessions
+    if (currentSchedule.sessionId && currentSchedule.sessionId.startsWith('session-instant_')) {
+      setError('Cannot cancel instant sessions. Instant sessions cannot be cancelled.');
+      return;
+    }
+    
     try {
       const response = await sessionService.cancelSession(currentSchedule.sessionId);
       if (response.success) {
         setCurrentSchedule(null);
+        onClose(); // Close the modal after successful cancellation
       }
     } catch (error) {
       setError(error.response?.data?.error || 'Failed to cancel session schedule');
@@ -134,8 +141,8 @@ const SessionScheduling = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        {currentSchedule ? (
-          // Show current schedule
+        {currentSchedule && !currentSchedule.sessionId?.startsWith('session-instant_') ? (
+          // Show current schedule (only for scheduled sessions, not instant)
           <div className="space-y-4 sm:space-y-6">
             <div className="dashboard-card p-4 sm:p-6 rounded-lg sm:rounded-xl border-2 border-green-200 bg-green-50">
               <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
