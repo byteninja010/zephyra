@@ -120,7 +120,7 @@ const Dashboard = () => {
       const firebaseUid = localStorage.getItem("firebaseUid");
 
       if (!userId || !firebaseUid) {
-        navigate("/signin");
+        navigate("/auth/login");
         return;
       }
 
@@ -189,13 +189,13 @@ const Dashboard = () => {
         } else {
           // User not found in backend, redirect to sign in
           localStorage.clear();
-          navigate("/signin");
+          navigate("/auth/login");
         }
       } catch (error) {
         console.error("Error validating user:", error);
         // If validation fails, redirect to sign in
         localStorage.clear();
-        navigate("/signin");
+        navigate("/auth/login");
       } finally {
         setLoading(false);
       }
