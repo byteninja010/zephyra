@@ -75,8 +75,18 @@ Based on your analysis, respond with a JSON object in this exact format:
   "colorAnalysis": "brief analysis of the color palette and what it suggests",
   "strokeAnalysis": "brief analysis of the stroke patterns and energy",
   "activitySuggestion": "a short, specific activity that matches this emotional state (e.g., 'Take a mindful walk in nature' or 'Journal about what's weighing on your mind' or 'Dance to your favorite upbeat music')",
-  "encouragement": "a warm, supportive message (1 sentence)"
+  "encouragement": "a warm, supportive message (1 sentence)",
+  "rating": 5
 }
+
+The "rating" field should be a number from 1 to 5, representing how expressive, meaningful, or emotionally rich the drawing is. Rate honestly based on:
+- 5 stars: Highly expressive, rich in emotion, thoughtful composition, meaningful use of color/strokes
+- 4 stars: Good expression, clear emotional intent, some thought put into the drawing
+- 3 stars: Basic expression, minimal effort but still meaningful, simple but genuine
+- 2 stars: Very minimal, barely any marks (only if truly empty or nearly blank)
+- 1 star: Almost nothing or completely blank (rarely use)
+
+Be honest in your assessment, but be encouraging - give at least 3 stars unless the canvas is truly empty or nearly blank. Most drawings with any meaningful content should receive 3-5 stars.
 
 Be empathetic, insightful, and supportive. Focus on emotional resonance, not technical art critique.`;
 
@@ -124,7 +134,8 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
         colorAnalysis: "The colors suggest a complex emotional landscape.",
         strokeAnalysis: "Your brushstrokes show expression and creativity.",
         activitySuggestion: "Take a moment to reflect on what you've created and how it makes you feel.",
-        encouragement: "Art is a beautiful way to explore your inner world."
+        encouragement: "Art is a beautiful way to explore your inner world.",
+        rating: 3
       };
     }
 
@@ -139,7 +150,8 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
         colorAnalysis: analysis.colorAnalysis,
         strokeAnalysis: analysis.strokeAnalysis,
         activitySuggestion: analysis.activitySuggestion,
-        encouragement: analysis.encouragement
+        encouragement: analysis.encouragement,
+        rating: analysis.rating || 3
       },
       message: 'Canvas analyzed successfully'
     });

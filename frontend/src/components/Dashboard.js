@@ -23,11 +23,11 @@ const Dashboard = () => {
   const [quoteLoading, setQuoteLoading] = useState(true);
   const [scheduledSessions, setScheduledSessions] = useState([]);
   const [showCrisisModal, setShowCrisisModal] = useState(false);
-  const [showMindCanvasToast, setShowMindCanvasToast] = useState(true);
-  const [showSupportForumToast, setShowSupportForumToast] = useState(true);
   const [highlightedCard, setHighlightedCard] = useState(null);
   const [showCompanionTooltip, setShowCompanionTooltip] = useState(false);
-  const [currentActivity, setCurrentActivity] = useState(0);
+  const [currentActivity, setCurrentActivity] = useState(() => 
+    Math.floor(Math.random() * 7)
+  );
   const [companionActive, setCompanionActive] = useState(() => {
     const saved = localStorage.getItem("companionActive");
     return saved !== null ? saved === "true" : true;
@@ -46,11 +46,6 @@ const Dashboard = () => {
       action: () => setShowBreathingExercise(true),
     },
     {
-      icon: "😊",
-      text: "Check in on your mood",
-      action: () => setShowMoodModal(true),
-    },
-    {
       icon: "💬",
       text: "Chat with your AI friend",
       action: () => navigate("/chat"),
@@ -64,11 +59,6 @@ const Dashboard = () => {
       icon: "📝",
       text: "Reflect on your thoughts",
       action: () => setShowReflectionChart(true),
-    },
-    {
-      icon: "🔥",
-      text: "Check your wellness streak",
-      action: () => setShowStreakTracker(true),
     },
     {
       icon: "👥",
@@ -101,9 +91,9 @@ const Dashboard = () => {
       setTimeout(() => setShowCompanionTooltip(false), 5000);
     }, 2000);
 
-    // Switch to next activity every 5 minutes
+    // Switch to random activity every 5 minutes
     const cycleActivity = setInterval(() => {
-      setCurrentActivity((prev) => (prev + 1) % activitySuggestions.length);
+      setCurrentActivity(Math.floor(Math.random() * activitySuggestions.length));
     }, 300000); // 5 minutes
 
     return () => {
@@ -114,20 +104,6 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companionActive]);
 
-  // Close toasts on scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      if (showMindCanvasToast) {
-        setShowMindCanvasToast(false);
-      }
-      if (showSupportForumToast) {
-        setShowSupportForumToast(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [showMindCanvasToast, showSupportForumToast]);
 
   useEffect(() => {
     const validateUser = async () => {
@@ -619,15 +595,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            {/* New Feature Badges */}
-            <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
-                ✨ <span className="hidden sm:inline">MORE</span> PERSONALIZED
-              </span>
-              <span className=" px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
-                ✨ POWERED BY IMAGEN & LYRIA
-              </span>
-            </div>
 
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
@@ -726,15 +693,6 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            {/* New Feature Badges */}
-            <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
-                ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
-              </span>
-              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
-                ✨ MODERATED BY GEMINI
-              </span>
-            </div>
 
             <div
               className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto"
@@ -832,15 +790,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
-            </div>
-            {/* New Feature Badges */}
-            <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
-              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
-                ✨ NEW<span className="hidden sm:inline"> FEATURE</span>
-              </span>
-              <span className="inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg hidden sm:block">
-                ✨ POWERED BY GEMINI VISION
-              </span>
             </div>
 
             <div
@@ -943,98 +892,100 @@ const Dashboard = () => {
               </button>
             </div>
 
-            {scheduledSessions && scheduledSessions.length > 0 ? (
-              <div className="space-y-3">
-                {scheduledSessions.slice(0, 4).map((session, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300"
-                    style={{ background: "rgba(60, 145, 197, 0.05)" }}
-                  >
-                    <div className="flex items-center space-x-2 sm:space-x-3">
-                      <div
-                        className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
-                        style={{
-                          background:
-                            session.status === "active"
-                              ? "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)"
-                              : "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                        }}
-                      ></div>
-                      <div>
+            <div className="max-h-56 overflow-y-auto">
+              {scheduledSessions && scheduledSessions.length > 0 ? (
+                <div className="space-y-3">
+                  {scheduledSessions.slice(0, 4).map((session, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300"
+                      style={{ background: "rgba(60, 145, 197, 0.05)" }}
+                    >
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div
+                          className="w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0"
+                          style={{
+                            background:
+                              session.status === "active"
+                                ? "linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%)"
+                                : "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                          }}
+                        ></div>
+                        <div>
+                          <p
+                            className="text-sm font-medium"
+                            style={{ color: "#1E252B" }}
+                          >
+                            {session.sessionId.startsWith("session-instant_")
+                              ? "Instant Session"
+                              : "Scheduled Session"}
+                          </p>
+                          <p className="text-xs" style={{ color: "#475569" }}>
+                            {session.schedule.frequency} • {session.schedule.time}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
                         <p
-                          className="text-sm font-medium"
-                          style={{ color: "#1E252B" }}
+                          className="text-xs font-medium"
+                          style={{ color: "#3C91C5" }}
                         >
-                          {session.sessionId.startsWith("session-instant_")
-                            ? "Instant Session"
-                            : "Scheduled Session"}
+                          {session.status === "active" ? "Active" : "Scheduled"}
                         </p>
                         <p className="text-xs" style={{ color: "#475569" }}>
-                          {session.schedule.frequency} • {session.schedule.time}
+                          {new Date(session.nextSessionDate).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p
-                        className="text-xs font-medium"
-                        style={{ color: "#3C91C5" }}
-                      >
-                        {session.status === "active" ? "Active" : "Scheduled"}
-                      </p>
+                  ))}
+                  {scheduledSessions.length > 4 && (
+                    <div className="text-center pt-2">
                       <p className="text-xs" style={{ color: "#475569" }}>
-                        {new Date(session.nextSessionDate).toLocaleDateString()}
+                        +{scheduledSessions.length - 4} more sessions
                       </p>
                     </div>
-                  </div>
-                ))}
-                {scheduledSessions.length > 4 && (
-                  <div className="text-center pt-2">
-                    <p className="text-xs" style={{ color: "#475569" }}>
-                      +{scheduledSessions.length - 4} more sessions
-                    </p>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <div
-                  className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
-                  }}
-                >
-                  <svg
-                    className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
-                    fill="none"
-                    stroke="#3C91C5"
-                    viewBox="0 0 24 24"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                  )}
                 </div>
-                <p className="text-sm mb-4" style={{ color: "#475569" }}>
-                  No scheduled sessions yet
-                </p>
-                <button
-                  onClick={() => navigate("/sessions")}
-                  className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-                    color: "white",
-                  }}
-                >
-                  Schedule Session
-                </button>
-              </div>
-            )}
+              ) : (
+                <div className="text-center py-8">
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)",
+                    }}
+                  >
+                    <svg
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8"
+                      fill="none"
+                      stroke="#3C91C5"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm mb-4" style={{ color: "#475569" }}>
+                    No scheduled sessions yet
+                  </p>
+                  <button
+                    onClick={() => navigate("/sessions")}
+                    className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:shadow-lg"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
+                      color: "white",
+                    }}
+                  >
+                    Schedule Session
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1174,13 +1125,6 @@ const Dashboard = () => {
             className="dashboard-card group p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative"
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
-            {/* New Feature Badge */}
-            <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
-              <span className="hidden lg:inline-block px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-600 to-cyan-700 text-white text-xs font-semibold rounded-full shadow-lg">
-                ✨ NEW
-              </span>
-            </div>
-
             <div
               className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mb-2 sm:mb-3 md:mb-4 mx-auto"
               style={{
@@ -1302,128 +1246,6 @@ const Dashboard = () => {
         onClose={() => setShowStreakTracker(false)}
       />
 
-      {/* Support Forum Toast Notification - Fixed Top Center */}
-      {showSupportForumToast && (
-        <div className="hidden lg:block fixed top-8 left-[41.5%] -translate-x-1/2 z-40 animate-bounce">
-          <div
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
-            style={{
-              background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-            }}
-          >
-            <button
-              onClick={() => {
-                setShowSupportForumToast(false);
-                const supportForumSection = document.getElementById(
-                  "support-forum-section"
-                );
-                if (supportForumSection) {
-                  supportForumSection.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
-                  setHighlightedCard("support-forum");
-                  setTimeout(() => setHighlightedCard(null), 3000);
-                }
-              }}
-              className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
-            >
-              <span className="px-2 py-0.5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full">
-                NEW
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-white font-semibold text-sm">
-                  Try Out
-                </span>
-                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">
-                  Support Forum
-                </span>
-              </div>
-            </button>
-            <button
-              onClick={() => setShowSupportForumToast(false)}
-              className="ml-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-0.5 transition-all"
-              aria-label="Dismiss"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Mind Canvas Toast Notification - Fixed Top Center */}
-      {showMindCanvasToast && (
-        <div className="hidden lg:block fixed top-20 left-[42%] -translate-x-1/2 z-40 animate-bounce">
-          <div
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-full shadow-lg border border-white/30 backdrop-blur-sm"
-            style={{
-              background: "linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)",
-            }}
-          >
-            <button
-              onClick={() => {
-                setShowMindCanvasToast(false);
-                const mindCanvasSection = document.getElementById(
-                  "mind-canvas-section"
-                );
-                if (mindCanvasSection) {
-                  mindCanvasSection.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                  });
-                  setHighlightedCard("mind-canvas");
-                  setTimeout(() => setHighlightedCard(null), 3000);
-                }
-              }}
-              className="group flex items-center gap-2 hover:opacity-90 transition-opacity"
-            >
-              <span className="px-2 py-0.5 bg-yellow-400 text-gray-900 text-xs font-bold rounded-full">
-                NEW
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-white font-semibold text-sm">
-                  Try Out
-                </span>
-                <span className="text-white font-medium text-sm underline decoration-white/60 underline-offset-2">
-                  Mind Canvas
-                </span>
-              </div>
-            </button>
-            <button
-              onClick={() => setShowMindCanvasToast(false)}
-              className="ml-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full p-0.5 transition-all"
-              aria-label="Dismiss"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Companion Robot - Fixed Bottom Right (above crisis button) */}
       <div className="fixed bottom-20 sm:bottom-24 md:bottom-28 right-3 sm:right-4 md:right-6 z-50">
         {/* Tooltip */}
@@ -1456,9 +1278,9 @@ const Dashboard = () => {
                   onClick={() => {
                     activitySuggestions[currentActivity].action();
                     setShowCompanionTooltip(false);
-                    // Cycle to next activity after user completes current one
+                    // Select random activity after user completes current one
                     setCurrentActivity(
-                      (prev) => (prev + 1) % activitySuggestions.length
+                      Math.floor(Math.random() * activitySuggestions.length)
                     );
                   }}
                   className="flex-1 py-1 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-md active:scale-95"

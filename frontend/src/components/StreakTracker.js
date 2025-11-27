@@ -176,29 +176,6 @@ const StreakTracker = ({ isOpen, onClose }) => {
     setStreaks(activityCounts);
   };
 
-  const addActivity = async (activityType) => {
-    try {
-      const firebaseUid = localStorage.getItem('firebaseUid');
-      if (!firebaseUid) {
-        alert('User not found. Please sign in again.');
-        return;
-      }
-
-      const response = await authService.logActivity(firebaseUid, activityType);
-      
-      if (response.success) {
-        setHistory(response.activityHistory || []);
-        // Recalculate all streaks and activity counts from the updated history
-        calculateStreaksFromHistory(response.activityHistory || []);
-      } else {
-        alert('Failed to log activity. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error logging activity:', error);
-      alert('Failed to log activity. Please try again.');
-    }
-  };
-
   // Get icon for each activity type with fallback
   const getActivityIcon = (type) => {
     const icons = {
@@ -323,34 +300,6 @@ const StreakTracker = ({ isOpen, onClose }) => {
           </div>
         </div>
 
-        {/* Activity Buttons */}
-        <div className="mb-6 sm:mb-8">
-          <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1E252B' }}>
-            Log Activity
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-            {Object.keys(streaks).map((activity) => (
-              <button
-                key={activity}
-                onClick={() => addActivity(activity)}
-                className="dashboard-card p-3 sm:p-4 rounded-lg sm:rounded-xl text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                style={{
-                  background: `linear-gradient(135deg, ${getActivityColor(activity)}20, ${getActivityColor(activity)}10)`,
-                  border: `2px solid ${getActivityColor(activity)}30`
-                }}
-              >
-                <div className="text-xl sm:text-2xl mb-1 sm:mb-2">{getActivityIcon(activity)}</div>
-                <div className="text-xs sm:text-sm font-medium" style={{ color: '#1E252B' }}>
-                  {getActivityName(activity)}
-                </div>
-                <div className="text-xs mt-1" style={{ color: '#475569' }}>
-                  {streaks[activity]} total
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Weekly Stats */}
         <div className="mb-6 sm:mb-8">
           <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1E252B' }}>
@@ -361,7 +310,10 @@ const StreakTracker = ({ isOpen, onClose }) => {
               <div
                 key={activity}
                 className="dashboard-card p-3 sm:p-4 rounded-lg text-center"
-                style={{ background: 'rgba(229, 231, 235, 0.5)' }}
+                style={{
+                  background: `linear-gradient(135deg, ${getActivityColor(activity)}20, ${getActivityColor(activity)}10)`,
+                  border: `2px solid ${getActivityColor(activity)}30`
+                }}
               >
                 <div className="text-xl sm:text-2xl mb-1">{getActivityIcon(activity)}</div>
                 <div className="text-base sm:text-lg font-bold" style={{ color: getActivityColor(activity) }}>

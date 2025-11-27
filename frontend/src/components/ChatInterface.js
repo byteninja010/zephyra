@@ -803,12 +803,12 @@ const ChatInterface = () => {
                     className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
                     style={{
                       background:
-                        "linear-gradient(135deg, #E1BEE7 0%, #CE93D8 100%)",
+                        "#fffff", border: "1px solid #0891B2"
                     }}
                   >
                     <ChatBubbleLeftRightIcon
                       className="w-8 h-8"
-                      style={{ color: "#7B1FA2" }}
+                      style={{ color: "#0891B2" }}
                     />
                   </div>
                   <p style={{ color: "#475569" }}>No chats yet</p>

@@ -20,16 +20,34 @@ const MindCanvas = () => {
   const colorPalette = [
     { name: 'Indigo', color: '#4F46E5' },
     { name: 'Purple', color: '#9333EA' },
+    { name: 'Violet', color: '#7C3AED' },
     { name: 'Pink', color: '#EC4899' },
+    { name: 'Rose', color: '#F43F5E' },
     { name: 'Red', color: '#EF4444' },
+    { name: 'Crimson', color: '#DC2626' },
     { name: 'Orange', color: '#F97316' },
+    { name: 'Amber', color: '#F59E0B' },
     { name: 'Yellow', color: '#EAB308' },
+    { name: 'Lime', color: '#84CC16' },
     { name: 'Green', color: '#22C55E' },
+    { name: 'Emerald', color: '#10B981' },
     { name: 'Teal', color: '#14B8A6' },
-    { name: 'Blue', color: '#3B82F6' },
+    { name: 'Cyan', color: '#06B6D4' },
     { name: 'Sky', color: '#0EA5E9' },
+    { name: 'Blue', color: '#3B82F6' },
+    { name: 'Navy', color: '#2563EB' },
+    { name: 'Brown', color: '#A16207' },
+    { name: 'Maroon', color: '#991B1B' },
     { name: 'Gray', color: '#6B7280' },
-    { name: 'Black', color: '#1F2937' }
+    { name: 'Slate', color: '#475569' },
+    { name: 'Black', color: '#1F2937' },
+    { name: 'Lavender', color: '#A78BFA' },
+    { name: 'Peach', color: '#FB923C' },
+    { name: 'Mint', color: '#34D399' },
+    { name: 'Turquoise', color: '#2DD4BF' },
+    { name: 'Gold', color: '#FBBF24' },
+    { name: 'Dark Purple', color: '#6B21A8' },
+    { name: 'Powder Blue', color: '#BFDBFE' }
   ];
 
   useEffect(() => {
@@ -260,14 +278,31 @@ const MindCanvas = () => {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
-      <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
-          <div>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+      <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-cyan-700 bg-clip-text text-transparent">
               Mind Canvas
             </h2>
-            <p className="text-gray-600 mt-1 text-xs sm:text-sm hidden sm:block">
-              No words. Just colors — and AI feels what you draw.
-            </p>
+            <div className="relative group mt-2">
+              <button
+                className="text-cyan-700 hover:text-blue-700 transition-colors"
+                aria-label="Information about Mind Canvas"
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              {/* Tooltip */}
+              <div className="absolute left-0 top-full mt-2 w-56 sm:w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-20">
+                <div className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl">
+                  <p className="leading-relaxed">
+                    No words. Just colors — and AI feels what you draw.
+                  </p>
+                  {/* Tooltip arrow */}
+                  <div className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45 bg-gray-900"></div>
+                </div>
+              </div>
+            </div>
           </div>
           <button
             onClick={() => navigate('/dashboard')}
@@ -284,18 +319,6 @@ const MindCanvas = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:min-h-[calc(100vh-250px)]">
             {/* Drawing Area */}
             <div className="flex flex-col space-y-3 sm:space-y-4 h-full">
-              {/* Instructions Banner */}
-              <div className={`dashboard-card border rounded-lg p-2 sm:p-3 text-xs sm:text-sm ${
-                isEraser 
-                  ? 'bg-pink-50 border-pink-200 text-pink-800'
-                  : 'bg-blue-50 border-blue-200 text-blue-800'
-              }`}>
-                <strong>💡 Quick Start:</strong> {isEraser 
-                  ? 'Click and drag on your drawing to erase parts of it!'
-                  : 'Choose a color below and click & drag on the canvas to draw!'
-                }
-              </div>
-              
               <div className="dashboard-card flex-1 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] relative bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 sm:border-4 border-blue-200">
                 <canvas
                   ref={canvasRef}
@@ -358,17 +381,21 @@ const MindCanvas = () => {
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                       Choose Your Colors
                     </label>
-                    <div className="grid grid-cols-6 gap-1.5 sm:gap-2 md:gap-2.5">
+                    <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 md:gap-2.5 justify-items-center">
                       {colorPalette.map((colorObj) => (
                         <button
                           key={colorObj.color}
                           onClick={() => setBrushColor(colorObj.color)}
-                          className={`w-full aspect-square rounded-sm sm:rounded-md transition-all ${
+                          className={`rounded-sm sm:rounded-md transition-all ${
                             brushColor === colorObj.color
                               ? 'ring-2 ring-blue-500'
                               : 'hover:ring-2 hover:ring-gray-300'
                           }`}
-                          style={{ backgroundColor: colorObj.color }}
+                          style={{ 
+                            backgroundColor: colorObj.color,
+                            width: '28px',
+                            height: '28px'
+                          }}
                           title={colorObj.name}
                         />
                       ))}
@@ -469,6 +496,21 @@ const MindCanvas = () => {
                     <p className="text-lg text-center opacity-90 italic">
                       "{analysis.moodDescription}"
                     </p>
+                  </div>
+
+                  {/* Star Rating */}
+                  <div className="flex justify-center items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        className="text-3xl"
+                        style={{
+                          color: star <= (analysis.rating || 5) ? '#FCD34D' : '#E5E7EB'
+                        }}
+                      >
+                        ★
+                      </span>
+                    ))}
                   </div>
 
                   {/* Analysis Details */}

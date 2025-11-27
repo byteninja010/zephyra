@@ -562,7 +562,6 @@ MongoDB Collections:
 
 4. **Benefits**:
    - Launches in standalone window (no browser UI)
-   - Offline access to previously loaded content
    - Faster load times with cached resources
    - App icon on your home screen/desktop
 
@@ -577,7 +576,7 @@ The platform currently includes:
 - **Personalized AI responses** based on user context and history
 - **Audio processing** with speech-to-text and text-to-speech (Cloud + Web APIs)
 - **AI Moderated Support Forum** – Anonymous, AI-powered community space for sharing and peer support (NEW!)
-- **Progressive Web App (PWA)** - Installable on all devices with offline support
+- **Progressive Web App (PWA)** - Installable on all devices
 - **Real-time updates** with Socket.io for forum interactions
 - **Cross-platform compatibility** - Works seamlessly on iOS, Android, Chrome, Firefox, Safari, and Edge
 
