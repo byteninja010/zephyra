@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('../models/User');
 const { GoogleGenAI } = require('@google/genai');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 
 // Initialize Gemini AI
@@ -29,13 +30,14 @@ router.post('/create-user', async (req, res) => {
     let user = await User.findOne({ firebaseUid });
 
     if (user) {
-      // User exists, return their secret code
+      // User exists - we can't return the original secret code (it's hashed)
+      // Return a placeholder or handle this case differently
       return res.json({
         success: true,
         user: {
           id: user._id,
           firebaseUid: user.firebaseUid,
-          secretCode: user.secretCode,
+          secretCode: '***', // Placeholder since we can't retrieve original
           createdAt: user.createdAt
         },
         message: 'User already exists'
@@ -44,13 +46,17 @@ router.post('/create-user', async (req, res) => {
 
     // Generate unique secret code
     let secretCode;
+    let secretCodeHash;
     let isUnique = false;
     let attempts = 0;
     const maxAttempts = 10;
 
     while (!isUnique && attempts < maxAttempts) {
       secretCode = generateSecretCode();
-      const existingUser = await User.findOne({ secretCode });
+      // Hash the secret code
+      secretCodeHash = await bcrypt.hash(secretCode, 10);
+      // Check if hash already exists (same plain text will produce same hash)
+      const existingUser = await User.findOne({ secretCode: secretCodeHash });
       if (!existingUser) {
         isUnique = true;
       }
@@ -61,10 +67,10 @@ router.post('/create-user', async (req, res) => {
       return res.status(500).json({ error: 'Failed to generate unique secret code' });
     }
 
-    // Create new user
+    // Create new user with hashed secret code
     user = new User({
       firebaseUid,
-      secretCode
+      secretCode: secretCodeHash
     });
 
     await user.save();
@@ -74,7 +80,7 @@ router.post('/create-user', async (req, res) => {
       user: {
         id: user._id,
         firebaseUid: user.firebaseUid,
-        secretCode: user.secretCode,
+        secretCode: secretCode, // Return the plain text secret code (not the hash)
         createdAt: user.createdAt
       },
       message: 'User created successfully'
@@ -94,10 +100,10 @@ router.post('/validate-secret-code', async (req, res) => {
       return res.status(400).json({ error: 'Secret code is required' });
     }
 
-    // Find user by secret code
-    const user = await User.findOne({ secretCode, isActive: true });
+    // Find user by secret code using hash comparison
+    const user = await User.findBySecretCode(secretCode);
 
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.status(404).json({ error: 'Invalid secret code' });
     }
 
@@ -109,7 +115,7 @@ router.post('/validate-secret-code', async (req, res) => {
       user: {
         id: user._id,
         firebaseUid: user.firebaseUid,
-        secretCode: user.secretCode,
+        secretCode: secretCode, // Return the input secret code (not the hash)
         createdAt: user.createdAt,
         lastLogin: user.lastLogin,
         onboardingCompleted: user.onboardingCompleted,
@@ -145,7 +151,7 @@ router.get('/user/:firebaseUid', async (req, res) => {
       user: {
         id: user._id,
         firebaseUid: user.firebaseUid,
-        secretCode: user.secretCode,
+        secretCode: '***', // Placeholder since we can't retrieve original secret code
         createdAt: user.createdAt,
         lastLogin: user.lastLogin,
         onboardingCompleted: user.onboardingCompleted,

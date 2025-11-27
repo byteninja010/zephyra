@@ -241,6 +241,18 @@ const NewPost = () => {
                 </button>
                 <h1 className="text-base sm:text-lg md:text-xl font-bold" style={{ color: '#1e293b' }}>Create New Post</h1>
               </div>
+
+              {/* Right: Profile Badge */}
+              <div className="flex items-center space-x-3">
+                <div className="hidden sm:flex items-center space-x-2 px-4 py-2 rounded-full" style={{ backgroundColor: '#E8F4FD' }}>
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm" style={{ background: getAvatarGradient(pseudonym) }}>
+                    {pseudonym?.[0] || '?'}
+                  </div>
+                  <span className="text-sm font-medium" style={{ color: '#475569' }}>
+                    You are {pseudonym || 'Loading...'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -255,7 +267,7 @@ const NewPost = () => {
         )}
 
         {/* Main Container */}
-        <div className="relative z-10 max-w-6xl mx-auto flex gap-4 sm:gap-6 pt-4 sm:pt-6 px-2 sm:px-4 pb-20">
+        <div className="relative z-10 max-w-6xl mx-auto flex gap-1 sm:gap-3 pt-4 sm:pt-6 px-2 sm:px-12 pb-20">
           <div className="flex-1 max-w-2xl mx-auto">
             {/* Compose Post Card */}
             <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40" style={{ borderColor: '#e5e7eb' }}>
@@ -311,25 +323,20 @@ const NewPost = () => {
               </div>
             </div>
 
-            {/* Info Card */}
-            <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm mt-4 border border-white/40" style={{ borderColor: '#e5e7eb' }}>
+          </div>
+
+          {/* Sidebar - About Posting & Need Help Starting */}
+          <div className="hidden lg:block w-80 flex-shrink-0 space-y-3">
+            {/* About Posting Card */}
+            <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40" style={{ borderColor: '#e5e7eb' }}>
               <div className="p-4 sm:p-5">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: '#3C91C5' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-semibold mb-2" style={{ color: '#1e293b' }}>About Posting</h3>
-                    <ul className="space-y-1.5 text-xs sm:text-sm" style={{ color: '#64748b' }}>
-                      <li>• All posts are AI-moderated for safety</li>
-                      <li>• You post using your pseudonym, not your real name</li>
-                      <li>• Be respectful and supportive to others</li>
-                      <li>• Maximum 2000 characters per post</li>
-                    </ul>
-                  </div>
-                </div>
+                <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1e293b' }}>About Posting</h3>
+                <ul className="space-y-1.5 text-sm" style={{ color: '#64748b' }}>
+                  <li>• All posts are AI-moderated for safety</li>
+                  <li>• You post using your pseudonym, not your real name</li>
+                  <li>• Be respectful and supportive to others</li>
+                  <li>• Maximum 2000 characters per post</li>
+                </ul>
               </div>
             </div>
           </div>

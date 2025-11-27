@@ -1111,8 +1111,8 @@ router.post('/complete/:sessionId', async (req, res) => {
     if (!finalFirebaseUid && secretCode) {
       try {
         const User = require('../models/User');
-        const user = await User.findOne({ secretCode, isActive: true });
-        if (user) {
+        const user = await User.findBySecretCode(secretCode);
+        if (user && user.isActive) {
           finalFirebaseUid = user.firebaseUid;
         }
       } catch (error) {
@@ -1354,8 +1354,8 @@ router.post('/close/:sessionId', async (req, res) => {
     if (!finalFirebaseUid && secretCode) {
       try {
         const User = require('../models/User');
-        const user = await User.findOne({ secretCode, isActive: true });
-        if (user) {
+        const user = await User.findBySecretCode(secretCode);
+        if (user && user.isActive) {
           finalFirebaseUid = user.firebaseUid;
         }
       } catch (error) {

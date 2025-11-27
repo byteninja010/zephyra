@@ -25,6 +25,8 @@ const Dashboard = () => {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [highlightedCard, setHighlightedCard] = useState(null);
   const [showCompanionTooltip, setShowCompanionTooltip] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
   const [currentActivity, setCurrentActivity] = useState(() => 
     Math.floor(Math.random() * 7)
   );
@@ -1545,6 +1547,233 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500 text-center">
                   You are not alone. Help is available 24/7.
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer className="relative z-10 py-5 sm:py-6 border-t border-white/20 mt-1" style={{ background: 'rgba(255, 255, 255, 0.4)' }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+            <div className="flex items-center space-x-4 sm:space-x-6">
+              <button 
+                onClick={() => setShowPrivacyModal(true)} 
+                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" 
+                style={{ color: '#475569' }}
+              >
+                Privacy
+              </button>
+              <button 
+                onClick={() => setShowTermsModal(true)} 
+                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" 
+                style={{ color: '#475569' }}
+              >
+                Terms and Conditions
+              </button>
+            </div>
+            <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>
+              Your safety and privacy come first.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Privacy Policy Modal */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowPrivacyModal(false)}>
+          <div 
+            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar" 
+            style={{ 
+              background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)',
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(60, 145, 197, 0.3) transparent'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Floating Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-3xl">
+              <div className="absolute top-10 left-8 w-20 h-20 rounded-full opacity-10" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}></div>
+              <div className="absolute top-20 right-10 w-16 h-16 rounded-full opacity-15" style={{ background: 'linear-gradient(135deg, #5A7D95 0%, #3C91C5 100%)' }}></div>
+              <div className="absolute bottom-16 left-1/4 w-12 h-12 rounded-full opacity-20" style={{ background: 'linear-gradient(135deg, #5A7D95 0%, #77A3B8 100%)' }}></div>
+            </div>
+
+            <div className="relative z-10 p-6 sm:p-10">
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowPrivacyModal(false)}
+                className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-lg transition-all duration-300 hover:rotate-90"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="#475569" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Header */}
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3" style={{ color: '#1E252B' }}>Privacy Policy</h2>
+                <p className="text-sm sm:text-base font-light" style={{ color: '#475569' }}>Last updated: October 30, 2025</p>
+              </div>
+
+              {/* Content */}
+              <div className="space-y-4 sm:space-y-6 text-sm sm:text-base" style={{ color: '#2C363E' }}>
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Your Privacy Matters</h3>
+                  <p className="font-light leading-relaxed">
+                    At Zephyra, we prioritize your privacy and confidentiality. We use <strong>Google Firebase Anonymous Authentication</strong> to ensure you can access our mental health support without revealing your identity.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>What We Collect</h3>
+                  <ul className="list-disc list-inside space-y-2 font-light leading-relaxed">
+                    <li><strong>Anonymous User Data:</strong> We use Firebase Anonymous Authentication—no email, contact information, or personal information required.</li>
+                    <li><strong>Chat Data:</strong> Your conversations with our AI chatbot powered by <strong>Gemini</strong> are stored securely to provide personalized support.</li>
+                    <li><strong>Mood Canvas Drawings:</strong> Visual expressions analyzed by <strong>Gemini Vision</strong> to understand your emotional state.</li>
+                    <li><strong>Reflection Entries:</strong> Optional daily reflections to help you track your mental wellness journey.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>How We Protect Your Data</h3>
+                  <ul className="list-disc list-inside space-y-2 font-light leading-relaxed">
+                    <li><strong>Pseudonymous Identities:</strong> In the community forum, we assign you a unique pseudonym to protect your real identity.</li>
+                    <li><strong>AI Moderation:</strong> All forum posts are moderated by <strong>Gemini AI</strong> to ensure a safe, supportive environment.</li>
+                    <li><strong>Secure Storage:</strong> All data is encrypted and stored securely using industry-standard practices.</li>
+                    <li><strong>No Third-Party Sharing:</strong> Your data is never sold or shared with third parties for marketing purposes.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Your Rights</h3>
+                  <p className="font-light leading-relaxed">
+                    You have the right to request deletion of your data at any time. Contact us through the email, and we'll remove your information within 30 days.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Contact Us</h3>
+                  <p className="font-light leading-relaxed">
+                    If you have questions about our privacy practices, please reach out to us at <strong>anujkamaljain1234@gmail.com</strong>
+                  </p>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Terms and Conditions Modal */}
+      {showTermsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
+          <div 
+            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar" 
+            style={{ 
+              background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)',
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(60, 145, 197, 0.3) transparent'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Floating Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-3xl">
+              <div className="absolute top-10 left-8 w-20 h-20 rounded-full opacity-10" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}></div>
+              <div className="absolute top-20 right-10 w-16 h-16 rounded-full opacity-15" style={{ background: 'linear-gradient(135deg, #5A7D95 0%, #3C91C5 100%)' }}></div>
+              <div className="absolute bottom-16 left-1/4 w-12 h-12 rounded-full opacity-20" style={{ background: 'linear-gradient(135deg, #5A7D95 0%, #77A3B8 100%)' }}></div>
+            </div>
+
+            <div className="relative z-10 p-6 sm:p-10">
+              {/* Close Button */}
+              <button 
+                onClick={() => setShowTermsModal(false)}
+                className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-lg transition-all duration-300 hover:rotate-90"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="#475569" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Header */}
+              <div className="mb-6 sm:mb-8">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3" style={{ color: '#1E252B' }}>Terms and Conditions</h2>
+                <p className="text-sm sm:text-base font-light" style={{ color: '#475569' }}>Last updated: October 30, 2025</p>
+              </div>
+
+              {/* Content */}
+              <div className="space-y-4 sm:space-y-6 text-sm sm:text-base" style={{ color: '#2C363E' }}>
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Acceptance of Terms</h3>
+                  <p className="font-light leading-relaxed">
+                    By accessing and using Zephyra, you accept and agree to be bound by these Terms and Conditions. If you do not agree, please do not use our services.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Our Services</h3>
+                  <p className="font-light leading-relaxed mb-3">
+                    Zephyra provides AI-powered mental wellness support, including:
+                  </p>
+                  <ul className="list-disc list-inside space-y-2 font-light leading-relaxed">
+                    <li><strong>AI Chatbot:</strong> Powered by <strong>Gemini 2.5 Flash</strong> for empathetic conversations.</li>
+                    <li><strong>Mood Canvas:</strong> Visual expression analysis using <strong>Gemini Vision</strong>.</li>
+                    <li><strong>Personalized Sessions:</strong> Custom therapy experiences with <strong>Google Lyria</strong> music and <strong>Imagen-3</strong> visuals.</li>
+                    <li><strong>Anonymous Community Forum:</strong> Moderated by <strong>Gemini AI</strong> with pseudonymous identities.</li>
+                    <li><strong>Reflections & Insights:</strong> AI-powered commentary on your daily reflections.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Not a Substitute for Professional Care</h3>
+                  <p className="font-light leading-relaxed">
+                    <strong>Important:</strong> Zephyra is designed to support your mental wellness but is <strong>not a replacement for professional medical advice, diagnosis, or treatment</strong>. If you're experiencing a mental health crisis, please contact emergency services or a qualified mental health professional immediately.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>User Responsibilities</h3>
+                  <ul className="list-disc list-inside space-y-2 font-light leading-relaxed">
+                    <li>Be respectful and kind in community interactions.</li>
+                    <li>Do not share harmful, abusive, or inappropriate content.</li>
+                    <li>Understand that AI responses are generated and may not always be perfect.</li>
+                    <li>Use the platform responsibly and in accordance with these terms.</li>
+                  </ul>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Account and Data</h3>
+                  <p className="font-light leading-relaxed">
+                    We use <strong>Firebase Anonymous Authentication</strong> to protect your privacy. You're responsible for maintaining the confidentiality of your access credentials. We reserve the right to terminate accounts that violate these terms.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Intellectual Property</h3>
+                  <p className="font-light leading-relaxed">
+                    All content, features, and functionality on Zephyra are owned by us and protected by copyright, trademark, and other intellectual property laws. AI-generated content (music, images, text) is provided for your personal use within the platform.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Limitation of Liability</h3>
+                  <p className="font-light leading-relaxed">
+                    Zephyra is provided "as is" without warranties of any kind. We are not liable for any damages arising from your use of the platform or reliance on AI-generated content.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Changes to Terms</h3>
+                  <p className="font-light leading-relaxed">
+                    We may update these Terms and Conditions from time to time. Continued use of Zephyra after changes constitutes acceptance of the new terms.
+                  </p>
+                </section>
+
+                <section>
+                  <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>Contact Us</h3>
+                  <p className="font-light leading-relaxed">
+                    For questions about these Terms and Conditions, please contact us at <strong>anujkamaljain1234@gmail.com</strong>
+                  </p>
+                </section>
               </div>
             </div>
           </div>

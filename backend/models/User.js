@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   firebaseUid: {
@@ -117,6 +118,37 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.updateLastLogin = function() {
   this.lastLogin = new Date();
   return this.save();
+};
+
+// Static method to find user by secret code (with hash comparison)
+userSchema.statics.findBySecretCode = async function(plainSecretCode) {
+  if (!plainSecretCode) {
+    return null;
+  }
+  
+  // Get all active users and compare hashes
+  // Note: This is necessary because we can't query by hashed values directly
+  const users = await this.find({ isActive: true });
+  
+  for (const user of users) {
+    // Check if secretCode is already hashed (starts with $2a$, $2b$, or $2y$)
+    const isHashed = user.secretCode && /^\$2[ayb]\$\d+\$/.test(user.secretCode);
+    
+    if (isHashed) {
+      // Compare with bcrypt
+      const isMatch = await bcrypt.compare(plainSecretCode, user.secretCode);
+      if (isMatch) {
+        return user;
+      }
+    } else {
+      // Legacy: plain text comparison (for backward compatibility during migration)
+      if (user.secretCode === plainSecretCode) {
+        return user;
+      }
+    }
+  }
+  
+  return null;
 };
 
 module.exports = mongoose.model('User', userSchema);

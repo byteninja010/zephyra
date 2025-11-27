@@ -739,7 +739,7 @@ const Forum = () => {
       )}
 
       {/* Main Container - Twitter Layout */}
-      <div className="relative z-10 max-w-6xl mx-auto flex gap-4 sm:gap-6 pt-4 sm:pt-6 px-2 sm:px-4 pb-20">
+      <div className="relative z-10 max-w-6xl mx-auto flex gap-1 sm:gap-3 pt-4 sm:pt-6 px-2 sm:px-12 pb-20">
         {/* Main Feed Column */}
         <div className="flex-1 max-w-2xl mx-auto">
           {/* Tabs & Search Section */}
@@ -911,6 +911,40 @@ const Forum = () => {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Sidebar - Community Guidelines & Resources */}
+        <div className="hidden lg:block w-80 flex-shrink-0 space-y-3">
+          {/* Community Guidelines Card */}
+          <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40" style={{ borderColor: '#e5e7eb' }}>
+            <div className="p-4 sm:p-5">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1e293b' }}>Community Guidelines</h3>
+              <ul className="space-y-2 text-sm" style={{ color: '#64748b' }}>
+                <li>• Be supportive & kind.</li>
+                <li>• Respect privacy.</li>
+                <li>• No hate speech.</li>
+                <li>• Report harmful content.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Helpful Resources Card */}
+          <div className="dashboard-card bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-sm border border-white/40" style={{ borderColor: '#e5e7eb' }}>
+            <div className="p-4 sm:p-5">
+              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4" style={{ color: '#1e293b' }}>Helpful Resources</h3>
+              <div className="space-y-2">
+                <a
+                  href="https://telemanas.mohfw.gov.in/home"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm transition-colors hover:underline"
+                  style={{ color: '#3C91C5' }}
+                >
+                  National Helpline
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
