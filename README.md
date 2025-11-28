@@ -1,4 +1,4 @@
-# Zephyra - AI-Powered Mental Wellness Platform
+# Zephyra - AI-Powered Mental Wellness Platform 
 
 A comprehensive mental health and wellness platform built with the MERN stack, featuring AI-powered conversations, session management, mood tracking, and personalized wellness support using Google's Gemini AI and Vertex AI.
 
