@@ -56,18 +56,18 @@ const MindCanvas = () => {
       setTimeout(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-        
+
         const ctx = canvas.getContext('2d');
-        
+
         // Save current drawing if canvas has content
         const hasContent = canvas.width > 0 && canvas.height > 0;
         const imageData = hasContent ? ctx.getImageData(0, 0, canvas.width, canvas.height) : null;
-        
+
         // Set canvas size to match the container
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width || 800;
         canvas.height = rect.height || 600;
-        
+
         // Restore drawing or set white background
         if (imageData && imageData.data.some(pixel => pixel !== 255)) {
           // Has drawing content, restore it
@@ -99,22 +99,22 @@ const MindCanvas = () => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const coords = getCoordinates(e, rect);
-    
+
     setIsDrawing(true);
-    
+
     // Set drawing style - use white for eraser, selected color for drawing
     const currentColor = isEraser ? '#FFFFFF' : brushColor;
     const currentSize = isEraser ? brushSize * 2 : brushSize; // Make eraser bigger
-    
+
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = currentSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    
+
     // Start new path
     ctx.beginPath();
     ctx.moveTo(coords.x, coords.y);
@@ -123,27 +123,27 @@ const MindCanvas = () => {
   const draw = (e) => {
     if (!isDrawing) return;
     e.preventDefault();
-    
+
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     const rect = canvas.getBoundingClientRect();
     const coords = getCoordinates(e, rect);
-    
+
     // Ensure drawing style is set - use white for eraser, selected color for drawing
     const currentColor = isEraser ? '#FFFFFF' : brushColor;
     const currentSize = isEraser ? brushSize * 2 : brushSize; // Make eraser bigger
-    
+
     ctx.strokeStyle = currentColor;
     ctx.lineWidth = currentSize;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    
+
     // Draw line to current position
     ctx.lineTo(coords.x, coords.y);
     ctx.stroke();
-    
+
     // Start new path from current position for continuous drawing
     ctx.beginPath();
     ctx.moveTo(coords.x, coords.y);
@@ -164,7 +164,7 @@ const MindCanvas = () => {
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -181,9 +181,9 @@ const MindCanvas = () => {
 
     const canvas = canvasRef.current;
     const imageData = canvas.toDataURL('image/png');
-    
+
     setIsAnalyzing(true);
-    
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/canvas/analyze`, {
         method: 'POST',
@@ -197,11 +197,11 @@ const MindCanvas = () => {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setAnalysis(data.analysis);
         setShowResult(true);
-        
+
         // Log Mind Canvas activity
         const logMindCanvasActivity = async () => {
           try {
@@ -279,132 +279,129 @@ const MindCanvas = () => {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <div className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-cyan-50">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-cyan-700 bg-clip-text text-transparent">
-              Mind Canvas
-            </h2>
-            <div className="relative group mt-2">
-              <button
-                className="text-cyan-700 hover:text-blue-700 transition-colors"
-                aria-label="Information about Mind Canvas"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </button>
-              {/* Tooltip */}
-              <div className="absolute left-0 top-full mt-2 w-56 sm:w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-20">
-                <div className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl">
-                  <p className="leading-relaxed">
-                    No words. Just colors — and AI feels what you draw.
-                  </p>
-                  {/* Tooltip arrow */}
-                  <div className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45 bg-gray-900"></div>
-                </div>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold bg-cyan-700 bg-clip-text text-transparent">
+            Mind Canvas
+          </h2>
+          <div className="relative group mt-2">
+            <button
+              className="text-cyan-700 hover:text-blue-700 transition-colors"
+              aria-label="Information about Mind Canvas"
+            >
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+            {/* Tooltip */}
+            <div className="absolute left-0 top-full mt-2 w-56 sm:w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 pointer-events-none z-20">
+              <div className="bg-gray-900 text-white text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2 sm:py-2.5 shadow-xl">
+                <p className="leading-relaxed">
+                  No words. Just colors - and AI feels what you draw.
+                </p>
+                {/* Tooltip arrow */}
+                <div className="absolute -top-1.5 left-3 sm:left-4 w-3 h-3 transform rotate-45 bg-gray-900"></div>
               </div>
             </div>
           </div>
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0 ml-2"
-          >
-            <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
         </div>
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="text-gray-500 hover:text-gray-700 transition-colors flex-shrink-0 ml-2"
+        >
+          <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 bg-white">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:min-h-[calc(100vh-250px)]">
-            {/* Drawing Area */}
-            <div className="flex flex-col space-y-3 sm:space-y-4 h-full">
-              <div className="dashboard-card flex-1 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] relative bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 sm:border-4 border-blue-200">
-                <canvas
-                  ref={canvasRef}
-                  className={`absolute inset-0 w-full h-full ${isEraser ? 'cursor-not-allowed' : 'cursor-crosshair'}`}
-                  onMouseDown={startDrawing}
-                  onMouseMove={draw}
-                  onMouseUp={stopDrawing}
-                  onMouseLeave={stopDrawing}
-                  onTouchStart={startDrawing}
-                  onTouchMove={draw}
-                  onTouchEnd={stopDrawing}
-                  style={{ touchAction: 'none', display: 'block' }}
-                />
-                {/* Canvas overlay to show it's ready */}
-                {!isDrawing && (
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-20">
-                    <p className="text-6xl">🎨</p>
-                  </div>
-                )}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 min-h-[400px] sm:min-h-[500px] md:min-h-[600px] lg:min-h-[calc(100vh-250px)]">
+          {/* Drawing Area */}
+          <div className="flex flex-col space-y-3 sm:space-y-4 h-full">
+            <div className="dashboard-card flex-1 min-h-[300px] sm:min-h-[350px] md:min-h-[400px] relative bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border-2 sm:border-4 border-blue-200">
+              <canvas
+                ref={canvasRef}
+                className={`absolute inset-0 w-full h-full ${isEraser ? 'cursor-not-allowed' : 'cursor-crosshair'}`}
+                onMouseDown={startDrawing}
+                onMouseMove={draw}
+                onMouseUp={stopDrawing}
+                onMouseLeave={stopDrawing}
+                onTouchStart={startDrawing}
+                onTouchMove={draw}
+                onTouchEnd={stopDrawing}
+                style={{ touchAction: 'none', display: 'block' }}
+              />
+              {/* Canvas overlay to show it's ready */}
+              {!isDrawing && (
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-20">
+                  <p className="text-6xl">🎨</p>
+                </div>
+              )}
+            </div>
+
+            {/* Drawing Controls */}
+            <div className="space-y-3 sm:space-y-4">
+              {/* Drawing Mode Toggle */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsEraser(false)}
+                  className={`dashboard-card flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${!isEraser
+                      ? 'text-white shadow-lg scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  style={!isEraser ? {
+                    background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
+                  } : {}}
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                  Draw
+                </button>
+                <button
+                  onClick={() => setIsEraser(true)}
+                  className={`dashboard-card flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${isEraser
+                      ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg scale-105'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Erase
+                </button>
               </div>
 
-              {/* Drawing Controls */}
-              <div className="space-y-3 sm:space-y-4">
-                {/* Drawing Mode Toggle */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setIsEraser(false)}
-                    className={`dashboard-card flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
-                      !isEraser
-                        ? 'text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                    style={!isEraser ? {
-                      background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
-                    } : {}}
-                  >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                    Draw
-                  </button>
-                  <button
-                    onClick={() => setIsEraser(true)}
-                    className={`dashboard-card flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg sm:rounded-xl font-medium transition-all transform hover:scale-105 flex items-center justify-center gap-1 sm:gap-2 ${
-                      isEraser
-                        ? 'bg-gradient-to-r from-pink-600 to-rose-600 text-white shadow-lg scale-105'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Erase
-                  </button>
-                </div>
-
-                {/* Color Palette - Only show when not erasing */}
-                {!isEraser && (
-                  <div>
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
-                      Choose Your Colors
-                    </label>
-                    <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 md:gap-2.5 justify-items-center">
-                      {colorPalette.map((colorObj) => (
-                        <button
-                          key={colorObj.color}
-                          onClick={() => setBrushColor(colorObj.color)}
-                          className={`rounded-sm sm:rounded-md transition-all ${
-                            brushColor === colorObj.color
-                              ? 'ring-2 ring-blue-500'
-                              : 'hover:ring-2 hover:ring-gray-300'
+              {/* Color Palette - Only show when not erasing */}
+              {!isEraser && (
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                    Choose Your Colors
+                  </label>
+                  <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1.5 sm:gap-2 md:gap-2.5 justify-items-center">
+                    {colorPalette.map((colorObj) => (
+                      <button
+                        key={colorObj.color}
+                        onClick={() => setBrushColor(colorObj.color)}
+                        className={`rounded-sm sm:rounded-md transition-all ${brushColor === colorObj.color
+                            ? 'ring-2 ring-blue-500'
+                            : 'hover:ring-2 hover:ring-gray-300'
                           }`}
-                          style={{ 
-                            backgroundColor: colorObj.color,
-                            width: '28px',
-                            height: '28px'
-                          }}
-                          title={colorObj.name}
-                        />
-                      ))}
-                    </div>
+                        style={{
+                          backgroundColor: colorObj.color,
+                          width: '28px',
+                          height: '28px'
+                        }}
+                        title={colorObj.name}
+                      />
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
-                {/* Eraser Info - Only show when erasing */}
-                {/* {isEraser && (
+              {/* Eraser Info - Only show when erasing */}
+              {/* {isEraser && (
                   <div className="dashboard-card bg-pink-50 border border-pink-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 text-pink-800">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -417,168 +414,167 @@ const MindCanvas = () => {
                   </div>
                 )} */}
 
-                {/* Brush Size */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {isEraser ? 'Eraser' : 'Brush'} Size: {isEraser ? brushSize * 2 : brushSize}px
-                  </label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="range"
-                      min="2"
-                      max="40"
-                      value={brushSize}
-                      onChange={(e) => setBrushSize(parseInt(e.target.value))}
-                      className={`flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer ${
-                        isEraser ? 'accent-pink-600' : 'accent-blue-600'
+              {/* Brush Size */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {isEraser ? 'Eraser' : 'Brush'} Size: {isEraser ? brushSize * 2 : brushSize}px
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="2"
+                    max="40"
+                    value={brushSize}
+                    onChange={(e) => setBrushSize(parseInt(e.target.value))}
+                    className={`flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer ${isEraser ? 'accent-pink-600' : 'accent-blue-600'
                       }`}
-                    />
-                    <div 
-                      className="rounded-full border-2"
-                      style={{ 
-                        width: `${Math.max(isEraser ? brushSize * 2 : brushSize, 20)}px`, 
-                        height: `${Math.max(isEraser ? brushSize * 2 : brushSize, 20)}px`,
-                        backgroundColor: isEraser ? '#FFFFFF' : brushColor,
-                        borderColor: isEraser ? '#EC4899' : '#D1D5DB',
-                        minWidth: '20px',
-                        minHeight: '20px',
-                        boxShadow: isEraser ? '0 0 0 1px #EC4899' : 'none'
-                      }}
-                      title={isEraser ? 'Eraser preview' : 'Brush preview'}
-                    />
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="space-y-2">
-                  <button
-                    onClick={clearCanvas}
-                    className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all transform hover:scale-105"
-                  >
-                    Clear Canvas
-                  </button>
-                  <button
-                    onClick={analyzeDrawing}
-                    disabled={isAnalyzing}
-                    className="w-full px-6 py-3 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  />
+                  <div
+                    className="rounded-full border-2"
                     style={{
-                      background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
+                      width: `${Math.max(isEraser ? brushSize * 2 : brushSize, 20)}px`,
+                      height: `${Math.max(isEraser ? brushSize * 2 : brushSize, 20)}px`,
+                      backgroundColor: isEraser ? '#FFFFFF' : brushColor,
+                      borderColor: isEraser ? '#EC4899' : '#D1D5DB',
+                      minWidth: '20px',
+                      minHeight: '20px',
+                      boxShadow: isEraser ? '0 0 0 1px #EC4899' : 'none'
                     }}
-                  >
-                    {isAnalyzing ? (
-                      <div className="flex items-center justify-center">
-                        <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                        </svg>
-                        Analyzing...
-                      </div>
-                    ) : (
-                      '✨ Reveal My Mood'
-                    )}
-                  </button>
+                    title={isEraser ? 'Eraser preview' : 'Brush preview'}
+                  />
                 </div>
               </div>
-            </div>
 
-            {/* Results Area */}
-            <div className="flex flex-col justify-center">
-              {showResult && analysis ? (
-                <div className="flex-1 space-y-6 animate-fade-in">
-                  {/* Mood Display */}
-                  <div className={`dashboard-card bg-gradient-to-br ${getMoodColor(analysis.mood)} rounded-2xl p-8 text-white shadow-xl`}>
-                    <div className="flex items-center justify-center mb-4">
-                      <span className="text-7xl">{getMoodEmoji(analysis.mood)}</span>
+              {/* Action Buttons */}
+              <div className="space-y-2">
+                <button
+                  onClick={clearCanvas}
+                  className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition-all transform hover:scale-105"
+                >
+                  Clear Canvas
+                </button>
+                <button
+                  onClick={analyzeDrawing}
+                  disabled={isAnalyzing}
+                  className="w-full px-6 py-3 text-white rounded-xl font-medium transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  style={{
+                    background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
+                  }}
+                >
+                  {isAnalyzing ? (
+                    <div className="flex items-center justify-center">
+                      <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      Analyzing...
                     </div>
-                    <h3 className="text-3xl font-bold text-center capitalize mb-2">
-                      {analysis.mood}
-                    </h3>
-                    <p className="text-lg text-center opacity-90 italic">
-                      "{analysis.moodDescription}"
-                    </p>
-                  </div>
-
-                  {/* Star Rating */}
-                  <div className="flex justify-center items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className="text-3xl"
-                        style={{
-                          color: star <= (analysis.rating || 5) ? '#FCD34D' : '#E5E7EB'
-                        }}
-                      >
-                        ★
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Analysis Details */}
-                  <div className="space-y-4">
-                    <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
-                      <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
-                        <span className="mr-2">🎨</span> Color Story
-                      </h4>
-                      <p className="text-gray-700">{analysis.colorAnalysis}</p>
-                    </div>
-
-                    <div className="dashboard-card bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100">
-                      <h4 className="font-semibold text-cyan-900 mb-2 flex items-center">
-                        <span className="mr-2">✏️</span> Stroke Energy
-                      </h4>
-                      <p className="text-gray-700">{analysis.strokeAnalysis}</p>
-                    </div>
-
-                    <div className="dashboard-card bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border border-green-100">
-                      <h4 className="font-semibold text-green-900 mb-2 flex items-center">
-                        <span className="mr-2">💡</span> Activity Suggestion
-                      </h4>
-                      <p className="text-gray-700 font-medium">{analysis.activitySuggestion}</p>
-                    </div>
-
-                    <div className="dashboard-card bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
-                      <h4 className="font-semibold text-orange-900 mb-2 flex items-center">
-                        <span className="mr-2">💙</span> A Message For You
-                      </h4>
-                      <p className="text-gray-700 italic">{analysis.encouragement}</p>
-                    </div>
-                  </div>
-
-                  {/* New Drawing Button */}
-                  <button
-                    onClick={createNewDrawing}
-                    className="w-full px-6 py-4 text-white rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg"
-                    style={{
-                      background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
-                    }}
-                  >
-                    Create Another Drawing
-                  </button>
-                </div>
-              ) : (
-                <div className="flex-1 pt-32 px-4 sm:px-6 md:px-8">
-                  <div className="text-center max-w-md space-y-6 animate-gentle-pulse mx-auto">
-                    <div className="text-6xl mb-4">🎨</div>
-                    <h3 className="text-2xl font-bold text-gray-800">
-                      Express Yourself
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      Let your emotions flow through colors and strokes. 
-                      There's no right or wrong way to draw. 
-                      When you're ready, AI will interpret the feelings behind your creation once you click <strong>Reveal My Mood button below</strong> after completing your drawing.
-                    </p>
-                    <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
-                      <p className="text-sm text-gray-700">
-                        <strong>Tip:</strong> Don't overthink it. Just draw what feels right in this moment. 
-                        Abstract shapes, colors, lines — it all tells a story.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+                  ) : (
+                    '✨ Reveal My Mood'
+                  )}
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Results Area */}
+          <div className="flex flex-col justify-center">
+            {showResult && analysis ? (
+              <div className="flex-1 space-y-6 animate-fade-in">
+                {/* Mood Display */}
+                <div className={`dashboard-card bg-gradient-to-br ${getMoodColor(analysis.mood)} rounded-2xl p-8 text-white shadow-xl`}>
+                  <div className="flex items-center justify-center mb-4">
+                    <span className="text-7xl">{getMoodEmoji(analysis.mood)}</span>
+                  </div>
+                  <h3 className="text-3xl font-bold text-center capitalize mb-2">
+                    {analysis.mood}
+                  </h3>
+                  <p className="text-lg text-center opacity-90 italic">
+                    "{analysis.moodDescription}"
+                  </p>
+                </div>
+
+                {/* Star Rating */}
+                <div className="flex justify-center items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className="text-3xl"
+                      style={{
+                        color: star <= (analysis.rating || 5) ? '#FCD34D' : '#E5E7EB'
+                      }}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+
+                {/* Analysis Details */}
+                <div className="space-y-4">
+                  <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+                    <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                      <span className="mr-2">🎨</span> Color Story
+                    </h4>
+                    <p className="text-gray-700">{analysis.colorAnalysis}</p>
+                  </div>
+
+                  <div className="dashboard-card bg-gradient-to-br from-cyan-50 to-teal-50 rounded-xl p-6 border border-cyan-100">
+                    <h4 className="font-semibold text-cyan-900 mb-2 flex items-center">
+                      <span className="mr-2">✏️</span> Stroke Energy
+                    </h4>
+                    <p className="text-gray-700">{analysis.strokeAnalysis}</p>
+                  </div>
+
+                  <div className="dashboard-card bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-6 border border-green-100">
+                    <h4 className="font-semibold text-green-900 mb-2 flex items-center">
+                      <span className="mr-2">💡</span> Activity Suggestion
+                    </h4>
+                    <p className="text-gray-700 font-medium">{analysis.activitySuggestion}</p>
+                  </div>
+
+                  <div className="dashboard-card bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
+                    <h4 className="font-semibold text-orange-900 mb-2 flex items-center">
+                      <span className="mr-2">💙</span> A Message For You
+                    </h4>
+                    <p className="text-gray-700 italic">{analysis.encouragement}</p>
+                  </div>
+                </div>
+
+                {/* New Drawing Button */}
+                <button
+                  onClick={createNewDrawing}
+                  className="w-full px-6 py-4 text-white rounded-xl font-medium transition-all transform hover:scale-105 shadow-lg"
+                  style={{
+                    background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)'
+                  }}
+                >
+                  Create Another Drawing
+                </button>
+              </div>
+            ) : (
+              <div className="flex-1 pt-32 px-4 sm:px-6 md:px-8">
+                <div className="text-center max-w-md space-y-6 animate-gentle-pulse mx-auto">
+                  <div className="text-6xl mb-4">🎨</div>
+                  <h3 className="text-2xl font-bold text-gray-800">
+                    Express Yourself
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed">
+                    Let your emotions flow through colors and strokes.
+                    There's no right or wrong way to draw.
+                    When you're ready, AI will interpret the feelings behind your creation once you click <strong>Reveal My Mood button below</strong> after completing your drawing.
+                  </p>
+                  <div className="dashboard-card bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100">
+                    <p className="text-sm text-gray-700">
+                      <strong>Tip:</strong> Don't overthink it. Just draw what feels right in this moment.
+                      Abstract shapes, colors, lines - it all tells a story.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+      </div>
     </div>
   );
 };

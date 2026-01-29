@@ -33,23 +33,23 @@ const HeroSection = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-2 sm:py-3">
             {/* Logo */}
-              <div className="flex items-center space-x-0.5 sm:space-x-1">
-                <img 
-                  src="/logo.png" 
-                  alt="Zephyra Logo" 
-                  className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
-                />
-                <h1 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>Zephyra</h1>
-              </div>
-            
+            <div className="flex items-center space-x-0.5 sm:space-x-1">
+              <img
+                src="/logo.png"
+                alt="Zephyra Logo"
+                className="w-12 h-10 sm:w-16 sm:h-14 object-contain"
+              />
+              <h1 className="text-xl sm:text-2xl font-bold" style={{ color: '#1E252B' }}>Zephyra</h1>
+            </div>
+
             {/* Navigation Items */}
             <div className="flex items-center space-x-3 sm:space-x-6 md:space-x-8">
               <a href="#features" onClick={(e) => handleSmoothScroll(e, 'features')} className="hidden sm:inline text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" style={{ color: '#475569' }}>Features</a>
               <a href="#about" onClick={(e) => handleSmoothScroll(e, 'about')} className="hidden md:inline text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" style={{ color: '#475569' }}>About Us</a>
-              <button 
+              <button
                 onClick={() => navigate('/auth/login')}
                 className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:shadow-lg"
-                style={{ 
+                style={{
                   background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)',
                   color: 'white'
                 }}
@@ -76,7 +76,7 @@ const HeroSection = () => {
                   </span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-light leading-relaxed" style={{ color: '#2C363E' }}>
-                  Check in with your mood, talk to our chatbot, or get crisis help — all in one place.
+                  Check in with your mood, talk to our chatbot, or get crisis help - all in one place.
                 </p>
               </div>
 
@@ -85,7 +85,7 @@ const HeroSection = () => {
                 <button
                   onClick={handleGetStarted}
                   className="group relative inline-flex items-center justify-center px-6 sm:px-10 md:px-12 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl font-semibold text-white rounded-xl sm:rounded-2xl shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-opacity-50 w-full sm:w-auto"
-                  style={{ 
+                  style={{
                     background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)',
                     boxShadow: '0 20px 40px rgba(60, 145, 197, 0.4)'
                   }}
@@ -96,16 +96,16 @@ const HeroSection = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </button>
-                
+
                 {/* Powered by Gemini */}
                 <div className="mt-3 sm:mt-4 flex justify-center sm:justify-start">
-                  <div className="dashboard-card flex items-center space-x-1 sm:space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-3 sm:px-6 py-1.5 sm:py-2 shadow-lg border border-white/20">                 
+                  <div className="dashboard-card flex items-center space-x-1 sm:space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-3 sm:px-6 py-1.5 sm:py-2 shadow-lg border border-white/20">
                     <span className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
                       Powered by
                     </span>
-                    <img 
-                      src="/Google_Gemini_logo.png" 
-                      alt="Gemini AI" 
+                    <img
+                      src="/Google_Gemini_logo.png"
+                      alt="Gemini AI"
                       className="w-6 sm:w-10 object-contain"
                     />
                     <span className="text-xs sm:text-sm font-semibold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
@@ -162,7 +162,7 @@ const HeroSection = () => {
                     <div className="absolute inset-0 rounded-full opacity-20 animate-pulse" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)' }}></div>
                     <div className="absolute inset-4 rounded-full opacity-30 animate-pulse" style={{ background: 'linear-gradient(135deg, #5A7D95 0%, #77A3B8 100%)', animationDelay: '1s' }}></div>
                     <div className="absolute inset-8 rounded-full opacity-40 animate-pulse" style={{ background: 'linear-gradient(135deg, #77A3B8 0%, #3C91C5 100%)', animationDelay: '2s' }}></div>
-                    
+
                     {/* Floating Elements */}
                     <div className="absolute top-8 left-8 w-16 h-16 rounded-full opacity-60 animate-bounce" style={{ background: 'linear-gradient(135deg, #3C91C5 0%, #5A7D95 100%)', animationDuration: '3s' }}></div>
                     <div className="absolute top-16 right-12 w-12 h-12 rounded-full opacity-50 animate-bounce" style={{ background: 'linear-gradient(135deg, #5A7D95 0%, #77A3B8 100%)', animationDuration: '4s', animationDelay: '1s' }}></div>
@@ -196,7 +196,7 @@ const HeroSection = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {/* Feature Cards */}
             <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-              <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)' }}>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#1976D2" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5a2.25 2.25 0 012.25 2.25v7.5" />
                 </svg>
@@ -206,17 +206,17 @@ const HeroSection = () => {
             </div>
 
             <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-              <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)' }}>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#F57C00" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
                 </svg>
               </div>
               <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3 text-center" style={{ color: '#1E252B' }}>Personalized Activities</h3>
-              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}> Quick Chat with <strong>Gemini</strong> anytime, journal your reflections and receive thoughtful AI insights and practice breathing exercises — all personalized for your wellness journey.</p>
+              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}> Quick Chat with <strong>Gemini</strong> anytime, journal your reflections and receive thoughtful AI insights and practice breathing exercises - all personalized for your wellness journey.</p>
             </div>
 
             <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-              <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)' }}>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E8F5E8 0%, #C8E6C9 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#2E7D32" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
                 </svg>
@@ -226,35 +226,35 @@ const HeroSection = () => {
             </div>
 
             <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-              <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)' }}>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#E65100" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                 </svg>
               </div>
               <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3 text-center" style={{ color: '#1E252B' }}>Anonymous Community Forum</h3>
-              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Share without fear. Connect with real people who understand, heal together — completely anonymously. <strong>Gemini</strong> acts as a <strong>moderator</strong> & keeps every conversation safe and judgment-free.</p>
+              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Share without fear. Connect with real people who understand, heal together - completely anonymously. <strong>Gemini</strong> acts as a <strong>moderator</strong> & keeps every conversation safe and judgment-free.</p>
             </div>
 
             <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
               <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #F3E5F5 0%, #E1BEE7 100%)' }}>
-                <img 
-                  src="/Google_Gemini_logo.png" 
-                  alt="Gemini AI" 
+                <img
+                  src="/Google_Gemini_logo.png"
+                  alt="Gemini AI"
                   className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 object-contain"
                 />
               </div>
               <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3 text-center" style={{ color: '#1E252B' }}>Powered by Gemini & Vertex AI</h3>
-              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Every feature enhanced by <strong>Google's</strong> most advanced <strong>AI</strong> technologies — <strong>Gemini</strong> for intelligent <strong>conversations</strong> and insights, <strong>Imagen-3</strong> for stunning <strong>visuals</strong>, <strong>Lyria</strong> for personalized therapeutic <strong>music</strong>.</p>
+              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Every feature enhanced by <strong>Google's</strong> most advanced <strong>AI</strong> technologies - <strong>Gemini</strong> for intelligent <strong>conversations</strong> and insights, <strong>Imagen-3</strong> for stunning <strong>visuals</strong>, <strong>Lyria</strong> for personalized therapeutic <strong>music</strong>.</p>
             </div>
 
             <div className="dashboard-card group p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl backdrop-blur-sm border border-white/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-2" style={{ background: 'rgba(255, 255, 255, 0.8)' }}>
-              <div  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)' }}>
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4 mx-auto" style={{ background: 'linear-gradient(135deg, #E0F2F1 0%, #B2DFDB 100%)' }}>
                 <svg className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8" fill="none" stroke="#00695C" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                 </svg>
               </div>
               <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-2 sm:mb-3 text-center" style={{ color: '#1E252B' }}>Privacy First</h3>
-              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Built on <strong>Google Firebase</strong> for <strong>anonymous authentication</strong> — no personal info required. Your data is encrypted, forum interactions are pseudonymous, and your identity stays protected.</p>
+              <p className="text-xs sm:text-sm font-light text-center" style={{ color: '#475569' }}>Built on <strong>Google Firebase</strong> for <strong>anonymous authentication</strong> - no personal info required. Your data is encrypted, forum interactions are pseudonymous, and your identity stays protected.</p>
             </div>
           </div>
         </div>
@@ -279,8 +279,8 @@ const HeroSection = () => {
           </div>
 
           {/* Team Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-6">
-            
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-6">
+
             {/* Team Member 1 - AI/ML Engineer */}
             <div className="group relative flex justify-center items-center">
               <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
@@ -288,8 +288,8 @@ const HeroSection = () => {
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-purple-500/30">
-                      <img 
-                        src="/Sarthak.jpeg" 
+                      <img
+                        src="/Sarthak.jpeg"
                         alt="Sarthak"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -304,20 +304,20 @@ const HeroSection = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Name */}
                 <h3 className="text-lg sm:text-xl font-bold text-center mb-2" style={{ color: '#1E252B' }}>Sarthak</h3>
-                
+
                 {/* Role */}
                 <div className="mb-3 sm:mb-4 text-center">
                   <p className="text-xs sm:text-sm font-semibold text-center px-3 py-1.5 rounded-full mx-auto inline-block" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
                     AI/ML Engineer
                   </p>
                 </div>
-                
+
                 {/* Description */}
                 <p className="text-xs sm:text-sm text-center font-light leading-relaxed flex-grow" style={{ color: '#475569' }}>
-                  Designing AI architectures with Gemini, Imagen-3 & Lyria—creating intelligent, empathetic mental wellness experiences
+                  Designing AI architectures with Gemini, Imagen-3 & Lyria-creating intelligent, empathetic mental wellness experiences
                 </p>
               </div>
             </div>
@@ -328,8 +328,8 @@ const HeroSection = () => {
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-pink-500/30">
-                      <img 
-                        src="/Anshika.jpeg" 
+                      <img
+                        src="/Anshika.jpeg"
                         alt="Anshika"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -351,7 +351,7 @@ const HeroSection = () => {
                   </p>
                 </div>
                 <p className="text-xs sm:text-sm text-center font-light leading-relaxed flex-grow" style={{ color: '#475569' }}>
-                  Crafting beautiful, responsive UIs with React.js and building robust backend services—bringing wellness to life
+                  Crafting beautiful, responsive UIs with React.js and implemented AI moderation with Gemini and canvas analysis for safe community interactions
                 </p>
               </div>
             </div>
@@ -362,8 +362,8 @@ const HeroSection = () => {
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-blue-500/30">
-                      <img 
-                        src="/Anuj.jpeg" 
+                      <img
+                        src="/Anuj.jpeg"
                         alt="Anuj"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -385,7 +385,7 @@ const HeroSection = () => {
                   </p>
                 </div>
                 <p className="text-xs sm:text-sm text-center font-light leading-relaxed flex-grow" style={{ color: '#475569' }}>
-                  Building scalable REST APIs with Node.js & Express—powering personalized therapy sessions and mood analytics
+                  Building scalable REST APIs with Node.js & Express-powering personalized therapy sessions and mood analytics
                 </p>
               </div>
             </div>
@@ -396,8 +396,8 @@ const HeroSection = () => {
                 <div className="flex justify-center mb-4 sm:mb-6">
                   <div className="relative">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-green-500/30">
-                      <img 
-                        src="/Shantanu.jpeg" 
+                      <img
+                        src="/Shantanu.jpeg"
                         alt="Shantanu"
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -419,41 +419,7 @@ const HeroSection = () => {
                   </p>
                 </div>
                 <p className="text-xs sm:text-sm text-center font-light leading-relaxed flex-grow" style={{ color: '#475569' }}>
-                  Developing secure Firebase authentication and real-time forum features with Socket.IO—keeping users safe & connected
-                </p>
-              </div>
-            </div>
-
-            {/* Team Member 5 - AI/ML Engineer */}
-            <div className="group relative flex justify-center items-center">
-              <div className="dashboard-card bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 border border-white/40 flex flex-col justify-center items-center w-full min-h-[280px] sm:min-h-[380px]">
-                <div className="flex justify-center mb-4 sm:mb-6">
-                  <div className="relative">
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full shadow-xl transform group-hover:scale-110 transition-transform duration-300 overflow-hidden ring-4 ring-orange-500/30">
-                      <img 
-                        src="/Prateek.jpeg" 
-                        alt="Prateek"
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.parentElement.style.background = 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)';
-                          e.target.parentElement.innerHTML = '<span class="flex items-center justify-center text-4xl sm:text-5xl text-white w-full h-full">🧠</span>';
-                        }}
-                      />
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center bg-white shadow-md">
-                      <span className="text-lg sm:text-xl">🔬</span>
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-center mb-2" style={{ color: '#1E252B' }}>Prateek</h3>
-                <div className="mb-3 sm:mb-4 text-center">
-                  <p className="text-xs sm:text-sm font-semibold text-center px-3 py-1.5 rounded-full mx-auto inline-block" style={{ background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', color: 'white' }}>
-                    AI/ML Engineer
-                  </p>
-                </div>
-                <p className="text-xs sm:text-sm text-center font-light leading-relaxed flex-grow" style={{ color: '#475569' }}>
-                  Implementing AI moderation with Gemini and canvas analysis—ensuring safe, supportive community interactions
+                  Developing secure Firebase authentication and real-time forum features with Socket.IO-keeping users safe & connected
                 </p>
               </div>
             </div>
@@ -467,16 +433,16 @@ const HeroSection = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
             <div className="flex items-center space-x-4 sm:space-x-6">
-              <button 
-                onClick={() => setShowPrivacyModal(true)} 
-                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" 
+              <button
+                onClick={() => setShowPrivacyModal(true)}
+                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
                 style={{ color: '#475569' }}
               >
                 Privacy
               </button>
-              <button 
-                onClick={() => setShowTermsModal(true)} 
-                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" 
+              <button
+                onClick={() => setShowTermsModal(true)}
+                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
                 style={{ color: '#475569' }}
               >
                 Terms and Conditions
@@ -492,9 +458,9 @@ const HeroSection = () => {
       {/* Privacy Policy Modal */}
       {showPrivacyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowPrivacyModal(false)}>
-          <div 
-            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar" 
-            style={{ 
+          <div
+            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar"
+            style={{
               background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(60, 145, 197, 0.3) transparent'
@@ -510,7 +476,7 @@ const HeroSection = () => {
 
             <div className="relative z-10 p-6 sm:p-10">
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setShowPrivacyModal(false)}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-lg transition-all duration-300 hover:rotate-90"
               >
@@ -537,7 +503,7 @@ const HeroSection = () => {
                 <section>
                   <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>What We Collect</h3>
                   <ul className="list-disc list-inside space-y-2 font-light leading-relaxed">
-                    <li><strong>Anonymous User Data:</strong> We use Firebase Anonymous Authentication—no email, contact information, or personal information required.</li>
+                    <li><strong>Anonymous User Data:</strong> We use Firebase Anonymous Authentication-no email, contact information, or personal information required.</li>
                     <li><strong>Chat Data:</strong> Your conversations with our AI chatbot powered by <strong>Gemini</strong> are stored securely to provide personalized support.</li>
                     <li><strong>Mood Canvas Drawings:</strong> Visual expressions analyzed by <strong>Gemini Vision</strong> to understand your emotional state.</li>
                     <li><strong>Reflection Entries:</strong> Optional daily reflections to help you track your mental wellness journey.</li>
@@ -576,9 +542,9 @@ const HeroSection = () => {
       {/* Terms and Conditions Modal */}
       {showTermsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
-          <div 
-            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar" 
-            style={{ 
+          <div
+            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar"
+            style={{
               background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(60, 145, 197, 0.3) transparent'
@@ -594,7 +560,7 @@ const HeroSection = () => {
 
             <div className="relative z-10 p-6 sm:p-10">
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setShowTermsModal(false)}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-lg transition-all duration-300 hover:rotate-90"
               >

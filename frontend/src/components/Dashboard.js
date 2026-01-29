@@ -651,11 +651,10 @@ const Dashboard = () => {
           {/* Support Forum */}
           <div
             id="support-forum-section"
-            className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
-              highlightedCard === "support-forum"
+            className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${highlightedCard === "support-forum"
                 ? "border-cyan-400 shadow-2xl ring-4 ring-cyan-300/50 animate-pulse"
                 : "border-white/40 hover:shadow-xl"
-            }`}
+              }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             {/* Info Icon with Tooltip */}
@@ -749,11 +748,10 @@ const Dashboard = () => {
           {/* Mind Canvas */}
           <div
             id="mind-canvas-section"
-            className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${
-              highlightedCard === "mind-canvas"
+            className={`dashboard-card group p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 hover:-translate-y-2 relative scroll-mt-8 ${highlightedCard === "mind-canvas"
                 ? "border-blue-400 shadow-2xl ring-4 ring-blue-300/50 animate-pulse"
                 : "border-white/40 hover:shadow-xl"
-            }`}
+              }`}
             style={{ background: "rgba(255, 255, 255, 0.8)" }}
           >
             {/* Info Icon with Tooltip */}
@@ -1056,8 +1054,8 @@ const Dashboard = () => {
                       {moodHistory[moodHistory.length - 1].note
                         ? moodHistory[moodHistory.length - 1].note.length > 30
                           ? `${moodHistory[
-                              moodHistory.length - 1
-                            ].note.substring(0, 30)}...`
+                            moodHistory.length - 1
+                          ].note.substring(0, 30)}...`
                           : moodHistory[moodHistory.length - 1].note
                         : ""}
                     </span>
@@ -1325,9 +1323,8 @@ const Dashboard = () => {
         {/* Companion Robot Button */}
         <button
           onClick={() => setShowCompanionTooltip(!showCompanionTooltip)}
-          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center relative group ${
-            companionActive ? "bg-cyan-700" : "bg-gray-600"
-          }`}
+          className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 flex items-center justify-center relative group ${companionActive ? "bg-cyan-700" : "bg-gray-600"
+            }`}
           style={{
             color: "white",
             animation: companionActive
@@ -1564,16 +1561,16 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
             <div className="flex items-center space-x-4 sm:space-x-6">
-              <button 
-                onClick={() => setShowPrivacyModal(true)} 
-                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" 
+              <button
+                onClick={() => setShowPrivacyModal(true)}
+                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
                 style={{ color: '#475569' }}
               >
                 Privacy
               </button>
-              <button 
-                onClick={() => setShowTermsModal(true)} 
-                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer" 
+              <button
+                onClick={() => setShowTermsModal(true)}
+                className="text-xs sm:text-sm font-medium hover:opacity-80 transition-opacity cursor-pointer"
                 style={{ color: '#475569' }}
               >
                 Terms and Conditions
@@ -1589,9 +1586,9 @@ const Dashboard = () => {
       {/* Privacy Policy Modal */}
       {showPrivacyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowPrivacyModal(false)}>
-          <div 
-            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar" 
-            style={{ 
+          <div
+            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar"
+            style={{
               background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(60, 145, 197, 0.3) transparent'
@@ -1607,7 +1604,7 @@ const Dashboard = () => {
 
             <div className="relative z-10 p-6 sm:p-10">
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setShowPrivacyModal(false)}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-lg transition-all duration-300 hover:rotate-90"
               >
@@ -1634,7 +1631,7 @@ const Dashboard = () => {
                 <section>
                   <h3 className="text-lg sm:text-xl font-bold mb-2" style={{ color: '#1E252B' }}>What We Collect</h3>
                   <ul className="list-disc list-inside space-y-2 font-light leading-relaxed">
-                    <li><strong>Anonymous User Data:</strong> We use Firebase Anonymous Authentication—no email, contact information, or personal information required.</li>
+                    <li><strong>Anonymous User Data:</strong> We use Firebase Anonymous Authentication-no email, contact information, or personal information required.</li>
                     <li><strong>Chat Data:</strong> Your conversations with our AI chatbot powered by <strong>Gemini</strong> are stored securely to provide personalized support.</li>
                     <li><strong>Mood Canvas Drawings:</strong> Visual expressions analyzed by <strong>Gemini Vision</strong> to understand your emotional state.</li>
                     <li><strong>Reflection Entries:</strong> Optional daily reflections to help you track your mental wellness journey.</li>
@@ -1673,9 +1670,9 @@ const Dashboard = () => {
       {/* Terms and Conditions Modal */}
       {showTermsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setShowTermsModal(false)}>
-          <div 
-            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar" 
-            style={{ 
+          <div
+            className="relative max-w-3xl w-full max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl custom-scrollbar"
+            style={{
               background: 'linear-gradient(135deg, #E8F4FD 0%, #D1E7DD 50%, #A8DADC 100%)',
               scrollbarWidth: 'thin',
               scrollbarColor: 'rgba(60, 145, 197, 0.3) transparent'
@@ -1691,7 +1688,7 @@ const Dashboard = () => {
 
             <div className="relative z-10 p-6 sm:p-10">
               {/* Close Button */}
-              <button 
+              <button
                 onClick={() => setShowTermsModal(false)}
                 className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center bg-white/80 hover:bg-white shadow-lg transition-all duration-300 hover:rotate-90"
               >
