@@ -16,7 +16,7 @@ async function retryGeminiCall(apiCall, maxRetries = 3, baseDelay = 1000) {
       if (attempt === maxRetries) {
         throw error;
       }
-      
+
       if (error.status === 503 || error.status === 429 || error.status === 500) {
         const delay = baseDelay * Math.pow(2, attempt - 1);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -38,7 +38,7 @@ router.post('/analyze', async (req, res) => {
 
     // Get user context for personalized analysis
     const user = await User.findOne({ firebaseUid, isActive: true });
-    
+
     // Extract base64 data (remove data:image/png;base64, prefix if present)
     const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
 
@@ -90,10 +90,9 @@ Be honest in your assessment, but be encouraging - give at least 3 stars unless 
 
 Be empathetic, insightful, and supportive. Focus on emotional resonance, not technical art critique.`;
 
-    // Call Gemini Vision API with the image
     const result = await retryGeminiCall(() =>
       genAI.models.generateContent({
-        model: "gemini-2.0-flash-exp",
+        model: "gemini-2.5-flash-lite",
         contents: [
           {
             parts: [
@@ -113,7 +112,7 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
         }
       })
     );
-    
+
     const responseText = result.candidates[0].content.parts[0].text;
 
     // Parse the JSON response
@@ -157,9 +156,13 @@ Be empathetic, insightful, and supportive. Focus on emotional resonance, not tec
     });
 
   } catch (error) {
-    res.status(500).json({ 
+    console.error('=== Canvas Analysis Error ===');
+    console.error('Error message:', error.message);
+    console.error('Error status:', error.status);
+    console.error('Full error:', JSON.stringify(error, null, 2));
+    res.status(500).json({
       error: 'Failed to analyze canvas drawing',
-      details: error.message 
+      details: error.message
     });
   }
 });
@@ -171,7 +174,7 @@ router.get('/history/:firebaseUid', async (req, res) => {
     const { limit = 10 } = req.query;
 
     const user = await User.findOne({ firebaseUid, isActive: true });
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
